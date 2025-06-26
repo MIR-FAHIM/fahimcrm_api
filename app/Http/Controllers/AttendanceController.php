@@ -152,7 +152,7 @@ public function updateAttendance(Request $request)
 
             return response()->json([
                 'status'=>'success',
-                'message' => 'Checked out successfully!', 
+                'message' => 'Checked out successfully!!', 
                 'attendance' => $attendance], 200);
 
         } catch (\Exception $e) {
@@ -328,7 +328,7 @@ public function dashboardAttendanceReport(Request $request)
 
         // Calculate absent count: Total users - Attendance count today
         $absentCount = $totalUsersCount - $attendanceCountToday;
-
+       
         // 3. Count late arrivals: Those who are late (is_late = true)
         $lateCount = Attendance::where('is_late', 1)
             ->whereDate('check_in_time', $today)  // Check if check_in_time is today
@@ -349,6 +349,7 @@ public function dashboardAttendanceReport(Request $request)
         return response()->json([
             'status' => 'success',
             'data' => [
+                'present' => $absentCount,
                 'absent_count' => $absentCount,
                 'late_count' => $lateCount,
                 'total_working_hours' => $totalWorkingHours,  // In minutes

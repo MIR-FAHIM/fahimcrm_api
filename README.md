@@ -66,13 +66,9 @@ again
 -----}
 <!-- if you want to add a list of rows from mysql database -- select phpmyadmin - select a database - go sql tab and paste like 
 
-INSERT INTO designations (designation_name, isActive, created_at, updated_at) VALUES
-('CEO', true, NOW(), NOW()),
-('Managing Director', true, NOW(), NOW()),
-('Director', true, NOW(), NOW()),
-('General Manager', true, NOW(), NOW()),
-('Deputy General Manager', true, NOW(), NOW()),
-('Assistant General Manager', true, NOW(), NOW()), -->
+INSERT INTO industry_types (industry_type_name	, is_active, created_at, updated_at) VALUES
+('Warehouse', true, NOW(), NOW()),
+ -->
 
 
 hostinger
