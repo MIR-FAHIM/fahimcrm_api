@@ -76,6 +76,11 @@ class DepartmentController extends Controller
     public function getDepartmentsWithEmp()
     {
         try {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'i am here',
+               
+            ], 200);
             // Retrieve all departments
             $departments = Department::with('user', 'tasks')->get();
             $departments = $departments->map(function ($department) {
