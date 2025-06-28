@@ -84,9 +84,9 @@ class DepartmentController extends Controller
                 return [
                     'id' => $department->id,
                     'department_name' => $department->department_name,
-                    'employee_count' => $department->users->count(),
-                   // 'task_count' => $department->tasks->count(),
-                    'users' => $department->users,
+                    'employee_count' => $department->user->count(),
+                   'task_count' => $department->tasks->count(),
+                    'users' => $department->user,
                     // Optionally, include tasks or other info here
                 ];
             });
