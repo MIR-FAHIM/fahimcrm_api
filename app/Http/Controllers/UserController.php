@@ -398,7 +398,7 @@ class UserController extends Controller
             $user = User::findOrFail($request->user_id);
 
             // Dynamically update the user attributes
-            $fillable = ['name', 'email', 'phone', 'address', 'birthdate', 'role_id', 'department_id', 'designation_id', 'isActive', 'photo', 'bio', 'fcm_token', 'app_token'];
+            $fillable = ['name', 'email', 'phone', 'address', 'birthdate', 'role_id', 'department_id', 'designation_id', 'isActive', 'photo', 'bio', 'fcm_token', 'app_token', 'start_hour', 'start_min'];
 
             foreach ($fillable as $field) {
                 if ($request->has($field)) {
