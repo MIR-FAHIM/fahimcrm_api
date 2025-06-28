@@ -31,7 +31,7 @@ class TasksController extends Controller
     public function getAllTask()
     {
         try {
-            $tasks = Tasks::with('taskType', 'project', 'priority', 'creator', 'status', 'assignedPersons')->get();; // Get all tasks
+            $tasks = Tasks::with('taskType', 'project', 'priority', 'creator', 'status', 'assignedPersons')->orderBy('created_at', 'desc')->get();// Get all tasks
 
             return response()->json([
                 'status' => 'success',
