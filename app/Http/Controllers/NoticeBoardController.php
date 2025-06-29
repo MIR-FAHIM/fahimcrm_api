@@ -25,6 +25,58 @@ class NoticeBoardController extends Controller
         }
     }
 
+    public function updateNotice(Request $request)
+{
+    try {
+        $notice = NoticeBoard::find($request->id);
+
+        if (!$notice) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Notice not found',
+            ]);
+        }
+
+        $notice->update($request->all());
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Notice updated successfully',
+            'data' => $notice,
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'failed',
+            'error' => $e->getMessage(),
+        ]);
+    }
+}
+public function deleteNotice(Request $request)
+{
+    try {
+        $notice = NoticeBoard::find($request->id);
+
+        if (!$notice) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Notice not found',
+            ]);
+        }
+
+        $notice->delete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Notice deleted successfully',
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'failed',
+            'error' => $e->getMessage(),
+        ]);
+    }
+}
+
     public function addNotice(Request $request)
     {
         try {
@@ -54,4 +106,5 @@ class NoticeBoardController extends Controller
             ]);
         }
     }
+    
 }

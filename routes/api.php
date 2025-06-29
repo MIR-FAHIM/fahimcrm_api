@@ -318,7 +318,8 @@ Route::get('/module/permission/{id}', [ModulepermissionController::class, 'getPe
 // NoticeBoardController  ------------- 
 Route::post('/notice/add', [NoticeBoardController::class, 'addNotice']);
 Route::get('/notice/all', [NoticeBoardController::class, 'getAllNotices']);
-
+Route::post('/delete-notice', [NoticeBoardController::class, 'deleteNotice']);
+Route::post('/update-notice', [NoticeBoardController::class, 'updateNotice']);
 
 
 //   FeatureListController
