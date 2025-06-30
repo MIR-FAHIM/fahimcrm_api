@@ -68,18 +68,18 @@ class TaskFollowupController extends Controller
         ], 200);
     }
 
-    public function updateTaskFollowup(Request $request)
+public function updateTaskFollowup(Request $request)
 {
     try {
-        // Validate the request
+        // Validate only followup_id as required
         $validator = Validator::make($request->all(), [
-            'task_id' => 'required|exists:tasks,id',
-            'followup_id' => 'required|exists:tasks,id',
-            'followup_title' => 'required|string|max:255',
-            'followup_details' => 'required|string',
-            'type' => 'required|string|max:100',
-            'status' => 'required|string|max:50',
-            'created_by' => 'required|exists:users,id',
+            'followup_id' => 'required|exists:task_followups,id',
+            'task_id' => 'sometimes|exists:tasks,id',
+            'followup_title' => 'sometimes|string|max:255',
+            'followup_details' => 'sometimes|string',
+            'type' => 'sometimes|string|max:100',
+            'status' => 'sometimes|string|max:50',
+            'created_by' => 'sometimes|exists:users,id',
         ]);
 
         if ($validator->fails()) {
@@ -96,15 +96,17 @@ class TaskFollowupController extends Controller
             ], 404);
         }
 
-        // Update fields
-        $followup->update([
-            'task_id' => $request->task_id,
-            'followup_title' => $request->followup_title,
-            'followup_details' => $request->followup_details,
-            'type' => $request->type,
-            'status' => $request->status,
-            'created_by' => $request->created_by,
+        // Only update the fields provided in the request
+        $updatableFields = $request->only([
+            'task_id',
+            'followup_title',
+            'followup_details',
+            'type',
+            'status',
+            'created_by'
         ]);
+
+        $followup->update($updatableFields);
 
         return response()->json([
             'status' => 'success',
