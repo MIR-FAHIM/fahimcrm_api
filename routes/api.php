@@ -130,7 +130,7 @@ Route::post('/assign-task', [TaskAssignedPersonsController::class, 'assignEmploy
 Route::get('/get-assigned-task/{id}', [TaskAssignedPersonsController::class, 'getAssignedTaskByUserId']);
 Route::post('/task/images/add', [TasksController::class, 'addTaskMultipleImages']);
 Route::get('/task/images/{task_id}', [TasksController::class, 'getTaskImagesById']);
-Route::delete('/task/image/{id}', [TasksController::class, 'removeTaskImage']);
+Route::delete('/delete-task-image/{id}', [TasksController::class, 'removeTaskImage']);
 
 //task activity 
 Route::post('/add-task-activity', [TaskActivityController::class, 'addTaskActivity']);
