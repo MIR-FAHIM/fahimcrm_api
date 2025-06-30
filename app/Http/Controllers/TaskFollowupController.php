@@ -67,4 +67,57 @@ class TaskFollowupController extends Controller
             'data' => $followups
         ], 200);
     }
+
+    public function updateTaskFollowup(Request $request)
+{
+    try {
+        // Validate the request
+        $validator = Validator::make($request->all(), [
+            'task_id' => 'required|exists:tasks,id',
+            'followup_id' => 'required|exists:tasks,id',
+            'followup_title' => 'required|string|max:255',
+            'followup_details' => 'required|string',
+            'type' => 'required|string|max:100',
+            'status' => 'required|string|max:50',
+            'created_by' => 'required|exists:users,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        // Find the follow-up entry
+        $followup = TaskFollowup::find($request->followup_id);
+
+        if (!$followup) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Follow-up not found.'
+            ], 404);
+        }
+
+        // Update fields
+        $followup->update([
+            'task_id' => $request->task_id,
+            'followup_title' => $request->followup_title,
+            'followup_details' => $request->followup_details,
+            'type' => $request->type,
+            'status' => $request->status,
+            'created_by' => $request->created_by,
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Task follow-up updated successfully!',
+            'data' => $followup
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'An error occurred while updating follow-up.',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
+
 }

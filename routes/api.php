@@ -137,6 +137,7 @@ Route::post('/add-task-activity', [TaskActivityController::class, 'addTaskActivi
 Route::get('/get-task-activitiesByTaskId/{id}', [TaskActivityController::class, 'getTaskActivitiesByTaskId']);
 //and follow up
 Route::post('/add-task-followup', [TaskFollowupController::class, 'addTaskFollowup']);
+Route::post('/update-task-followup', [TaskFollowupController::class, 'updateTaskFollowup']);
 Route::get('/get-task-followupsByTaskId/{id}', [TaskFollowupController::class, 'getTaskFollowupsByTaskId']);
 
 Route::post('/send-notification', [NotificationController::class, 'sendNotification']);
