@@ -517,35 +517,44 @@ public function getTaskByUserId($userId)
 
 public function addTaskMultipleImages(Request $request)
 {
-    $request->validate([
-        'task_id' => 'required|exists:tasks,id',
-        'images' => 'required|array',
-        'images.*' => 'image|mimes:jpeg,png,jpg,webp|max:2048',
-        'note' => 'nullable|string',
-    ]);
-
-    $savedImages = [];
-
-    foreach ($request->file('images') as $file) {
-        $path = $file->store('task_images', 'public');
-
-        $image = TaskImages::create([
-            'task_id' => $request->task_id,
-            'image_file' => $path,
-            'image_url' => asset('storage/' . $path),
-            'is_active' => true,
-            'note' => $request->note,
+    try {
+        $request->validate([
+            'task_id' => 'required|exists:tasks,id',
+            'images' => 'required|array',
+            'images.*' => 'image|mimes:jpeg,png,jpg,webp|max:2048',
+            'note' => 'nullable|string',
         ]);
 
-        $savedImages[] = $image;
-    }
+        $savedImages = [];
 
-    return response()->json([
-        'status' => 'success',
-        'message' => 'Images uploaded successfully.',
-        'data' => $savedImages,
-    ]);
+        foreach ($request->file('images') as $file) {
+            $path = $file->store('task_images', 'public');
+
+            $image = TaskImages::create([
+                'task_id' => $request->task_id,
+                'image_file' => $path,
+                'image_url' => asset('storage/' . $path),
+                'is_active' => true,
+                'note' => $request->note,
+            ]);
+
+            $savedImages[] = $image;
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Images uploaded successfully.',
+            'data' => $savedImages,
+        ]);
+    } catch (Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Failed to upload images.',
+            'error' => $e->getMessage(),
+        ], 500);
+    }
 }
+
 public function getTaskImagesById($task_id)
 {
     $images = TaskImages::where('task_id', $task_id)->where('is_active', true)->get();
