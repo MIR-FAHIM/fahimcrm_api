@@ -6,8 +6,10 @@ use App\Models\Tasks;
 use App\Models\TaskStatus;
 use App\Models\ProjectPhase;
 use App\Models\TaskAssignedPersons;
+use App\Models\TaskImages;
 use Illuminate\Http\Request;
 use Exception;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\TaskActivityController;
@@ -513,7 +515,67 @@ public function getTaskByUserId($userId)
 }
 
 
+public function addTaskMultipleImages(Request $request)
+{
+    $request->validate([
+        'task_id' => 'required|exists:tasks,id',
+        'images' => 'required|array',
+        'images.*' => 'image|mimes:jpeg,png,jpg,webp|max:2048',
+        'note' => 'nullable|string',
+    ]);
 
+    $savedImages = [];
 
-    
+    foreach ($request->file('images') as $file) {
+        $path = $file->store('task_images', 'public');
+
+        $image = TaskImages::create([
+            'task_id' => $request->task_id,
+            'image_file' => $path,
+            'image_url' => asset('storage/' . $path),
+            'is_active' => true,
+            'note' => $request->note,
+        ]);
+
+        $savedImages[] = $image;
+    }
+
+    return response()->json([
+        'status' => 'success',
+        'message' => 'Images uploaded successfully.',
+        'data' => $savedImages,
+    ]);
+}
+public function getTaskImagesById($task_id)
+{
+    $images = TaskImages::where('task_id', $task_id)->where('is_active', true)->get();
+
+    return response()->json([
+        'status' => 'success',
+        'data' => $images,
+    ]);
+}
+   public function removeTaskImage($id)
+{
+    $image = TaskImages::find($id);
+
+    if (!$image) {
+        return response()->json([
+            'status' => 'failed',
+            'message' => 'Image not found.',
+        ], 404);
+    }
+
+    // Delete file from storage
+    if ($image->image_file && Storage::disk('public')->exists($image->image_file)) {
+        Storage::disk('public')->delete($image->image_file);
+    }
+
+    $image->delete();
+
+    return response()->json([
+        'status' => 'success',
+        'message' => 'Image removed successfully.',
+    ]);
+} 
 }
