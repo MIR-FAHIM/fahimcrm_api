@@ -19,7 +19,7 @@ class FirebaseNotificationService
     public static function sendPushNotification($fcmToken, $title, $body, $data = [])
     {
         try {
-            $factory = (new Factory)->withServiceAccount(config('firebase.credentials.file'));
+            $factory = (new Factory)->withServiceAccount(config('firebase_credentials.json'));
             $messaging = $factory->createMessaging();
 
             $message = CloudMessage::withTarget('token', $fcmToken)
