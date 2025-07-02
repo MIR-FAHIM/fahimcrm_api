@@ -5,6 +5,7 @@
 /public/storage
 /storage/*.key
 /storage/pail
+/config/firebase_credintials.json
 /vendor
 .env
 .env.backup
