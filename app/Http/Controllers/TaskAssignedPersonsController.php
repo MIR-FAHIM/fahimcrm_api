@@ -7,13 +7,16 @@ use App\Models\Tasks;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\NotificationController;
+use App\Services\FirebaseNotificationService;
 class TaskAssignedPersonsController extends Controller
 {
     protected $notificationController;
 
-    public function __construct(NotificationController $notificationController)
+    protected $pushNotificationService;
+    public function __construct(NotificationController $notificationController, FirebaseNotificationService $pushNotificationService)
     {
         $this->notificationController = $notificationController;
+            $this->pushNotificationService = $pushNotificationService;
     }
     public function assignEmployeeToTask(Request $request)
     {
@@ -39,6 +42,7 @@ class TaskAssignedPersonsController extends Controller
             ]);
 
             $assignedByUser = User::find($request->assigned_by);
+            $assignedUser = User::find($request->assigned_person);
             $task = Tasks::find($request->task_id);
 
             // Generate notification subtitle dynamically using the assigned person's name
@@ -49,6 +53,17 @@ class TaskAssignedPersonsController extends Controller
                 $task->task_title, 
                 $request->assigned_person // User ID
             );
+
+                   $result = $this->pushNotificationService->sendPushNotification(
+                $assignedUser->fcm_token,
+                $title,
+                $task->task_title, 
+            );
+
+            // Handle push notification failure (optional)
+            if (!$result['success']) {
+                // Log or handle the error as needed
+            }
             return response()->json([
                 'status'=>'success',
                 'message' => 'Employee assigned successfully', 'data' => $assignment], 201);

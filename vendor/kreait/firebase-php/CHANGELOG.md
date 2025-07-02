@@ -7,6 +7,23 @@ Please read about the future of the Firebase Admin PHP SDK on the
 
 ## [Unreleased]
 
+## [7.19.0] - 2025-06-14
+
+### Added
+
+* You can now save on method call by passing a custom Firestore database name to
+  `Kreait\Firebase\Factory::createFirestore($databaseName)` instead of having to chain
+  ``::withFirestoreDatabase($databaseName)->createFirestore()``
+* It is now possible to set [live activity tokens](https://firebase.google.com/docs/cloud-messaging/ios/live-activity)
+  in Apns configs.
+* `Kreait\Firebase\Http\HttpClientOptions::withGuzzleMiddleware()` and
+  `Kreait\Firebase\Http\HttpClientOptions::withGuzzleMiddlewares()` now accept callable strings, in addition
+  to callables. ([#1004](https://github.com/kreait/firebase-php/pull/1004))
+
+### Deprecated
+
+* `Kreait\Firebase\Factory::withFirestoreDatabase()`
+
 ## [7.18.0] - 2025-03-08
 
 ### Added
@@ -311,7 +328,8 @@ See **[UPGRADE-7.0](UPGRADE-7.0.md) for more details on the changes between 6.x 
 
 https://github.com/kreait/firebase-php/blob/6.9.6/CHANGELOG.md
 
-[Unreleased]: https://github.com/kreait/firebase-php/compare/7.18.0...7.x
+[Unreleased]: https://github.com/kreait/firebase-php/compare/7.19.0...7.x
+[7.19.0]: https://github.com/kreait/firebase-php/compare/7.18.0...7.19.0
 [7.18.0]: https://github.com/kreait/firebase-php/compare/7.17.0...7.18.0
 [7.17.0]: https://github.com/kreait/firebase-php/compare/7.16.1...7.17.0
 [7.16.1]: https://github.com/kreait/firebase-php/compare/7.16.0...7.16.1

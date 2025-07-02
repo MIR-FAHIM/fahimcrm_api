@@ -49,17 +49,17 @@
         "psr/log": "^1.1|^2.0|^3.0.2"
     },
     "require-dev": {
-        "php-cs-fixer/shim": "^3.68.5",
-        "google/cloud-firestore": "^1.47.2",
+        "php-cs-fixer/shim": "^3.75.0",
+        "google/cloud-firestore": "^1.50.0",
         "phpstan/extension-installer": "^1.4.3",
-        "phpstan/phpstan": "^2.0.4",
-        "phpstan/phpstan-deprecation-rules": "^2.0.1",
-        "phpstan/phpstan-phpunit": "^2.0.3",
-        "phpunit/phpunit": "^10.5.39",
-        "rector/rector": "^2.0.3",
-        "shipmonk/composer-dependency-analyser": "^1.8.1",
-        "symfony/var-dumper": "^6.4.15 || ^7.2.0",
-        "vlucas/phpdotenv": "^5.6.1"
+        "phpstan/phpstan": "^2.1.17",
+        "phpstan/phpstan-deprecation-rules": "^2.0.3",
+        "phpstan/phpstan-phpunit": "^2.0.6",
+        "phpunit/phpunit": "^10.5.46",
+        "rector/rector": "^2.0.17",
+        "shipmonk/composer-dependency-analyser": "^1.8.3",
+        "symfony/var-dumper": "^6.4.15 || ^7.3.0",
+        "vlucas/phpdotenv": "^5.6.2"
     },
     "suggest": {
         "google/cloud-firestore": "^1.0 to use the Firestore component"
@@ -121,6 +121,9 @@
         "test-coverage": [
             "Composer\\Config::disableProcessTimeout",
             "XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-html=.build/coverage"
+        ],
+        "test-emulator": [
+            "FIREBASE_AUTH_EMULATOR_HOST=localhost:9099 FIREBASE_DATABASE_EMULATOR_HOST=localhost:9100 firebase emulators:exec --only auth,database --project beste-firebase 'vendor/bin/phpunit --group=emulator'"
         ],
         "test-units": [
             "vendor/bin/phpunit --testsuite=unit"

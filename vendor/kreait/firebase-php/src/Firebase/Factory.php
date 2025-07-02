@@ -17,7 +17,6 @@ use Google\Auth\HttpHandler\HttpHandlerFactory;
 use Google\Auth\Middleware\AuthTokenMiddleware;
 use Google\Auth\ProjectIdProviderInterface;
 use Google\Auth\SignBlobInterface;
-use Google\Cloud\Firestore\FirestoreClient;
 use Google\Cloud\Storage\StorageClient;
 use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
@@ -148,24 +147,36 @@ final class Factory
      */
     public function withServiceAccount(string|array $value): self
     {
-        $serviceAccount = $value;
-
         if (is_string($value) && str_starts_with($value, '{')) {
             try {
+                /** @var ServiceAccountShape $serviceAccount */
                 $serviceAccount = Json::decode($value, true);
             } catch (UnexpectedValueException $e) {
                 throw new InvalidArgumentException('Invalid service account: '.$e->getMessage(), $e->getCode(), $e);
             }
-        } elseif (is_string($value)) {
+
+            $factory = clone $this;
+            $factory->serviceAccount = $serviceAccount;
+
+            return $factory;
+        }
+
+        if (is_string($value)) {
             try {
+                /** @var ServiceAccountShape $serviceAccount */
                 $serviceAccount = Json::decodeFile($value, true);
+
+                $factory = clone $this;
+                $factory->serviceAccount = $serviceAccount;
+
+                return $factory;
             } catch (UnexpectedValueException $e) {
                 throw new InvalidArgumentException('Invalid service account: '.$e->getMessage(), $e->getCode(), $e);
             }
         }
 
         $factory = clone $this;
-        $factory->serviceAccount = $serviceAccount;
+        $factory->serviceAccount = $value;
 
         return $factory;
     }
@@ -229,6 +240,9 @@ final class Factory
     }
 
     /**
+     * @deprecated 7.19.0 Use `createFirestore($database)` instead
+     * @see createFirestore()
+     *
      * @param non-empty-string $database
      */
     public function withFirestoreDatabase(string $database): self
@@ -464,17 +478,18 @@ final class Factory
         return DynamicLinks::withApiClient($apiClient);
     }
 
-    public function createFirestore(): Contract\Firestore
+    /**
+     * @param non-empty-string|null $databaseName
+     */
+    public function createFirestore(?string $databaseName = null): Contract\Firestore
     {
         $config = $this->googleCloudClientConfig() + $this->firestoreClientConfig;
 
-        try {
-            $firestoreClient = new FirestoreClient($config);
-        } catch (Throwable $e) {
-            throw new RuntimeException('Unable to create a FirestoreClient: '.$e->getMessage(), $e->getCode(), $e);
+        if ($databaseName !== null) {
+            $config['database'] = $databaseName;
         }
 
-        return Firestore::withFirestoreClient($firestoreClient);
+        return Firestore::fromConfig($config);
     }
 
     public function createStorage(): Contract\Storage
@@ -705,10 +720,12 @@ final class Factory
                 return null;
             }
 
-            $this->serviceAccount = Json::decode($googleApplicationCredentials, true);
+            /** @var ServiceAccountShape $serviceAccount */
+            $serviceAccount = Json::decode($googleApplicationCredentials, true);
+
+            $this->serviceAccount = $serviceAccount;
         }
 
-        /** @phpstan-ignore return.type */
         return $this->serviceAccount;
     }
 

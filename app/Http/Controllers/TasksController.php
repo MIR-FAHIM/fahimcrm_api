@@ -13,16 +13,21 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\TaskActivityController;
-
+use App\Services\FirebaseNotificationService;
 class TasksController extends Controller
 {
     protected $notificationController;
     protected $taskActivityController;
+    protected $pushNotificationService;
 
-    public function __construct(NotificationController $notificationController, TaskActivityController $taskActivityController)
+
+ 
+   
+    public function __construct(NotificationController $notificationController, TaskActivityController $taskActivityController, FirebaseNotificationService $pushNotificationService)
     {
         $this->notificationController = $notificationController;
         $this->taskActivityController = $taskActivityController;
+        $this->pushNotificationService = $pushNotificationService;
     }
     
     /**
