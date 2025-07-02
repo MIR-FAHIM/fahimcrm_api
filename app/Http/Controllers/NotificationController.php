@@ -6,7 +6,8 @@ use App\Models\Notifications;
 use Kreait\Firebase\Factory;
 use Kreait\Firebase\Messaging\CloudMessage;
 use Kreait\Firebase\Messaging\Notification;
-
+use App\Models\User;
+use App\Services\FirebaseNotificationService;
 class NotificationController extends Controller
 
 {
@@ -91,7 +92,12 @@ class NotificationController extends Controller
             'is_seen' => false,
             'send_push' => false,
         ]);
-
+         $sentTo = User::find($user_id);
+$response = FirebaseNotificationService::sendPushNotification(
+                $sentTo->fcm_token,
+                $title,
+                $subtitle, 
+            );
         // Return the created notification
         return $notification;
     }

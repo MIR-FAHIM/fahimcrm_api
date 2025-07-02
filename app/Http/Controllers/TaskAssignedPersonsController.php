@@ -52,11 +52,7 @@ class TaskAssignedPersonsController extends Controller
                 $task->task_title, 
                 $request->assigned_person // User ID
             );
-$response = FirebaseNotificationService::sendPushNotification(
-                $assignedUser->fcm_token,
-                $title,
-                $task->task_title, 
-            );
+
           
             return response()->json([
                 'status'=>'success',
