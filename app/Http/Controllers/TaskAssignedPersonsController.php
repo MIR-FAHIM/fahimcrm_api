@@ -60,7 +60,7 @@ $response = FirebaseNotificationService::sendPushNotification(
           
             return response()->json([
                 'status'=>'success',
-                'message' => 'Employee assigned successfully', 'data' => $assignment], 201);
+                'message' => 'Employee assigned successfully', 'data' => $assignment], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'status'=>'success',
