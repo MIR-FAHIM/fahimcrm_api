@@ -23,11 +23,11 @@ class TasksController extends Controller
 
  
    
-    public function __construct(NotificationController $notificationController, TaskActivityController $taskActivityController, FirebaseNotificationService $pushNotificationService)
+    public function __construct(NotificationController $notificationController, TaskActivityController $taskActivityController)
     {
         $this->notificationController = $notificationController;
         $this->taskActivityController = $taskActivityController;
-        $this->pushNotificationService = $pushNotificationService;
+      
     }
     
     /**

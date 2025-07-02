@@ -12,11 +12,10 @@ class TaskAssignedPersonsController extends Controller
 {
     protected $notificationController;
 
-    protected $pushNotificationService;
-    public function __construct(NotificationController $notificationController, FirebaseNotificationService $pushNotificationService)
+       public function __construct(NotificationController $notificationController,)
     {
         $this->notificationController = $notificationController;
-            $this->pushNotificationService = $pushNotificationService;
+            
     }
     public function assignEmployeeToTask(Request $request)
     {
@@ -54,16 +53,7 @@ class TaskAssignedPersonsController extends Controller
                 $request->assigned_person // User ID
             );
 
-                   $result = $this->pushNotificationService->sendPushNotification(
-                $assignedUser->fcm_token,
-                $title,
-                $task->task_title, 
-            );
-
-            // Handle push notification failure (optional)
-            if (!$result['success']) {
-                // Log or handle the error as needed
-            }
+          
             return response()->json([
                 'status'=>'success',
                 'message' => 'Employee assigned successfully', 'data' => $assignment], 201);
