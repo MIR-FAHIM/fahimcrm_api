@@ -95,10 +95,7 @@ class NotificationController extends Controller
             'send_push' => $send_push,
         ]);
         $sentTo = User::find($user_id);
- return response()->json([
-            'status' => 'success',
-            'notifications' => 'hle'
-        ], 200);
+ 
         if ($send_push === true) {
             $response = FirebaseNotificationService::sendPushNotification(
                 $sentTo->fcm_token,
