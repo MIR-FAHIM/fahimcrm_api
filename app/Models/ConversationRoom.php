@@ -15,4 +15,9 @@ class ConversationRoom extends Model
         'room_name',
         'cover_photo',
     ];
+
+    public function users()
+    {
+        return $this->hasMany(ProjectTeamMates::class, 'project_id');
+    }
 }

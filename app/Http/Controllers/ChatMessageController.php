@@ -54,7 +54,7 @@ class ChatMessageController extends Controller
     public function getConversationRoom()
     {
         try {
-            $rooms = ConversationRoom::all();
+            $rooms = ConversationRoom::with('users')->get();
 
             
 
