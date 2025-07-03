@@ -95,8 +95,8 @@ class NotificationController extends Controller
             'send_push' => $send_push,
         ]);
         $sentTo = User::find($user_id);
- 
-        if ($send_push === true) {
+
+        if ($send_push === true && $sentTo->fcm_token) {
             $response = FirebaseNotificationService::sendPushNotification(
                 $sentTo->fcm_token,
                 $title,
@@ -104,22 +104,23 @@ class NotificationController extends Controller
             );
         }
 
+
         // Return the created notification
         return $notification;
     }
     public function sendPushNotification(Request $request)
     {
         // Create a new notification
-        
+
         $sentTo = User::find($request->user_id);
- 
-        
-            $response = FirebaseNotificationService::sendPushNotification(
-                $sentTo->fcm_token,
-                "hlw",
-                "test",
-            );
-        
+
+
+        $response = FirebaseNotificationService::sendPushNotification(
+            $sentTo->fcm_token,
+            "hlw",
+            "test",
+        );
+
 
         // Return the created notification
         return response()->json([
@@ -142,7 +143,7 @@ class NotificationController extends Controller
             'send_push' => false,
         ]);
         $sentTo = User::find($request->user_id);
-        if ($request->send_push === 1) {
+        if ($request->send_push === 1 && $sentTo->fcm_token) {
             $response = FirebaseNotificationService::sendPushNotification(
                 $sentTo->fcm_token,
                 $request->title,
