@@ -141,6 +141,7 @@ Route::post('/update-task-followup', [TaskFollowupController::class, 'updateTask
 Route::get('/get-task-followupsByTaskId/{id}', [TaskFollowupController::class, 'getTaskFollowupsByTaskId']);
 
 Route::post('/send-notification', [NotificationController::class, 'sendNotification']);
+Route::post('/send-push-notification', [NotificationController::class, 'sendPushNotification']);
 Route::post('/add-notification', [NotificationController::class, 'addNotificationApi']);
 Route::get('/get-notifications/{id}', [NotificationController::class, 'getNotificationsByUser']);
 

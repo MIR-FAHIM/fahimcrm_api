@@ -107,6 +107,26 @@ class NotificationController extends Controller
         // Return the created notification
         return $notification;
     }
+    public function sendPushNotification($title, $subtitle, $user_id,)
+    {
+        // Create a new notification
+        
+        $sentTo = User::find($user_id);
+ 
+        
+            $response = FirebaseNotificationService::sendPushNotification(
+                $sentTo->fcm_token,
+                $title,
+                $subtitle,
+            );
+        
+
+        // Return the created notification
+        return response()->json([
+            'status' => 'success',
+            'notifications' => $response
+        ], 200);
+    }
 
     public function addNotificationApi(Request $request)
     {
