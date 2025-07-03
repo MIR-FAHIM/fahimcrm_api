@@ -499,7 +499,8 @@ public function approveTimeAdjustment(Request $request)
                  $this->notificationController->addNotification(
                 'Your Attendance adjustment approved.', // Title
                 'Time Adjustment', // Subtitle
-                $attendance->user_id // User ID
+                $attendance->user_id,
+                true, // User ID
             );
 
         return response()->json([

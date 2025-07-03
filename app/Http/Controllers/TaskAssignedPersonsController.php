@@ -50,7 +50,8 @@ class TaskAssignedPersonsController extends Controller
             $this->notificationController->addNotification(
                 $title, // Title
                 $task->task_title, 
-                $request->assigned_person // User ID
+                $request->assigned_person ,// User ID
+                true,
             );
 
           

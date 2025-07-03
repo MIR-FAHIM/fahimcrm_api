@@ -212,7 +212,8 @@ class SetAllLeaveController extends Controller
         $this->notificationController->addNotification(
             "Your Leave Request is Approved.", // Title
             "{$leave->duration} days leave is approved.", 
-            $leave->employee_id // User ID
+            $leave->employee_id ,// User ID
+            true,
         );
         // Return success response with updated leave information
         return response()->json([
@@ -254,7 +255,8 @@ class SetAllLeaveController extends Controller
         $this->notificationController->addNotification(
             "Your Leave Request is rejected.", // Title
             "{$leave->duration} days leave is rejected.", 
-            $leave->employee_id // User ID
+            $leave->employee_id ,
+            true// User ID
         );
         // Return success response with updated leave information
         return response()->json([

@@ -367,7 +367,8 @@ class TasksController extends Controller
             $this->notificationController->addNotification(
                 'A New Task Added By You.', // Title
                 $request->task_title, // Subtitle
-                $request->created_by // User ID
+                $request->created_by ,// User ID
+                false,
             );
             return response()->json([
                 'status' => 'success',

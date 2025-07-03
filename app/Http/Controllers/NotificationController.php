@@ -81,7 +81,7 @@ class NotificationController extends Controller
             'notifications' => $notifications
         ], 200);
     }
-    public function addNotification($title, $subtitle, $user_id, )
+    public function addNotification($title, $subtitle, $user_id, $send_push )
     {
         // Create a new notification
         $notification = Notifications::create([
@@ -90,14 +90,18 @@ class NotificationController extends Controller
             'type' => 'task',
             'user_id' => $user_id,
             'is_seen' => false,
-            'send_push' => false,
+            'send_push' => $send_push,
         ]);
          $sentTo = User::find($user_id);
+
+         if($send_push === true){
 $response = FirebaseNotificationService::sendPushNotification(
                 $sentTo->fcm_token,
                 $title,
                 $subtitle, 
             );
+         }
+
         // Return the created notification
         return $notification;
     }
