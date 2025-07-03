@@ -219,7 +219,11 @@ class UserController extends Controller
 
         // Assign the token to the user's token attribute
         $user->app_token = $token;
-        $user->fcm_token = $request->fcm_token;
+      
+
+if ($request->filled('fcm_token')) {
+    $user->fcm_token = $request->fcm_token;
+}
 
         // Save the user model with the new token
         $user->save();
