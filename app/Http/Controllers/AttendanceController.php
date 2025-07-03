@@ -349,7 +349,7 @@ public function dashboardAttendanceReport(Request $request)
         return response()->json([
             'status' => 'success',
             'data' => [
-                'present' => $absentCount,
+                'present' => $attendanceCountToday,
                 'absent_count' => $absentCount,
                 'late_count' => $lateCount,
                 'total_working_hours' => $totalWorkingHours,  // In minutes
