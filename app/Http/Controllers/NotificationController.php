@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use Illuminate\Http\Request;
 use App\Models\Notifications;
 use Kreait\Firebase\Factory;
@@ -8,6 +9,7 @@ use Kreait\Firebase\Messaging\CloudMessage;
 use Kreait\Firebase\Messaging\Notification;
 use App\Models\User;
 use App\Services\FirebaseNotificationService;
+
 class NotificationController extends Controller
 
 {
@@ -81,7 +83,7 @@ class NotificationController extends Controller
             'notifications' => $notifications
         ], 200);
     }
-    public function addNotification($title, $subtitle, $user_id, $send_push )
+    public function addNotification($title, $subtitle, $user_id, $send_push)
     {
         // Create a new notification
         $notification = Notifications::create([
@@ -92,22 +94,24 @@ class NotificationController extends Controller
             'is_seen' => false,
             'send_push' => $send_push,
         ]);
-         $sentTo = User::find($user_id);
+        $sentTo = User::find($user_id);
 
-         if($send_push === true){
-$response = FirebaseNotificationService::sendPushNotification(
+        if ($send_push === true) {
+            $response = FirebaseNotificationService::sendPushNotification(
                 $sentTo->fcm_token,
                 $title,
-                $subtitle, 
+                $subtitle,
             );
-         }
+        }
 
         // Return the created notification
         return $notification;
     }
-    
+
     public function addNotificationApi(Request $request)
     {
+
+
         // Create a new notification
         $notification = Notifications::create([
             'title' => $request->title,
@@ -117,12 +121,19 @@ $response = FirebaseNotificationService::sendPushNotification(
             'is_seen' => false,
             'send_push' => false,
         ]);
-
+        $sentTo = User::find($request->user_id);
+        if ($request->send_push === 1) {
+            $response = FirebaseNotificationService::sendPushNotification(
+                $sentTo->fcm_token,
+                $request->title,
+                $request->subtitle,
+            );
+        }
         // Return the created notification
         return response()->json([
-            'status'=> 'success',
-            'message'=> 'notification added successfully',
-            'data' => $notification]);
+            'status' => 'success',
+            'message' => 'notification added successfully',
+            'data' => $notification
+        ]);
     }
-    
 }
