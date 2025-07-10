@@ -43,7 +43,7 @@ class ContactUSFormController extends Controller
     // Get all Contact Us entries
     public function getContactUs()
     {
-        $contacts = ContactUSForm::where('status', 0)->orderBy('created_at', 'desc')->get();
+        $contacts = ContactUSForm::orderBy('created_at', 'desc')->get();
 
         return response()->json([
             'status' => 'success',
