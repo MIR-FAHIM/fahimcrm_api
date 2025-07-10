@@ -76,7 +76,7 @@ class UserActivityTrackerController extends Controller
         }
 
         try {
-            $query = UserActivityTracker::where('user_id', $targetUserId)
+            $query = UserActivityTracker::where('user_id', $targetUserId)->with('user')
                                         ->orderBy('created_at', 'desc'); // Order by most recent activity
 
             // Optional: Add filtering based on request parameters
