@@ -90,7 +90,12 @@ class UserActivityTrackerController extends Controller
             // Paginate the results for better performance with large datasets
             $activities = $query->paginate(15); // Show 15 activities per page
 
-            return response()->json($activities);
+            return response()->json(
+
+                [
+                    'status' => 'success',
+                    'data' => $activities,]
+            );
 
         } catch (\Exception $e) {
            
