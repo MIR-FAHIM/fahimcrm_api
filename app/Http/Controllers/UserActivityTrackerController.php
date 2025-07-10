@@ -47,11 +47,15 @@ class UserActivityTrackerController extends Controller
                 'method' => $request->method(), // Get the HTTP method (GET, POST, etc.)
             ]);
 
-            return response()->json(['message' => 'Activity logged successfully.'], 201);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Activity logged successfully.'], 200);
 
         } catch (\Exception $e) {
    
-            return response()->json(['message' => 'Failed to log activity.', 'error' => $e->getMessage()], 500);
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Failed to log activity.', 'error' => $e->getMessage()], 500);
         }
     }
 
