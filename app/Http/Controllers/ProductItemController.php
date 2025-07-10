@@ -38,7 +38,7 @@ class ProductItemController extends Controller
     public function getActiveProduct()
 {
     try {
-        $products = ProductItem::where('is_active', true)
+        $products = ProductItem::where('is_active', true)->with('category')
             ->get()
             ->map(function ($product) {
                 $product->total_stock_quantity = $product->variants->sum('quantity_required');
@@ -59,7 +59,7 @@ class ProductItemController extends Controller
 }
     public function getActiveProductWithVariants()
     {
-        $products = ProductItem::where('is_active', true)->with('variants')->get();
+        $products = ProductItem::where('is_active', true)->with('variants', 'category')->get();
 
         return response()->json([
             'status' => 'success',
@@ -67,3 +67,8 @@ class ProductItemController extends Controller
         ]);
     }
 }
+
+
+
+
+

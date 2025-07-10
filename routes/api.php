@@ -45,6 +45,7 @@ use App\Http\Controllers\ProspectConcernPersonTeamController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\OpportunityController;
 use App\Http\Controllers\ModulepermissionController;
+use App\Http\Controllers\UserActivityTrackerController;
 
 
 
@@ -340,4 +341,9 @@ Route::post('/add-feature-permission', [UserFeaturePermissionController::class, 
 Route::get('/user-feature-permissions/{user_id}', [UserFeaturePermissionController::class, 'getFeaturePermissionByUser']);
 Route::post('/update-feature-permission', [UserFeaturePermissionController::class, 'updateSingleFeaturePermission']);
 
+
+//track user activity
+
+Route::post('/add-user-activity', [UserActivityTrackerController::class, 'addUserActivity']);
+Route::get('/get-user-activity', [UserActivityTrackerController::class, 'getUserActivity']);
 });
