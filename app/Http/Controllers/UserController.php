@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Projects;
+use App\Models\UserActivityTracker;
 use App\Models\ProjectPhase;
 use App\Models\Tasks;
 use App\Models\Prospect;
@@ -227,7 +228,13 @@ if ($request->filled('fcm_token')) {
 
         // Save the user model with the new token
         $user->save();
-
+$activity = UserActivityTracker::create([
+                'activity_name' => 'login',
+            
+                'user_id' => $user->id,
+                'details' => 'User logged in',
+               'type' => 'auth',
+            ]);
         return response()->json(
             [
                 'status' => 200,
