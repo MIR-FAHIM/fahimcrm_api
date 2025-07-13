@@ -16,6 +16,7 @@ class Cart extends Model
         'total_amount',
         'remark',
         'created_by',
+        'varient_id',
     ];
 
     // Relationships
@@ -23,6 +24,10 @@ class Cart extends Model
     public function product()
     {
         return $this->belongsTo(ProductItem::class, 'product_id');
+    }
+    public function varient()
+    {
+        return $this->belongsTo(ProductItem::class, 'varient_id');
     }
 
     public function user()

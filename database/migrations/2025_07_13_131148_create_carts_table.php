@@ -18,6 +18,7 @@ return new class extends Migration
             $table->enum('status', ['pending', 'confirmed', 'cancelled'])->default('pending');
 
             $table->unsignedBigInteger('product_id');
+            $table->unsignedBigInteger('varient_id');
             $table->integer('quantity')->default(1);
             $table->decimal('product_amount', 10, 2)->default(0);
             $table->decimal('discount', 10, 2)->default(0);
