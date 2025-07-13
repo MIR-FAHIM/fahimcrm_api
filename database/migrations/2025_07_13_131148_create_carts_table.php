@@ -29,9 +29,9 @@ return new class extends Migration
             $table->timestamps();
 
             // Foreign keys (optional but recommended)
-            $table->foreign('order_id')->references('id')->on('orders')->onDelete('set null');
-            $table->foreign('product_id')->references('id')->on('product_items')->onDelete('cascade');
-            $table->foreign('created_by')->references('id')->on('users')->onDelete('set null');
+            $table->foreign('order_id');
+            $table->foreign('product_id');
+            $table->foreign('created_by');
         });
     }
 
