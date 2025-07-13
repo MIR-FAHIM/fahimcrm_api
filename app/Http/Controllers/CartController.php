@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cart;
+use Exception;
 use Illuminate\Http\Request;
 
 class CartController extends Controller
@@ -12,6 +13,8 @@ class CartController extends Controller
      */
     public function createSingleCart(Request $request)
     {
+
+        try{
         $validated = $request->validate([
             'product_id'     => 'required|exists:product_items,id',
             'quantity'       => 'required|integer|min:1',
@@ -28,6 +31,14 @@ class CartController extends Controller
             'status' => 'success',
             'data'   => $cart,
         ]);
+        }catch(Exception $e){
+ return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to create.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+
     }
 
     /**
