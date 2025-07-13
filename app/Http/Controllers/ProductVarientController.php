@@ -73,6 +73,22 @@ class ProductVarientController extends Controller
             return response()->json(['error' => 'Unable to fetch variants', 'message' => $e->getMessage()], 500);
         }
     }
+    public function getAllVariant()
+    {
+        try {
+            $variants = ProductVarient::with('product', 'entryBy', 'stock')->get();
+            return response()->json(
+
+                [
+                    'status' => 'success',
+                    'data'  => $variants
+                ],
+                200
+            );
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Unable to fetch variants', 'message' => $e->getMessage()], 500);
+        }
+    }
 
     // ✅ Delete a variant by ID
     public function deleteVariant($id)

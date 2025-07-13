@@ -291,6 +291,7 @@ Route::prefix('product-variant')->group(function () {
     Route::delete('/delete/{id}', [ProductVarientController::class, 'deleteVariant']);
     Route::get('/total-quantity/{product_id}', [ProductVarientController::class, 'getTotalQuantityOfProduct']);
     Route::get('/stock-wise/{product_id}', [ProductVarientController::class, 'getStockWiseProduct']);
+    Route::get('/get-all-varients', [ProductVarientController::class, 'getAllVariant']);
     Route::put('/update/{id}', [ProductVarientController::class, 'updateVariant']);
 });
 //ProductCategoryController
