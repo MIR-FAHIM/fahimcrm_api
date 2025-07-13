@@ -31,14 +31,14 @@ class ProductItemController extends Controller
             'status' => 'success',
             'message' => 'Product added successfully',
             'data' => $product
-        ], 201);
+        ], 200);
     }
 
     // Get all active products
     public function getActiveProduct()
 {
     try {
-        $products = ProductItem::where('is_active', true)->with('category')
+        $products = ProductItem::where('is_active', true)->with('category')->withCount('variants')
             ->get()
             ->map(function ($product) {
                 $product->total_stock_quantity = $product->variants->sum('quantity_required');
