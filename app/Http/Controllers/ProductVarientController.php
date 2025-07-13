@@ -76,7 +76,7 @@ class ProductVarientController extends Controller
     public function getAllVariant()
     {
         try {
-            $variants = ProductVarient::with('product', 'entryBy', 'stock')->get();
+            $variants = ProductVarient::with('product', 'product.category', 'entryBy', 'stock')->get();
             return response()->json(
 
                 [
