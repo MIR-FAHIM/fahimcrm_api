@@ -53,7 +53,7 @@ class ProductVarient extends Model
     // Relationships
     public function product()
     {
-        return $this->belongsTo(ProductItem::class);
+        return $this->belongsTo(ProductItem::class, 'product_id');
     }
 
     public function stock()
