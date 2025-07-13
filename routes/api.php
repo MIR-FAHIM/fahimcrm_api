@@ -5,6 +5,7 @@ use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DesignationsController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ProductVarientController;
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductOrderController;
 use App\Http\Controllers\AttendanceController;
@@ -347,4 +348,10 @@ Route::post('/update-feature-permission', [UserFeaturePermissionController::clas
 
 Route::post('/add-user-activity', [UserActivityTrackerController::class, 'addUserActivity']);
 Route::get('/get-user-activity', [UserActivityTrackerController::class, 'getUserActivity']);
+
+//cart_______________
+Route::post('/cart/single', [CartController::class, 'createSingleCart']);
+Route::post('/cart/multiple', [CartController::class, 'createMultipleCart']);
+Route::get('/cart/all', [CartController::class, 'getAllCartList']);
+Route::get('/cart/order/{orderId}', [CartController::class, 'getCartByOrder']);
 });
