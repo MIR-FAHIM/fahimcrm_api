@@ -59,7 +59,7 @@ class ProductItemController extends Controller
 }
     public function getActiveProductWithVariants()
     {
-        $products = ProductItem::where('is_active', true)->with('variants', 'category')->get();
+        $products = ProductItem::where('is_active', true)->with('variants', 'category')->withCount('variants')->get();
 
         return response()->json([
             'status' => 'success',
