@@ -13,7 +13,10 @@ class CartController extends Controller
      */
     public function createSingleCart(Request $request)
     {
-
+ return response()->json([
+            'status' => 'success',
+           
+        ]);
         try{
         $validated = $request->validate([
             'product_id'     => 'required|exists:product_items,id',
