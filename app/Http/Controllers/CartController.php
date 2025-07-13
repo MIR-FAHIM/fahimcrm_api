@@ -13,19 +13,16 @@ class CartController extends Controller
      */
     public function createSingleCart(Request $request)
     {
- return response()->json([
-            'status' => 'success',
-           
-        ]);
+
         try{
         $validated = $request->validate([
-            'product_id'     => 'required|exists:product_items,id',
+            'product_id'     => 'required',
             'quantity'       => 'required|integer|min:1',
             'product_amount' => 'required|numeric',
             'discount'       => 'nullable|numeric',
             'total_amount'   => 'required|numeric',
             'remark'         => 'nullable|string',
-            'created_by'     => 'required|exists:users,id',
+            'created_by'     => 'required',
         ]);
 
         $cart = Cart::create($validated);
