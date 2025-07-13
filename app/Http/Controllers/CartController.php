@@ -17,6 +17,7 @@ class CartController extends Controller
         try{
         $validated = $request->validate([
             'product_id'     => 'required',
+            'order_id'     => 'required',
             'quantity'       => 'required|integer|min:1',
             'product_amount' => 'required|numeric',
             'discount'       => 'nullable|numeric',
@@ -49,6 +50,7 @@ class CartController extends Controller
         $validated = $request->validate([
             'carts' => 'required|array',
             'carts.*.product_id'     => 'required',
+            'carts.*.order_id'     => 'required',
             'carts.*.quantity'       => 'required|integer|min:1',
             'carts.*.product_amount' => 'required|numeric',
             'carts.*.discount'       => 'nullable|numeric',
