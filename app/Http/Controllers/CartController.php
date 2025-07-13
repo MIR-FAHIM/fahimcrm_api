@@ -48,13 +48,13 @@ class CartController extends Controller
     {
         $validated = $request->validate([
             'carts' => 'required|array',
-            'carts.*.product_id'     => 'required|exists:product_items,id',
+            'carts.*.product_id'     => 'required',
             'carts.*.quantity'       => 'required|integer|min:1',
             'carts.*.product_amount' => 'required|numeric',
             'carts.*.discount'       => 'nullable|numeric',
             'carts.*.total_amount'   => 'required|numeric',
             'carts.*.remark'         => 'nullable|string',
-            'carts.*.created_by'     => 'required|exists:users,id',
+            'carts.*.created_by'     => 'required',
         ]);
 
         $createdCarts = [];
