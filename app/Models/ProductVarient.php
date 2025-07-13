@@ -58,7 +58,7 @@ class ProductVarient extends Model
 
     public function stock()
     {
-        return $this->belongsTo(ProductItem::class, 'stock_id');
+        return $this->belongsTo(Stock::class, 'stock_id');
     }
 
     public function entryBy()
