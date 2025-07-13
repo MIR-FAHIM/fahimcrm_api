@@ -27,7 +27,7 @@ class Cart extends Model
     }
     public function varient()
     {
-        return $this->belongsTo(ProductItem::class, 'varient_id');
+        return $this->belongsTo(ProductVarient::class, 'varient_id');
     }
 
     public function user()
