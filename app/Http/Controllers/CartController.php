@@ -88,7 +88,7 @@ class CartController extends Controller
     public function getCartByOrder($orderId)
     {
         $carts = Cart::where('order_id', $orderId)
-            ->with(['product', 'user'])
+            ->with(['product', 'order', 'user'])
             ->get();
 
         return response()->json([
