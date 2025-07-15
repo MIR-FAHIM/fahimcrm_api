@@ -113,7 +113,7 @@ class ChatMessageController extends Controller
         }
         PusherService::trigger('my-channel', 'my-event', [
             'message' => 'Hello from Laravel!',
-            'user_id' => $senderId,
+            
         ]);
         $message = ChatMessage::create($messageData);
 
@@ -205,6 +205,26 @@ class ChatMessageController extends Controller
                 'data' => $messages,
             ]);
         } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => $e->getMessage(),
+            ]);
+        }
+    }
+    public function pusherTest(Request $request)
+    {
+        try {
+                    PusherService::trigger('my-channel', 'my-event', [
+            'message' => 'Hello from Laravel!',
+            
+        ]);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'pusher tested',
+                
+            ]);
+        } catch (Exception $e) {
             return response()->json([
                 'status' => 'failed',
                 'message' => $e->getMessage(),

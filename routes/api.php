@@ -234,6 +234,7 @@ Route::post('/add-chat', [ChatMessageController::class, 'addChat']);
 Route::post('/get-chat-by-projectId', [ChatMessageController::class, 'getChatByProjectId']);
 Route::post('/get-chat-by-conversationid', [ChatMessageController::class, 'getChatByConversationId']);
 Route::get('/conversation-room', [ChatMessageController::class, 'getConversationRoom']);
+Route::get('/test-pusher', [ChatMessageController::class, 'pusherTest']);
 
 //ZoneController
 Route::post('/zone/add', [ZoneController::class, 'addZone']);
