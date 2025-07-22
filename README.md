@@ -27,7 +27,7 @@ php artisan make:model Cart -mc
 php artisan make:migration MainCategories
 php artisan route:list
 php artisan route:clear
-php artisan make:controller ProductVarientController --resource
+php artisan make:controller LivekitTokenController --resource
 php artisan make:model FacebookLeads -m //table and model
 // change a parameter type 
 ALTER TABLE tasks MODIFY COLUMN total_duration INT; //INT,VARCHAR(255), DOUBLE

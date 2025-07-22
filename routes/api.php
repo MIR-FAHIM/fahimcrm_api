@@ -6,6 +6,7 @@ use App\Http\Controllers\DesignationsController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ProductVarientController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\LivekitTokenController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductOrderController;
 use App\Http\Controllers\AttendanceController;
@@ -355,4 +356,7 @@ Route::post('/cart/single', [CartController::class, 'createSingleCart']);
 Route::post('/cart/multiple', [CartController::class, 'createMultipleCart']);
 Route::get('/cart/all', [CartController::class, 'getAllCartList']);
 Route::get('/cart/order/{orderId}', [CartController::class, 'getCartByOrder']);
+
+
+Route::get('/get-livekit-token', [LivekitTokenController::class, 'generateToken']);
 });
