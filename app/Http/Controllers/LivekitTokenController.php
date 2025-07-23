@@ -40,17 +40,17 @@ $payload = [
     'nbf' => time(),
     'exp' => time() + 6 * 60 * 60,
     'sub' => $participantIdentity,
-    'grants' => [  // ✅ Use "grants" not "video"
-        'video' => [ // ✅ REQUIRED by LiveKit
-                    'roomJoin' => true,
-                    'room' => $roomName,
-                    'canPublish' => true,
-                    'canSubscribe' => true,
-                ],
-       
-        
+    'grants' => [
+        'video' => [
+            'roomJoin' => true,
+            'room' => $roomName,
+            'canPublish' => true,
+            'canSubscribe' => true,
+            'canPublishData' => true, // <-- Add this line for data channel permissions
+        ],
     ],
 ];
+
 
         try {
             $token = JWT::encode($payload, $apiSecret, 'HS256');
