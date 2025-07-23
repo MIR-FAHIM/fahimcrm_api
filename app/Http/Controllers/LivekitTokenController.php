@@ -38,7 +38,7 @@ class LivekitTokenController extends Controller
 $payload = [
     'iss' => $apiKey,
     'nbf' => time(),
-    'exp' => time() + (6 * 60 * 60),
+    'exp' => time() + 6 * 60 * 60,
     'sub' => $participantIdentity,
     'grants' => [  // ✅ Use "grants" not "video"
         'roomJoin' => true,
@@ -50,7 +50,10 @@ $payload = [
 
         try {
             $token = JWT::encode($payload, $apiSecret, 'HS256');
-            return response()->json(['token' => $token]);
+            return response()->json([
+                'identity'=> $participantIdentity,
+                'room'=> $roomName,
+                'token' => $token]);
         } catch (\Exception $e) {
           
             return response()->json([
