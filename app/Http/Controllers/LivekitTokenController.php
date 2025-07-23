@@ -43,6 +43,7 @@ $payload = [
     'grants' => [  // ✅ Use "grants" not "video"
         'roomJoin' => true,
         'room' => $roomName,
+        'canPublishData' => true,
         'canPublish' => true,
         'canSubscribe' => true,
     ],
