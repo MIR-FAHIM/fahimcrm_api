@@ -41,8 +41,12 @@ $payload = [
     'exp' => time() + 6 * 60 * 60,
     'sub' => $participantIdentity,
     'grants' => [  // ✅ Use "grants" not "video"
-        'roomJoin' => true,
-        'room' => $roomName,
+        'video' => [ // ✅ REQUIRED by LiveKit
+                    'roomJoin' => true,
+                    'room' => $roomName,
+                    'canPublish' => true,
+                    'canSubscribe' => true,
+                ],
        
         
     ],

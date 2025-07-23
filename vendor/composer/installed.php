@@ -3,13 +3,22 @@
         'name' => 'laravel/laravel',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => '74d60cda96cda9fd3d1260932b0d6a481d85a054',
+        'reference' => '74638c595fac085a602bbd0a9738cd18af40fbe8',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
         'dev' => true,
     ),
     'versions' => array(
+        'agence104/livekit-server-sdk' => array(
+            'pretty_version' => '1.3.0',
+            'version' => '1.3.0.0',
+            'reference' => 'f065a06ab6058aae7e63893ef09d3be872e0f61a',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../agence104/livekit-server-sdk',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
         'beste/clock' => array(
             'pretty_version' => '3.0.0',
             'version' => '3.0.0.0',
@@ -541,7 +550,7 @@
         'laravel/laravel' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => '74d60cda96cda9fd3d1260932b0d6a481d85a054',
+            'reference' => '74638c595fac085a602bbd0a9738cd18af40fbe8',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -787,6 +796,27 @@
             'aliases' => array(),
             'dev_requirement' => true,
         ),
+        'php-http/async-client-implementation' => array(
+            'dev_requirement' => false,
+            'provided' => array(
+                0 => '*',
+            ),
+        ),
+        'php-http/client-implementation' => array(
+            'dev_requirement' => false,
+            'provided' => array(
+                0 => '*',
+            ),
+        ),
+        'php-http/discovery' => array(
+            'pretty_version' => '1.20.0',
+            'version' => '1.20.0.0',
+            'reference' => '82fe4c73ef3363caed49ff8dd1539ba06044910d',
+            'type' => 'composer-plugin',
+            'install_path' => __DIR__ . '/../php-http/discovery',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
         'phpoption/phpoption' => array(
             'pretty_version' => '1.9.3',
             'version' => '1.9.3.0',
@@ -924,6 +954,7 @@
             'dev_requirement' => false,
             'provided' => array(
                 0 => '1.0',
+                1 => '*',
             ),
         ),
         'psr/http-factory' => array(
@@ -939,6 +970,7 @@
             'dev_requirement' => false,
             'provided' => array(
                 0 => '1.0',
+                1 => '*',
             ),
         ),
         'psr/http-message' => array(
@@ -954,7 +986,17 @@
             'dev_requirement' => false,
             'provided' => array(
                 0 => '1.0',
+                1 => '*',
             ),
+        ),
+        'psr/http-server-handler' => array(
+            'pretty_version' => '1.0.2',
+            'version' => '1.0.2.0',
+            'reference' => '84c4fb66179be4caaf8e97bd239203245302e7d4',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../psr/http-server-handler',
+            'aliases' => array(),
+            'dev_requirement' => false,
         ),
         'psr/log' => array(
             'pretty_version' => '3.0.2',
@@ -1509,6 +1551,15 @@
             'reference' => '0d72ac1c00084279c1816675284073c5a337c20d',
             'type' => 'library',
             'install_path' => __DIR__ . '/../tijsverkoyen/css-to-inline-styles',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+        'twirp/twirp' => array(
+            'pretty_version' => 'v0.14.0',
+            'version' => '0.14.0.0',
+            'reference' => '08a54881275a4a874d717f043b5afc1749d57567',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../twirp/twirp',
             'aliases' => array(),
             'dev_requirement' => false,
         ),
