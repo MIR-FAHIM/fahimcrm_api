@@ -28,26 +28,31 @@ class LivekitTokenController extends Controller
         }
 
         // LiveKit AccessToken payload structure
-        $grants = [
-            'roomJoin' => true,
-            'room' => $roomName,
-            'canPublish' => true,
-            'canSubscribe' => true,
-        ];
 
-        $payload = [
-            'iss' => $apiKey,
-            'nbf' => time(),             // Not before (current time)
-            'exp' => time() + (6 * 60 * 60), // Expires in 6 hours
-            'sub' => $participantIdentity,
-            'video' => $grants,
-        ];
+
+
+
+   
+        
+
+$payload = [
+    'iss' => $apiKey,
+    'nbf' => time(),
+    'exp' => time() + (6 * 60 * 60),
+    'sub' => $participantIdentity,
+    'grants' => [  // ✅ Use "grants" not "video"
+        'roomJoin' => true,
+        'room' => $roomName,
+        'canPublish' => true,
+        'canSubscribe' => true,
+    ],
+];
 
         try {
             $token = JWT::encode($payload, $apiSecret, 'HS256');
             return response()->json(['token' => $token]);
         } catch (\Exception $e) {
-            \Log::error("Error generating LiveKit token: " . $e->getMessage());
+          
             return response()->json([
                 'error' => 'Internal Server Error'
             ], 500);
