@@ -521,4 +521,81 @@ public function approveTimeAdjustment(Request $request)
 }
 
 
+public function attendanceReportByUserCountData(Request $request)
+{
+    try {
+        // Validate input
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'start_date' => 'required|date_format:Y-m-d',
+            'end_date' => 'required|date_format:Y-m-d|after_or_equal:start_date',
+        ]);
+
+        $userId = $request->user_id;
+        $startDate = Carbon::parse($request->start_date)->startOfDay();
+        $endDate = Carbon::parse($request->end_date)->endOfDay();
+
+        // Fetch attendance records in the date range
+        $attendances = Attendance::where('user_id', $userId)
+            ->whereBetween('check_in_time', [$startDate, $endDate])
+            ->get()
+            ->keyBy(fn($att) => $att->check_in_time->toDateString());
+
+        // Initialize counters
+        $workingDays = 0;
+        $absentDays = 0;
+        $lateDays = 0;
+        $onTimeDays = 0;
+        $workFromHomeDays = 0;
+
+        $current = $startDate->copy();
+        while ($current->lte($endDate)) {
+            // Skip weekends (Friday = 5, Saturday = 6)
+            if (!in_array($current->dayOfWeek, [5, 6])) {
+                $dateKey = $current->toDateString();
+                $attendance = $attendances->get($dateKey);
+
+                if ($attendance) {
+                    $workingDays++;
+
+                    // Late or on time
+                    if ($attendance->is_late) {
+                        $lateDays++;
+                    } else {
+                        $onTimeDays++;
+                    }
+
+                    // Work from home
+                    if ($attendance->is_work_from_home) {
+                        $workFromHomeDays++;
+                    }
+                } else {
+                    $absentDays++;
+                }
+            }
+
+            $current->addDay();
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'user_id' => $userId,
+            'date_range' => [
+                'start' => $startDate->toDateString(),
+                'end' => $endDate->toDateString(),
+            ],
+            'summary' => [
+                'working_days' => $workingDays,
+                'absent_days' => $absentDays,
+                'late_days' => $lateDays,
+                'on_time_days' => $onTimeDays,
+                'work_from_home_days' => $workFromHomeDays,
+            ]
+        ], 200);
+
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+}
+
 }

@@ -82,6 +82,7 @@ Route::get('/get-role', [RoleController::class, 'getRole']);
 
 //attendance
 Route::post('/check-in-now', [AttendanceController::class, 'checkInNow']);
+Route::post('/attendanceReportByUser-count-data', [AttendanceController::class, 'attendanceReportByUserCountData']);
 Route::post('/update-attendance', [AttendanceController::class, 'updateAttendance']);
 Route::post('/approve-time-adjustment', [AttendanceController::class, 'approveTimeAdjustment']);
 Route::post('/request-attendance-adjustment', [AttendanceController::class, 'requestAttendanceAdjustment']);
