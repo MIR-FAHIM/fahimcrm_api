@@ -570,7 +570,10 @@ public function attendanceReportByUserCountData(Request $request)
                         $workFromHomeDays++;
                     }
                 } else {
-                    $absentDays++;
+                    // Only count as absent if it's a weekday
+                    if ($current->isWeekday()) {
+                        $absentDays++;
+                    }
                 }
             }
 
