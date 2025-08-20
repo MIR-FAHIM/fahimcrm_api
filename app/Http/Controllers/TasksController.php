@@ -55,6 +55,26 @@ class TasksController extends Controller
             ], 500);
         }
     }
+    public function getAllTaskByDepartment($id)
+    {
+        try {
+            $tasks = Tasks::with('taskType', 'project', 'priority', 'creator', 'status', 'assignedPersons')
+            ->orderBy('priority_id', 'asc')->where('department_id', $id)->get();// Get all tasks
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Tasks fetched successfully.',
+                'data' => $tasks
+            ], 200);
+        } catch (\Exception $e) {
+            // Catch any exception and return a response with status code 500
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to fetch tasks.',
+                'data' => null
+            ], 500);
+        }
+    }
     public function getAllTaskByStatus()
     {
         try {
