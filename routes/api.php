@@ -108,6 +108,7 @@ Route::post('/add-task-status', [TaskStatusController::class, 'addTaskStatus']);
 ///project_______
 Route::get('/get-project-details/{id}', [ProjectController::class, 'getProjectDetails']);
 Route::get('/get-project', [ProjectController::class, 'getProject']);
+Route::get('/get-project-by-department/{id}', [ProjectController::class, 'getProjectByDepartment']);
 Route::post('/add-project', [ProjectController::class, 'addProject']);
 
 Route::post('/add-project-phase', [ProjectPhaseController::class, 'addProjectPhase']);

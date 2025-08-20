@@ -66,6 +66,34 @@ class ProjectController extends Controller
         }
     }
     
+    public function getProjectByDepartment($id)
+    {
+        try {
+            $projects = Projects::with('department')->where('department_id', $id)->get(); // Eager load phases and tasks
+    
+            // Append taskCount and projectPercentage to each project
+            $projects->transform(function ($project) {
+                $project->taskCount = $project->tasks->count();
+                $project->phaseCount = $project->phases->count();
+                $project->taskCount = $project->tasks->count();
+                $project->projectPercentage = round($project->phases->avg('phase_completion_percentage'));
+                return $project;
+            });
+    
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Projects fetched successfully.',
+                'data' => $projects
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to fetch projects.',
+                'data' => null
+            ], 500);
+        }
+    }
+    
 
     /**
      * Store a new project.
