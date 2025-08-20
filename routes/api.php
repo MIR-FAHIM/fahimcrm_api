@@ -6,6 +6,8 @@ use App\Http\Controllers\DesignationsController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ProductVarientController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\ClientTicketController;
+use App\Http\Controllers\WorkReportController;
 use App\Http\Controllers\LivekitTokenController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductOrderController;
@@ -362,4 +364,33 @@ Route::get('/cart/order/{orderId}', [CartController::class, 'getCartByOrder']);
 
 
 Route::get('/get-livekit-token', [LivekitTokenController::class, 'generateToken']);
+
+
+Route::prefix('tickets')->group(function () {
+
+    // Add a new ticket
+    Route::post('/add-ticket', [ClientTicketController::class, 'addTicket']);
+
+    // Get all tickets
+    Route::get('/get-all-ticket', [ClientTicketController::class, 'getAllTicket']);
+
+    // Get tickets by client
+    Route::get('/get-ticket-client/{clientId}', [ClientTicketController::class, 'getTicketByClient']);
+
+    // Change ticket status
+    Route::patch('/change-status/{ticketId}', [ClientTicketController::class, 'changeStatus']);
+
+    // Update ticket details
+    Route::put('/update-ticket/{ticketId}', [ClientTicketController::class, 'updateTicket']);
+
+    // Delete a ticket
+    Route::delete('/delete-ticket/{ticketId}', [ClientTicketController::class, 'deleteTicket']);
+});
+
+Route::post('/work-reports', [WorkReportController::class, 'addWorkReport']);
+
+Route::get('/work-reports/user/{userId}', [WorkReportController::class, 'getWorkReportByUser']);
+
+Route::get('/work-reports/by-date', [WorkReportController::class, 'allReportByDate']);
+
 });
