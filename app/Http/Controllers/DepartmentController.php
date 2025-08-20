@@ -77,12 +77,14 @@ public function getDepartmentsWithEmp()
 {
     try {
         // Retrieve all departments with relationships
-        $departments = Department::with('user', 'tasks', 'projects')->get();
+        $departments = Department::with('user', 'tasks.status', 'projects')->get();
 
         $departments = $departments->map(function ($department) {
-            // Count tasks by status
+            // Count tasks by status_name
             $taskStatusCounts = $department->tasks
-                ->groupBy('status')
+                ->groupBy(function ($task) {
+                    return $task->status->status_name ?? 'Unknown'; // ✅ only status_name
+                })
                 ->map(function ($tasks) {
                     return $tasks->count();
                 });
@@ -93,7 +95,7 @@ public function getDepartmentsWithEmp()
                 'employee_count' => $department->user->count(),
                 'projects_count' => $department->projects->count(),
                 'task_count' => $department->tasks->count(),
-                'task_status_counts' => $taskStatusCounts, // ✅ New field
+                'task_status_counts' => $taskStatusCounts, // ✅ now clean
                 'users' => $department->user,
             ];
         });
@@ -112,5 +114,7 @@ public function getDepartmentsWithEmp()
         ], 400);
     }
 }
+
+
 
 }
