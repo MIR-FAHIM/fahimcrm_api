@@ -73,39 +73,44 @@ class DepartmentController extends Controller
             ], 400);
         }
     }
-    public function getDepartmentsWithEmp()
-    {
-        try {
-            
-            // Retrieve all departments
-            $departments = Department::with('user', 'tasks', 'projects')->get();
-            
-            $departments = $departments->map(function ($department) {
-                return [
-                    'id' => $department->id,
-                    'department_name' => $department->department_name,
-                    'employee_count' => $department->user->count(),
-                    'projects_count' => $department->projects->count(),
-                   'task_count' => $department->tasks->count(),
-                    'users' => $department->user,
-                    // Optionally, include tasks or other info here
-                ];
-            });
-    
-            // Return success response
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Departments retrieved successfully',
-                'data' => $departments
-            ], 200);
+public function getDepartmentsWithEmp()
+{
+    try {
+        // Retrieve all departments with relationships
+        $departments = Department::with('user', 'tasks', 'projects')->get();
 
-        } catch (\Exception $e) {
-            // Handle exceptions and return error response
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Failed to retrieve departments: ' . $e->getMessage(),
-                'data' => null
-            ], 400);
-        }
+        $departments = $departments->map(function ($department) {
+            // Count tasks by status
+            $taskStatusCounts = $department->tasks
+                ->groupBy('status')
+                ->map(function ($tasks) {
+                    return $tasks->count();
+                });
+
+            return [
+                'id' => $department->id,
+                'department_name' => $department->department_name,
+                'employee_count' => $department->user->count(),
+                'projects_count' => $department->projects->count(),
+                'task_count' => $department->tasks->count(),
+                'task_status_counts' => $taskStatusCounts, // ✅ New field
+                'users' => $department->user,
+            ];
+        });
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Departments retrieved successfully',
+            'data' => $departments
+        ], 200);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Failed to retrieve departments: ' . $e->getMessage(),
+            'data' => null
+        ], 400);
     }
+}
+
 }
