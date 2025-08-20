@@ -78,13 +78,14 @@ class DepartmentController extends Controller
         try {
             
             // Retrieve all departments
-            $departments = Department::with('user', 'tasks')->get();
+            $departments = Department::with('user', 'tasks', 'projects')->get();
             
             $departments = $departments->map(function ($department) {
                 return [
                     'id' => $department->id,
                     'department_name' => $department->department_name,
                     'employee_count' => $department->user->count(),
+                    'projects_count' => $department->projects->count(),
                    'task_count' => $department->tasks->count(),
                     'users' => $department->user,
                     // Optionally, include tasks or other info here

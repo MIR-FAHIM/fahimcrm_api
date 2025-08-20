@@ -16,5 +16,10 @@ class Department extends Model
         return $this->hasMany(Tasks::class, 'department_id');
     }
 
+    public function projects()
+    {
+        return $this->hasMany(Projects::class, 'department_id');
+    }
+
 
 }
