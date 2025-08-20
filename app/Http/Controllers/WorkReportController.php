@@ -30,6 +30,7 @@ class WorkReportController extends Controller
             $report = WorkReport::create($request->all());
 
             return response()->json([
+                'status' => 'success',
                 'message' => 'Work report added successfully.',
                 'report' => $report,
             ], 201);
@@ -54,6 +55,7 @@ class WorkReportController extends Controller
                              });
 
         return response()->json([
+             'status' => 'success',
             'message' => 'Reports fetched successfully.',
             'reports' => $reports,
         ], 200);
@@ -76,6 +78,7 @@ class WorkReportController extends Controller
             $reports = WorkReport::whereDate('report_date', $request->date)->get();
 
             return response()->json([
+                 'status' => 'success',
                 'message' => 'Reports for the specified date fetched successfully.',
                 'reports' => $reports,
             ], 200);
