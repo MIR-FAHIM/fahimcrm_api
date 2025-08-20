@@ -41,7 +41,7 @@ class ProjectController extends Controller
     public function getProject()
     {
         try {
-            $projects = Projects::all(); // Eager load phases and tasks
+            $projects = Projects::with('department')->all(); // Eager load phases and tasks
     
             // Append taskCount and projectPercentage to each project
             $projects->transform(function ($project) {

@@ -70,9 +70,9 @@ class TaskAssignedPersonsController extends Controller
         try {
             // Get tasks assigned to the user along with related models
             $tasks = TaskAssignedPersons::where('assigned_person', $userId)
-                          ->with('task.taskType', 'task.project', 'task.priority', 'task.creator', 'task.status', 'assignedPerson')
-                          ->get();
-    
+            ->join('tasks', 'task_assigned_persons.task_id', '=', 'tasks.id')
+            ->with('task.taskType', 'task.project', 'task.priority', 'task.creator', 'task.status', 'assignedPerson')
+            ->orderBy('tasks.priority_id', 'asc')->get();
             // Group tasks by their priority
             
     

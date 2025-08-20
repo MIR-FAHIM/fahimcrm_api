@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('priorities', function (Blueprint $table) {
             $table->id();
             $table->string('priority_name'); // Adding the priority_name column
+            $table->string('color_code'); // Adding the priority_name column
             $table->boolean('isActive')->default(true); // Adding the isActive column with a default value of true
             $table->timestamps();
         });

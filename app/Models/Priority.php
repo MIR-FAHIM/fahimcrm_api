@@ -8,6 +8,7 @@ class Priority extends Model
 {
     protected $fillable = [
         'priority_name',
+        'color_code',
         'isActive',
     ];
 }

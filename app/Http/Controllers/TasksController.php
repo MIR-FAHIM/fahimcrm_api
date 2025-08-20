@@ -38,7 +38,8 @@ class TasksController extends Controller
     public function getAllTask()
     {
         try {
-            $tasks = Tasks::with('taskType', 'project', 'priority', 'creator', 'status', 'assignedPersons')->orderBy('created_at', 'desc')->get();// Get all tasks
+            $tasks = Tasks::with('taskType', 'project', 'priority', 'creator', 'status', 'assignedPersons')
+            ->orderBy('priority_id', 'asc')->get();// Get all tasks
 
             return response()->json([
                 'status' => 'success',
@@ -59,7 +60,8 @@ class TasksController extends Controller
         try {
            
             // Fetch all tasks with their relationships
-            $tasks = Tasks::with('taskType', 'project', 'priority', 'creator', 'status', 'assignedPersons')->get();
+            $tasks = Tasks::with('taskType', 'project', 'priority', 'creator', 'status', 'assignedPersons')
+            ->orderBy('priority_id', 'asc')->get();
     
             // Group by status_id or status name
             $groupedTasks = $tasks->groupBy(function ($task) {
@@ -494,7 +496,7 @@ public function getTaskByUserId($userId)
             $query->where('assigned_person', $userId); // Ensure this matches the column name in your TaskAssignedPersons table
         })
         ->with('taskType', 'project', 'priority', 'creator', 'status', 'assignedPersons.assignedPerson') // Eager load assigned person
-        ->get();
+         ->orderBy('priority_id', 'asc')->get();
 
         // Group tasks by their priority
         $groupedTasks = $tasks->groupBy(function($task) {
