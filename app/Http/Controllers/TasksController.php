@@ -61,7 +61,7 @@ class TasksController extends Controller
         try {
             $tasks = Tasks::with('taskType', 'project', 'priority', 'creator', 'status', 'assignedPersons')
             ->orderBy('priority_id', 'asc')->where('department_id', $id)->get();// Get all tasks
-$department = Department::get($id);
+$department = Department::find($id);
             return response()->json([
                 'status' => 'success',
                 'message' => 'Tasks fetched successfully.',
