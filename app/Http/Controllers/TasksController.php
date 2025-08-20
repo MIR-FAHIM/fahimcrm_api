@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Tasks;
+use App\Models\Department;
 use App\Models\TaskStatus;
 use App\Models\ProjectPhase;
 use App\Models\TaskAssignedPersons;
@@ -60,10 +61,11 @@ class TasksController extends Controller
         try {
             $tasks = Tasks::with('taskType', 'project', 'priority', 'creator', 'status', 'assignedPersons')
             ->orderBy('priority_id', 'asc')->where('department_id', $id)->get();// Get all tasks
-
+$department = Department::get($id);
             return response()->json([
                 'status' => 'success',
                 'message' => 'Tasks fetched successfully.',
+                'department_name' => $department->department_name,
                 'data' => $tasks
             ], 200);
         } catch (\Exception $e) {
