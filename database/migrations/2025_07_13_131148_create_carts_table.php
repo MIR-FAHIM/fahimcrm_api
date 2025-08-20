@@ -30,9 +30,9 @@ return new class extends Migration
             $table->timestamps();
 
             // Foreign keys (optional but recommended)
-            $table->unsignedBigInteger('order_id');
-            $table->unsignedBigInteger('product_id');
-            $table->unsignedBigInteger('created_by');
+            // $table->unsignedBigInteger('order_id');
+            // $table->unsignedBigInteger('product_id');
+            // $table->unsignedBigInteger('created_by');
         });
     }
 
