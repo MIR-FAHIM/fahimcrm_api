@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Department;
 use App\Models\Projects;
 use App\Models\tasks;
 use Illuminate\Http\Request;
@@ -70,6 +71,7 @@ class ProjectController extends Controller
     {
         try {
             $projects = Projects::with('department')->where('department_id', $id)->get(); // Eager load phases and tasks
+            $department = Department::find($id); // Eager load phases and tasks
     
             // Append taskCount and projectPercentage to each project
             $projects->transform(function ($project) {
@@ -83,6 +85,8 @@ class ProjectController extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => 'Projects fetched successfully.',
+                'department'=> $department->department_name,
+            
                 'data' => $projects
             ], 200);
         } catch (\Exception $e) {
