@@ -83,7 +83,7 @@ class NotificationController extends Controller
             'notifications' => $notifications
         ], 200);
     }
-    public function addNotification($title, $subtitle, $user_id, $send_push)
+    public function addNotification($title, $subtitle, $user_id, $send_push, $related_id)
     {
         // Create a new notification
         $notification = Notifications::create([
@@ -91,7 +91,7 @@ class NotificationController extends Controller
             'subtitle' => $subtitle,
             'type' => 'task',
             'user_id' => $user_id,
-            'related_id' => 1,
+            'related_id' => $related_id,
             'is_seen' => false,
             'send_push' => $send_push,
         ]);

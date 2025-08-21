@@ -393,6 +393,7 @@ $department = Department::find($id);
                 $request->task_title, // Subtitle
                 $request->created_by ,// User ID
                 false,
+                $task->id,
             );
             return response()->json([
                 'status' => 'success',
