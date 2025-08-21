@@ -18,7 +18,7 @@ class ClientTicketController extends Controller
             'subject' => 'required|string|max:255',
             'description' => 'nullable|string',
             'type' => 'nullable|string',
-            'issue_id' => 'nullable|integer',
+            '' => 'nullable|integer',
             'priority_id' => 'nullable|integer',
             'is_urgent' => 'nullable|boolean',
             'category' => 'nullable|string',

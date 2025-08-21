@@ -19,6 +19,7 @@ class Notifications extends Model
         'is_seen',
         'send_push',
         'type',
+        'related_id',
         'user_id',
     ];
 

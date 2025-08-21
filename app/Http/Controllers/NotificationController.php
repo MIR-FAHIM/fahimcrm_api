@@ -91,6 +91,7 @@ class NotificationController extends Controller
             'subtitle' => $subtitle,
             'type' => 'task',
             'user_id' => $user_id,
+            'related_id' => 1,
             'is_seen' => false,
             'send_push' => $send_push,
         ]);

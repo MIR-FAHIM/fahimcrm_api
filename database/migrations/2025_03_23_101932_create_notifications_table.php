@@ -19,6 +19,7 @@ return new class extends Migration
             $table->boolean('is_seen')->default(0); // Add is_seen column with default 0
             $table->boolean('send_push')->default(0); // Add send_push column with default 0
             $table->unsignedBigInteger('user_id'); // Add user_id column
+            $table->integer('related_id'); // Add user_id column
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade'); // Foreign key to users table
             $table->timestamps();
         });
