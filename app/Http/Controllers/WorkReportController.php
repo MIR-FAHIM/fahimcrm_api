@@ -64,24 +64,35 @@ class WorkReportController extends Controller
     /**
      * Get all work reports for a specific date.
      */
-    public function allReportByDate(Request $request)
+public function allReportByDate(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'date' => 'required|date',
+            'date' => 'nullable|date',
         ]);
 
         if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
         }
-
+        
         try {
-            $reports = WorkReport::whereDate('report_date', $request->date)->get();
+            $query = WorkReport::orderBy('report_date', 'desc');
 
+            // If a date is provided, filter the results
+            if ($request->has('date')) {
+                $query->whereDate('report_date', $request->date);
+            }
+
+            // Get the reports and then group them by their date
+            $reports = $query->get()->groupBy(function($item) {
+                return Carbon::parse($item->report_date)->format('Y-m-d');
+            });
+            
             return response()->json([
-                 'status' => 'success',
-                'message' => 'Reports for the specified date fetched successfully.',
+                'status' => 'success',
+                'message' => 'Reports fetched successfully.',
                 'reports' => $reports,
             ], 200);
+
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Failed to fetch reports.',
