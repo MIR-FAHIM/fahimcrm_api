@@ -75,7 +75,7 @@ public function allReportByDate(Request $request)
         }
         
         try {
-            $query = WorkReport::orderBy('report_date', 'desc');
+            $query = WorkReport::with('user')->orderBy('report_date', 'desc');
 
             // If a date is provided, filter the results
             if ($request->has('date')) {
