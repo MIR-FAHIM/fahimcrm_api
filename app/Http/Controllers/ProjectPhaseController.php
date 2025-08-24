@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\ProjectPhase;
 use App\Models\Tasks;
 use Illuminate\Http\Request;
-
+use Exception;
 class ProjectPhaseController extends Controller
 {
     // Add a new Project Phase
@@ -95,13 +95,41 @@ class ProjectPhaseController extends Controller
     }
     
     // Get all phases by project ID
-    public function getPhaseByPrjId($project_id)
-    {
-        $phases = ProjectPhase::where('project_id', $project_id)->orderBy('phase_order_id')->get();
+public function getPhaseByPrjId($project_id)
+{
+    try {
+        $phases = ProjectPhase::where('project_id', $project_id)
+            ->orderBy('phase_order_id')
+            ->get();
+
+        $phases->map(function ($phase) use ($project_id) {
+            // Count total tasks in this phase
+            $totalTasks = Tasks::where('project_id', $project_id)
+                ->where('phase_id', $phase->id)
+                ->count();
+
+            // Count completed tasks in this phase (status_id = 5 as per your logic)
+            $completedTasks = Tasks::where('project_id', $project_id)
+                ->where('phase_id', $phase->id)
+                ->where('status_id', '5') 
+                ->count();
+
+            $phase->total_task_count = $totalTasks;
+            $phase->completed_task_count = $completedTasks;
+
+            return $phase;
+        });
 
         return response()->json([
             'success' => true,
             'data' => $phases,
         ]);
+    } catch (Exception $e) {
+        return response()->json([
+            'error' => 'Failed to retrieve project phases',
+            'details' => $e->getMessage()
+        ], 500);
     }
+
+}
 }
