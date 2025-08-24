@@ -4,6 +4,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ProjectTeamMates;
+use App\Models\Tasks;
 use Illuminate\Http\Request;
 use Exception;
 
@@ -80,14 +81,14 @@ public function getMemberTaskCountByProjectID($project_id)
 
         // Loop through each member and calculate task counts
         $members->map(function ($member) use ($project_id) {
-            $totalTasks = \App\Models\Tasks::where('project_id', $project_id)
+            $totalTasks = Tasks::where('project_id', $project_id)
                 ->whereHas('assignedPersons', function ($q) use ($member) {
                     $q->where('assigned_person', $member->employee_id);
                 })
                 ->count();
 
-            $completedTasks = \App\Models\Tasks::where('project_id', $project_id)
-                ->where('status', '5') // adjust field/value if different
+            $completedTasks = Tasks::where('project_id', $project_id)
+                ->where('status_id', '5') // adjust field/value if different
                 ->whereHas('assignedPersons', function ($q) use ($member) {
                     $q->where('assigned_person', $member->employee_id);
                 })
