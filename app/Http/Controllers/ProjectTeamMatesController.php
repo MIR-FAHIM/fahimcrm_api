@@ -71,6 +71,45 @@ class ProjectTeamMatesController extends Controller
             return response()->json(['error' => 'Failed to retrieve members', 'details' => $e->getMessage()], 500);
         }
     }
+public function getMemberTaskCountByProjectID($project_id)
+{
+    try {
+        $members = ProjectTeamMates::where('project_id', $project_id)
+            ->with('employee')
+            ->get();
+
+        // Loop through each member and calculate task counts
+        $members->map(function ($member) use ($project_id) {
+            $totalTasks = \App\Models\Tasks::where('project_id', $project_id)
+                ->whereHas('assignedPersons', function ($q) use ($member) {
+                    $q->where('assigned_person', $member->employee_id);
+                })
+                ->count();
+
+            $completedTasks = \App\Models\Tasks::where('project_id', $project_id)
+                ->where('status', 'completed') // adjust field/value if different
+                ->whereHas('assignedPersons', function ($q) use ($member) {
+                    $q->where('assigned_person', $member->employee_id);
+                })
+                ->count();
+
+            $member->total_task_count = $totalTasks;
+            $member->completed_task_count = $completedTasks;
+
+            return $member;
+        });
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $members,
+        ]);
+    } catch (Exception $e) {
+        return response()->json([
+            'error' => 'Failed to retrieve members',
+            'details' => $e->getMessage()
+        ], 500);
+    }
+}
 
     // Remove a member by ID
     public function removeMember($id)

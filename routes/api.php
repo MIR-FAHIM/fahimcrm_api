@@ -231,6 +231,7 @@ Route::get('/get-client-details/{id}', [ClientController::class, 'getClientDetai
 ///Project TeamMates Controller__________________
 Route::post('/project-members/add-multiple', [ProjectTeamMatesController::class, 'addMultipleProjectMembers']);
 Route::get('/project-members/{project_id}', [ProjectTeamMatesController::class, 'getMemberByProjectID']);
+Route::get('/project-members-task-count/{project_id}', [ProjectTeamMatesController::class, 'getMemberTaskCountByProjectID']);
 Route::delete('/project-members/{id}', [ProjectTeamMatesController::class, 'removeMember']);
 Route::put('/project-members/{id}/notify-active', [ProjectTeamMatesController::class, 'updateNotifyActiveForMember']);
 
