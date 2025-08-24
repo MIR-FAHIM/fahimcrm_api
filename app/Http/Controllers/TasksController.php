@@ -382,6 +382,7 @@ $department = Department::find($id);
                 'is_remind' => $request->is_remind,
                 'due_date' => $request->due_date,
                 'project_id' => $request->project_id,
+                'project_phase_id' => $request->project_phase_id,
                 'status_id' => $request->status_id,
                 'department_id' => $request->department_id,
                 'created_by' => $request->created_by,
