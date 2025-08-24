@@ -501,6 +501,7 @@ public function approveTimeAdjustment(Request $request)
                 'Time Adjustment', // Subtitle
                 $attendance->user_id,
                 true, // User ID
+                null,
             );
 
         return response()->json([
