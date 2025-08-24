@@ -105,12 +105,12 @@ public function getPhaseByPrjId($project_id)
         $phases->map(function ($phase) use ($project_id) {
             // Count total tasks in this phase
             $totalTasks = Tasks::where('project_id', $project_id)
-                ->where('phase_id', $phase->id)
+                ->where('project_phase_id', $phase->id)
                 ->count();
 
             // Count completed tasks in this phase (status_id = 5 as per your logic)
             $completedTasks = Tasks::where('project_id', $project_id)
-                ->where('phase_id', $phase->id)
+                ->where('project_phase_id', $phase->id)
                 ->where('status_id', '5') 
                 ->count();
 
