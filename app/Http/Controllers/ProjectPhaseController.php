@@ -98,23 +98,7 @@ class ProjectPhaseController extends Controller
     public function getPhaseByPrjId($project_id)
     {
         $phases = ProjectPhase::where('project_id', $project_id)->orderBy('phase_order_id')->get();
-$phases->map(function ($phase) use ($project_id) {
-            // Count total tasks in this phase
-            $totalTasks = Tasks::where('project_id', $project_id)
-                ->where('phase_id', $phase->id)
-                ->count();
 
-            // Count completed tasks in this phase (status_id = 5 as per your logic)
-            $completedTasks = Tasks::where('project_id', $project_id)
-                ->where('phase_id', $phase->id)
-                ->where('status_id', '5') 
-                ->count();
-
-            $phase->total_task_count = $totalTasks;
-            $phase->completed_task_count = $completedTasks;
-
-            return $phase;
-        });
         return response()->json([
             'success' => true,
             'data' => $phases,
