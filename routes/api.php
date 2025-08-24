@@ -9,6 +9,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\ClientTicketController;
 use App\Http\Controllers\WorkReportController;
 use App\Http\Controllers\LivekitTokenController;
+use App\Http\Controllers\ProjectWorkShopController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductOrderController;
 use App\Http\Controllers\AttendanceController;
@@ -393,5 +394,15 @@ Route::post('/work-reports', [WorkReportController::class, 'addWorkReport']);
 Route::get('/work-reports/user/{userId}', [WorkReportController::class, 'getWorkReportByUser']);
 
 Route::get('/work-reports/by-date', [WorkReportController::class, 'allReportByDate']);
+
+
+
+Route::prefix('project-workshop')->group(function () {
+    Route::post('/add-work-shop', [ProjectWorkShopController::class, 'addProjectWorkShop']);
+    Route::get('/all', [ProjectWorkShopController::class, 'getAllWorkShop']);
+    Route::get('/type/{type}', [ProjectWorkShopController::class, 'getByType']);
+    Route::post('/update/{id}', [ProjectWorkShopController::class, 'updateWorkShop']);
+    Route::delete('/remove/{id}', [ProjectWorkShopController::class, 'removeWorkShop']);
+});
 
 });
