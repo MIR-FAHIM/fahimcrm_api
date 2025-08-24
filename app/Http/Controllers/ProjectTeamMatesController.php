@@ -87,7 +87,7 @@ public function getMemberTaskCountByProjectID($project_id)
                 ->count();
 
             $completedTasks = \App\Models\Tasks::where('project_id', $project_id)
-                ->where('status', 'completed') // adjust field/value if different
+                ->where('status', '5') // adjust field/value if different
                 ->whereHas('assignedPersons', function ($q) use ($member) {
                     $q->where('assigned_person', $member->employee_id);
                 })
