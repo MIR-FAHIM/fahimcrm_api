@@ -82,6 +82,22 @@ class ProjectWorkShopController extends Controller
             ], 500);
         }
     }
+    public function getWorkShopProject($id)
+    {
+        try {
+            $workshops = ProjectWorkShop::where('project_id', $id)->get();
+            return response()->json([
+                'status' => 'success',
+                'data' => $workshops
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'error' => 'Failed to fetch workshops',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
 
     // Update Workshop
     public function updateWorkShop(Request $request, $id)
