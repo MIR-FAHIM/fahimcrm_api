@@ -400,7 +400,7 @@ Route::get('/work-reports/by-date', [WorkReportController::class, 'allReportByDa
 Route::prefix('project-workshop')->group(function () {
     Route::post('/add-work-shop', [ProjectWorkShopController::class, 'addProjectWorkShop']);
     Route::get('/all', [ProjectWorkShopController::class, 'getAllWorkShop']);
-    Route::get('/get-by-project', [ProjectWorkShopController::class, 'getWorkShopProject']);
+    Route::get('/get-by-project/{id}', [ProjectWorkShopController::class, 'getWorkShopProject']);
     Route::get('/type/{type}', [ProjectWorkShopController::class, 'getByType']);
     Route::post('/update/{id}', [ProjectWorkShopController::class, 'updateWorkShop']);
     Route::delete('/remove/{id}', [ProjectWorkShopController::class, 'removeWorkShop']);
