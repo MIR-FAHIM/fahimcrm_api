@@ -193,7 +193,7 @@ Route::get('/get-individual-prospect', [ProspectController::class, 'getIndividua
 Route::get('/get-organization-prospect', [ProspectController::class, 'getOrganizationProspect']);
 Route::post('/change-prospect-stage', [ProspectController::class, 'changeProspectStage']);
 Route::post('/update-prospect', [ProspectController::class, 'updateProspect']);
-Route::post('/delete-prospect', [ProspectController::class, 'deleteProspect']);
+Route::get('/delete-prospect/{id}', [ProspectController::class, 'deleteProspect']);
 
 //prospect log activity
 Route::post('/add-prospect-log-activity', [ProspectLogActivityController::class, 'addProspectLogActivity']);

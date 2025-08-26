@@ -429,14 +429,12 @@ class ProspectController extends Controller
         }
     }
 
-    public function deleteProspect(Request $request)
+    public function deleteProspect($id)
     {
         try {
-            $request->validate([
-                'prospect_id' => 'required|exists:prospects,id',
-            ]);
+            
 
-            Prospect::destroy($request->prospect_id);
+            Prospect::destroy($id);
 
             return response()->json([
                 'status' => 'success',
