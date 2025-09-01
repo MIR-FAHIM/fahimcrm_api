@@ -12,8 +12,11 @@ class ProjectFeaturesController extends Controller
      * POST /api/project-features
      * Create a new feature for a project
      */
-    public function addProjectFeature(Request $request)
-    {
+
+
+public function addProjectFeature(Request $request)
+{
+    try {
         $data = $request->validate([
             'project_id'            => ['required', 'exists:projects,id'],
             'feature_name'          => ['required', 'string', 'max:255'],
@@ -33,7 +36,25 @@ class ProjectFeaturesController extends Controller
             'message' => 'Feature created successfully.',
             'data'    => $feature,
         ], 201);
+
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        // Explicit validation failure
+        return response()->json([
+            'status'  => 'error',
+            'message' => 'Validation failed.',
+            'errors'  => $e->errors(),
+        ], 422);
+
+    } catch (\Exception $e) {
+        // Unexpected exception
+        return response()->json([
+            'status'  => 'error',
+            'message' => 'An error occurred while creating the feature.',
+            'error'   => $e->getMessage(), // ⚠️ Remove in production if you don’t want to leak internals
+        ], 500);
     }
+}
+
 
     /**
      * GET /api/projects/{projectId}/features
