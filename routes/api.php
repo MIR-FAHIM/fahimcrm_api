@@ -416,5 +416,5 @@ Route::prefix('project-features')->group(function () {
     Route::patch('{id}',      [ProjectFeaturesController::class, 'updateProjectFeature']);    // partial update
     Route::delete('/delete-feature/{id}',     [ProjectFeaturesController::class, 'deleteFeature']);           // delete
 });
-Route::get('projects/{projectId}/features', [ProjectFeaturesController::class, 'getProjectFeatureByProject']);
+Route::get('projects/features/{id}', [ProjectFeaturesController::class, 'getProjectFeatureByProject']);
 });
