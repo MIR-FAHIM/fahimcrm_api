@@ -34,6 +34,7 @@ use App\Http\Controllers\ProspectStageController;
 use App\Http\Controllers\InformationSourceController;
 use App\Http\Controllers\NoticeBoardController;
 use App\Http\Controllers\InfluencingRoleController;
+use App\Http\Controllers\ProjectFeaturesController;
 use App\Http\Controllers\ProductItemController;
 use App\Http\Controllers\IndustryTypeController;
 use App\Http\Controllers\ProspectController;
@@ -406,4 +407,14 @@ Route::prefix('project-workshop')->group(function () {
     Route::delete('/remove/{id}', [ProjectWorkShopController::class, 'removeWorkShop']);
 });
 
+
+//project-features
+
+Route::prefix('project-features')->group(function () {
+    Route::post('/add-feature',          [ProjectFeaturesController::class, 'addProjectFeature']);       // create
+    Route::put('/update-feature/{id}',        [ProjectFeaturesController::class, 'updateProjectFeature']);    // update
+    Route::patch('{id}',      [ProjectFeaturesController::class, 'updateProjectFeature']);    // partial update
+    Route::delete('/delete-feature/{id}',     [ProjectFeaturesController::class, 'deleteFeature']);           // delete
+});
+Route::get('projects/{projectId}/features', [ProjectFeaturesController::class, 'getProjectFeatureByProject']);
 });
