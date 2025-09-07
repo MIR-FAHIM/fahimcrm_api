@@ -358,6 +358,7 @@ Route::post('/update-feature-permission', [UserFeaturePermissionController::clas
 
 Route::post('/add-user-activity', [UserActivityTrackerController::class, 'addUserActivity']);
 Route::get('/get-user-activity', [UserActivityTrackerController::class, 'getUserActivity']);
+Route::get('/get-all-user-activity', [UserActivityTrackerController::class, 'getAllUserActivity']);
 
 //cart_______________
 Route::post('/cart/single', [CartController::class, 'createSingleCart']);

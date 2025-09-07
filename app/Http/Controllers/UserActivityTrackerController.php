@@ -102,4 +102,36 @@ class UserActivityTrackerController extends Controller
             return response()->json(['message' => 'Failed to retrieve activities.', 'error' => $e->getMessage()], 500);
         }
     }
+    public function getAllUserActivity(Request $request)
+    {
+        
+       
+
+        try {
+            $query = UserActivityTracker::with('user')
+                                        ->orderBy('created_at', 'desc'); // Order by most recent activity
+
+            // Optional: Add filtering based on request parameters
+            if ($request->has('activity_name')) {
+                $query->where('activity_name', 'like', '%' . $request->input('activity_name') . '%');
+            }
+            if ($request->has('type')) {
+                $query->where('type', $request->input('type'));
+            }
+
+            // Paginate the results for better performance with large datasets
+            $activities = $query->paginate(15); // Show 15 activities per page
+
+            return response()->json(
+
+                [
+                    'status' => 'success',
+                    'data' => $activities,]
+            );
+
+        } catch (\Exception $e) {
+           
+            return response()->json(['message' => 'Failed to retrieve activities.', 'error' => $e->getMessage()], 500);
+        }
+    }
 }
