@@ -135,6 +135,7 @@ class ProjectController extends Controller
                 'is_tech' => $request->is_tech,
                 'is_marketing' => $request->is_marketing,
                 'description' => $request->description,
+                'color_code' => $request->color_code,
                 'created_by' => $request->created_by,
             ]);
 
