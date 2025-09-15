@@ -114,6 +114,7 @@ class ProjectController extends Controller
             'is_tech' => 'required|boolean', // Ensure is_tech is a boolean value
             'is_marketing' => 'required|boolean', // Ensure is_marketing is a boolean value
             'description' => 'nullable|string|max:500', // Optional description
+            'color_code' => 'nullable|string|max:50', // Optional description
             'created_by' => 'required|integer', // Ensure created_by is an integer (can be user id)
         ]);
 

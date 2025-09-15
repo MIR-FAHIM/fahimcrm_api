@@ -20,6 +20,7 @@ class Projects extends Model
         'is_tech',
         'is_marketing',
         'description',
+        'color_code',
         'created_by',
     ];
 

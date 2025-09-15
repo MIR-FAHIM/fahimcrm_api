@@ -18,6 +18,7 @@ return new class extends Migration
             $table->boolean('is_tech')->default(false); // Flag to indicate if the project is related to technology
             $table->boolean('is_marketing')->default(false); // Flag to indicate if the project is related to marketing
             $table->text('description')->nullable(); // Description of the project
+            $table->text('color_code')->nullable(); // Description of the project
             $table->foreignId('created_by')->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });
