@@ -551,7 +551,7 @@ public function getWaitingTaskUserId($userId)
 {
     try {
         // Get tasks assigned to the user by checking the TaskAssignedPersons model
-        $tasks = Tasks::where('is_waiting', true)->whereHas('assignedPersons', function ($query) use ($userId) {
+        $tasks = Tasks::where('is_waiting', 1)->whereHas('assignedPersons', function ($query) use ($userId) {
             // Now, we check against 'assigned_person' instead of 'user_id'
             $query->where('assigned_person', $userId); // Ensure this matches the column name in your TaskAssignedPersons table
         })
