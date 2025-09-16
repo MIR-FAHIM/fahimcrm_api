@@ -67,6 +67,21 @@ class TaskFollowupController extends Controller
             'data' => $followups
         ], 200);
     }
+    public function deleteFollowup($id)
+    {
+        // Validate task_id
+        $task = TaskFollowup::find($id); // Assuming you have a Task model
+        if (!$task) {
+            return response()->json(['status' => 'error', 'message' => 'Followup not found.'], 404);
+        }
+        $task->delete();
+
+        // Return the follow-ups
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Followup deleted successfully',
+        ], 200);
+    }
 
 public function updateTaskFollowup(Request $request)
 {
