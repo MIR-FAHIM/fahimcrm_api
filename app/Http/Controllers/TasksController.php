@@ -551,11 +551,11 @@ public function getWaitingTaskUserId($userId)
 {
     try {
         // Get tasks assigned to the user by checking the TaskAssignedPersons model
-        $tasks = Tasks::where('is_waiting', 1)->whereHas('assignedPersons', function ($query) use ($userId) {
+        $tasks = Tasks::whereHas('assignedPersons', function ($query) use ($userId) {
             // Now, we check against 'assigned_person' instead of 'user_id'
             $query->where('assigned_person', $userId); // Ensure this matches the column name in your TaskAssignedPersons table
         })
-        ->with('taskType', 'project', 'priority', 'creator', 'status', 'assignedPersons.assignedPerson') // Eager load assigned person
+        ->where('is_waiting', 1)->with('taskType', 'project', 'priority', 'creator', 'status', 'assignedPersons.assignedPerson') // Eager load assigned person
          ->orderBy('priority_id', 'asc')->get();
 
         // Group tasks by their priority
