@@ -547,6 +547,40 @@ public function getTaskByUserId($userId)
         ], 500);
     }
 }
+public function getWaitingTaskUserId($userId)
+{
+    try {
+        // Get tasks assigned to the user by checking the TaskAssignedPersons model
+        $tasks = Tasks::where('is_waiting', true)->whereHas('assignedPersons', function ($query) use ($userId) {
+            // Now, we check against 'assigned_person' instead of 'user_id'
+            $query->where('assigned_person', $userId); // Ensure this matches the column name in your TaskAssignedPersons table
+        })
+        ->with('taskType', 'project', 'priority', 'creator', 'status', 'assignedPersons.assignedPerson') // Eager load assigned person
+         ->orderBy('priority_id', 'asc')->get();
+
+        // Group tasks by their priority
+        $groupedTasks = $tasks->groupBy(function($task) {
+            return $task->priority->priority_name; // Group by the priority name
+        });
+
+        // Optionally, sort the groups by priority name or any other attribute
+        $groupedTasks = $groupedTasks->sortKeys(); // Sort by priority if needed
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Tasks fetched successfully.',
+            'data' => $groupedTasks
+        ], 200);
+
+    } catch (\Exception $e) {
+        // Catch any exception and return a response with status code 500
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Failed to fetch tasks for the user.',
+            'data' => null
+        ], 500);
+    }
+}
 
 
 public function addTaskMultipleImages(Request $request)

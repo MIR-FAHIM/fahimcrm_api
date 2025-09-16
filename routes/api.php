@@ -122,6 +122,7 @@ Route::post('/update-phase/{id}', [ProjectPhaseController::class, 'updatePhaseBy
 //task
 
 Route::get('/get-all-task', [TasksController::class, 'getAllTask']);
+Route::get('/get-user-waiting-task/{id}', [TasksController::class, 'getWaitingTaskUserId']);
 Route::get('/get-all-task-department/{id}', [TasksController::class, 'getAllTaskByDepartment']);
 Route::get('/get-all-task-by-status', [TasksController::class, 'getAllTaskByStatus']);
 Route::get('/task-by-project-phase/{id}', [TasksController::class, 'getPhaseTaskByStatus']);
