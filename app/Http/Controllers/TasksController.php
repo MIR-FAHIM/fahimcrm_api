@@ -382,6 +382,7 @@ $department = Department::find($id);
                 'priority_id' => $request->priority_id,
                 'task_type_id' => $request->task_type_id,
                 'is_remind' => $request->is_remind,
+                'is_waiting' => $request->is_waiting,
                 'due_date' => $request->due_date,
                 'project_id' => $request->project_id,
                 'project_phase_id' => $request->project_phase_id,
