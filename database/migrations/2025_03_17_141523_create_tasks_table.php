@@ -18,7 +18,9 @@ return new class extends Migration
             $table->foreignId('priority_id')->constrained('priorities')->onDelete('cascade'); // Foreign key to the priorities table
             $table->foreignId('task_type_id')->constrained('task_types')->onDelete('cascade'); // Foreign key to the task_types table
             $table->boolean('is_remind')->default(false); // Whether the task should remind (default false)
+            $table->boolean('is_waiting')->default(false); // Whether the task should remind (default false)
             $table->date('due_date')->nullable(); // Due date for the task (nullable)
+            $table->date('start_date')->nullable(); // Due date for the task (nullable)
             $table->integer('completion_percentage')->nullable(); // Due date for the task (nullable)
             $table->boolean('show_completion_percentage')->default(false); // Due date for the task (nullable)
             $table->foreignId('project_id')->nullable()->onDelete('cascade'); // Foreign key to the projects table
