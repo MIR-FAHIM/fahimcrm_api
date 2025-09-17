@@ -85,7 +85,9 @@ class VisitController extends Controller
 
             DB::commit();
 
-            return response()->json(['message' => 'Visit and related task created successfully.', 'visit' => $visit], 201);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Visit and related task created successfully.', 'visit' => $visit], 201);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['message' => 'Failed to create visit.', 'error' => $e->getMessage()], 500);
@@ -115,7 +117,10 @@ class VisitController extends Controller
             return response()->json(['message' => 'No visits found for this employee.'], 404);
         }
 
-        return response()->json(['data' => $visits], 200);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Visits fetched successfully.',
+            'data' => $visits], 200);
     }
 
     /**
@@ -183,7 +188,9 @@ class VisitController extends Controller
 
             DB::commit();
 
-            return response()->json(['message' => 'Visit updated successfully.', 'visit' => $visit], 200);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Visit updated successfully.', 'visit' => $visit], 200);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['message' => 'Failed to update visit.', 'error' => $e->getMessage()], 500);
@@ -223,7 +230,9 @@ class VisitController extends Controller
 
             DB::commit();
 
-            return response()->json(['message' => 'Visit and associated records deleted successfully.'], 200);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Visit and associated records deleted successfully.'], 200);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['message' => 'Failed to delete visit.', 'error' => $e->getMessage()], 500);
