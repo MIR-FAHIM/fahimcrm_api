@@ -64,6 +64,7 @@ class VisitController extends Controller
                 'created_by' => $request->planner_id, // The planner created this task
                 'status_id' => $request->task_status_id, // Use the status ID from the request
                 'task_type_id' => $request->task_type_id,
+                'priority_id' => $request->priority_id,
                 'department_id' => $request->department_id,
             ]);
 
