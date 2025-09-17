@@ -101,7 +101,10 @@ class VisitController extends Controller
     {
         $visits = Visit::with(['employee', 'planner', 'lead', 'zone'])->get();
 
-        return response()->json(['data' => $visits], 200);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Visits fetched successfully.',
+            'data' => $visits], 200);
     }
 
     /**
