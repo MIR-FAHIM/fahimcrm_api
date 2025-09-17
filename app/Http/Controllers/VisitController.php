@@ -30,7 +30,7 @@ class VisitController extends Controller
             'note' => 'nullable|string',
             'lead_id' => [
                 'nullable',
-                Rule::exists('leads', 'id'),
+                Rule::exists('prospects', 'id'),
             ],
             'task_status_id' => 'required|exists:task_statuses,id', // Add this to the request for the task status
             'task_type_id' => 'required|exists:task_types,id', // Add this to the request for the task type
