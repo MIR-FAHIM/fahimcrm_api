@@ -52,6 +52,7 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\OpportunityController;
 use App\Http\Controllers\ModulepermissionController;
 use App\Http\Controllers\UserActivityTrackerController;
+use App\Http\Controllers\VisitController;
 
 
 
@@ -421,3 +422,10 @@ Route::prefix('project-features')->group(function () {
 });
 Route::get('projects/features/{id}', [ProjectFeaturesController::class, 'getProjectFeatureByProject']);
 });
+
+//visit
+Route::post('/visit/add', [VisitController::class, 'addVisit']);
+Route::get('/visit/all', [VisitController::class, 'getAllVisit']);
+Route::get('/visit/employee/{employee_id}', [VisitController::class, 'getVisitByEmployee']);
+Route::put('/visit/update/{id}', [VisitController::class, 'updateVisit']);
+Route::delete('/visit/delete/{id}', [VisitController::class, 'deleteVisit']);
