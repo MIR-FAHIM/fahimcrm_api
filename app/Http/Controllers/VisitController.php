@@ -71,7 +71,9 @@ class VisitController extends Controller
             // 3. Assign the task to the employee
             TaskAssignedPersons::create([
                 'task_id' => $task->id,
-                'assigned_person_id' => $request->employee_id,
+                'assigned_person' => $request->employee_id,
+                'assigned_by' => $request->planner_id,
+                'is_main' => true,
             ]);
 
             // 4. Create the relation entry
