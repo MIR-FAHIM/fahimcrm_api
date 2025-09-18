@@ -174,7 +174,7 @@ class VisitController extends Controller
 
         // This is where a salesperson would update a visit
         $validator = Validator::make($request->all(), [
-            'status' => ['required', 'string', Rule::in(['Scheduled', 'Completed', 'Canceled', 'No Show'])],
+         
             'actual_start_at' => 'nullable|date_format:Y-m-d H:i:s',
             'actual_end_at' => 'nullable|date_format:Y-m-d H:i:s',
             'checkin_latitude' => 'nullable|numeric',
