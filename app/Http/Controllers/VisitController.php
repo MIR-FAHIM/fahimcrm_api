@@ -210,11 +210,7 @@ class VisitController extends Controller
                     'latitude' => $request->checkin_latitude,
                     'longitude' => $request->checkin_longitude,
                 ]);
-return response()->json([
-                'status' => 'success',
-                'message' => $request->status,
-               
-            ], 200);
+
                 // Update the task status based on the visit status
                 $task = Tasks::find($relation->task_id);
                 if ($task) {
