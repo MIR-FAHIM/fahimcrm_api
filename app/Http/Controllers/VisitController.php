@@ -166,7 +166,7 @@ class VisitController extends Controller
      */
     public function updateVisit(Request $request, $id): JsonResponse
     {
-         return response()->json(['message' => $request->status], 404);
+         
         $visit = Visit::find($id);
 
         if (!$visit) {
@@ -175,7 +175,7 @@ class VisitController extends Controller
 
         // This is where a salesperson would update a visit
         $validator = Validator::make($request->all(), [
-         
+         'status' => 'nullable|string',
             'actual_start_at' => 'nullable|date_format:Y-m-d H:i:s',
             'actual_end_at' => 'nullable|date_format:Y-m-d H:i:s',
             'checkin_latitude' => 'nullable|numeric',
