@@ -87,7 +87,9 @@ class VisitController extends Controller
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'Visit and related task created successfully.', 'visit' => $visit], 201);
+                'message' => 'Visit and related task created successfully.',
+                'visit' => $visit
+            ], 201);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['message' => 'Failed to create visit.', 'error' => $e->getMessage()], 500);
@@ -104,9 +106,10 @@ class VisitController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Visits fetched successfully.',
-            'data' => $visits], 200);
+            'data' => $visits
+        ], 200);
     }
-public function getAllVisitDateGroup(): JsonResponse
+    public function getAllVisitDateGroup(): JsonResponse
     {
         try {
             // Fetch all visits from the database, ordered by date to make grouping cleaner
@@ -129,7 +132,6 @@ public function getAllVisitDateGroup(): JsonResponse
                 'status' => 'success',
                 'data' => $formattedData,
             ], 200);
-
         } catch (\Exception $e) {
             // Handle any potential errors during the database query or processing
             return response()->json([
@@ -155,7 +157,8 @@ public function getAllVisitDateGroup(): JsonResponse
         return response()->json([
             'status' => 'success',
             'message' => 'Visits fetched successfully.',
-            'data' => $visits], 200);
+            'data' => $visits
+        ], 200);
     }
 
     /**
@@ -168,7 +171,7 @@ public function getAllVisitDateGroup(): JsonResponse
         if (!$visit) {
             return response()->json(['message' => 'Visit not found.'], 404);
         }
-        
+
         // This is where a salesperson would update a visit
         $validator = Validator::make($request->all(), [
             'status' => ['required', 'string', Rule::in(['Scheduled', 'Completed', 'Canceled', 'No Show'])],
@@ -178,14 +181,14 @@ public function getAllVisitDateGroup(): JsonResponse
             'checkin_longitude' => 'nullable|numeric',
             'note' => 'nullable|string',
         ]);
-        
+
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
         try {
             DB::beginTransaction();
-            
+
             // 1. Update the visit record
             $visit->update($request->only([
                 'status',
@@ -225,12 +228,15 @@ public function getAllVisitDateGroup(): JsonResponse
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'Visit updated successfully.', 'visit' => $visit], 200);
+                'message' => 'Visit updated successfully.',
+                'visit' => $visit
+            ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['message' => 'Failed to update visit.', 'error' => $e->getMessage()], 500);
         }
     }
+
 
     /**
      * Delete a visit.
@@ -245,14 +251,14 @@ public function getAllVisitDateGroup(): JsonResponse
 
         try {
             DB::beginTransaction();
-            
+
             // 1. Find the task and relation to delete
             $relation = TaskVisitRelation::where('visit_id', $visit->id)->first();
-            
+
             if ($relation) {
                 // 2. Delete the related task
                 Tasks::where('id', $relation->task_id)->delete();
-                
+
                 // 3. Delete the relation record
                 $relation->delete();
 
@@ -267,7 +273,8 @@ public function getAllVisitDateGroup(): JsonResponse
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'Visit and associated records deleted successfully.'], 200);
+                'message' => 'Visit and associated records deleted successfully.'
+            ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['message' => 'Failed to delete visit.', 'error' => $e->getMessage()], 500);
