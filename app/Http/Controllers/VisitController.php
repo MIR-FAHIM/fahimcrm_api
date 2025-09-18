@@ -106,7 +106,39 @@ class VisitController extends Controller
             'message' => 'Visits fetched successfully.',
             'data' => $visits], 200);
     }
+public function getAllVisitDateGroup(): JsonResponse
+    {
+        try {
+            // Fetch all visits from the database, ordered by date to make grouping cleaner
+            $allVisits = Visit::orderBy('scheduled_at')->get();
 
+            // Group the visits by the date part of the 'scheduled_at' timestamp
+            $groupedVisits = $allVisits->groupBy(function ($visit) {
+                return $visit->scheduled_at->format('Y-m-d');
+            });
+
+            // Format the grouped data to match the requested structure (array of objects)
+            $formattedData = $groupedVisits->map(function ($visits, $date) {
+                return [
+                    'date' => $date,
+                    'visits' => $visits->toArray()
+                ];
+            })->values()->all(); // Use values() to reset keys and get a plain array
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $formattedData,
+            ], 200);
+
+        } catch (\Exception $e) {
+            // Handle any potential errors during the database query or processing
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to retrieve and group visit data.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
     /**
      * Get all visits for a specific employee.
      */

@@ -426,6 +426,7 @@ Route::get('projects/features/{id}', [ProjectFeaturesController::class, 'getProj
 //visit
 Route::post('/visit/add', [VisitController::class, 'addVisit']);
 Route::get('/visit/all', [VisitController::class, 'getAllVisit']);
+Route::get('/visit/all/datewise', [VisitController::class, 'getAllVisitDateGroup']);
 Route::get('/visit/employee/{employee_id}', [VisitController::class, 'getVisitByEmployee']);
 Route::put('/visit/update/{id}', [VisitController::class, 'updateVisit']);
 Route::delete('/visit/delete/{id}', [VisitController::class, 'deleteVisit']);
