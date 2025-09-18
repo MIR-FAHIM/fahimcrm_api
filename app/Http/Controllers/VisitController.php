@@ -166,6 +166,7 @@ class VisitController extends Controller
      */
     public function updateVisit(Request $request, $id): JsonResponse
     {
+         return response()->json(['message' => $request->status], 404);
         $visit = Visit::find($id);
 
         if (!$visit) {
@@ -216,7 +217,7 @@ class VisitController extends Controller
                     if ($request->status === 'Completed' || $request->status === 'No Show') {
                         // Find the ID for the 'Completed' status in your TaskStatus table
                         // You should retrieve this from your database or configuration
-                        $completedStatusId = 2; // Placeholder ID for "Completed"
+                        $completedStatusId = 5; // Placeholder ID for "Completed"
                         $task->status_id = $completedStatusId;
                         $task->completion_percentage = 100;
                         $task->save();
