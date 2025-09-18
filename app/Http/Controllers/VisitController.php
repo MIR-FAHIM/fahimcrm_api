@@ -204,7 +204,7 @@ class VisitController extends Controller
             if ($relation) {
                 // Update the relation status
                 $relation->update([
-                    'status' => $request->status,
+                    'status' => 'Completed', // Assuming the visit is completed when updated by salesperson
                     'note' => $request->note, // Update the note on the relation table as well
                     'latitude' => $request->checkin_latitude,
                     'longitude' => $request->checkin_longitude,
