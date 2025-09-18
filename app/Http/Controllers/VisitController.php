@@ -110,7 +110,7 @@ public function getAllVisitDateGroup(): JsonResponse
     {
         try {
             // Fetch all visits from the database, ordered by date to make grouping cleaner
-            $allVisits = Visit::orderBy('scheduled_at')->get();
+            $allVisits = Visit::with('planner', 'lead', 'zone')->orderBy('scheduled_at')->get();
 
             // Group the visits by the date part of the 'scheduled_at' timestamp
             $groupedVisits = $allVisits->groupBy(function ($visit) {
