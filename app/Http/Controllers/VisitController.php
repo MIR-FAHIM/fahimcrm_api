@@ -214,14 +214,14 @@ class VisitController extends Controller
                 // Update the task status based on the visit status
                 $task = Tasks::find($relation->task_id);
                 if ($task) {
-                    if ($request->status === 'Completed' || $request->status === 'No Show') {
+                   
                         // Find the ID for the 'Completed' status in your TaskStatus table
                         // You should retrieve this from your database or configuration
                         $completedStatusId = 5; // Placeholder ID for "Completed"
                         $task->status_id = $completedStatusId;
                         $task->completion_percentage = 100;
                         $task->save();
-                    }
+                    
                 }
             }
 
