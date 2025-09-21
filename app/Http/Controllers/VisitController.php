@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Visit;
 use App\Models\Tasks;
+use App\Models\TaskStatus;
 use App\Models\TaskAssignedPersons; // Assuming this model exists
 use App\Models\TaskVisitRelation;
 use App\Models\TaskType;
@@ -34,7 +35,7 @@ class VisitController extends Controller
                 Rule::exists('prospects', 'id'),
             ],
             'task_status_id' => 'required|exists:task_statuses,id', // Add this to the request for the task status
-            
+
             'department_id' => 'required|exists:departments,id', // Add this to the request for the department
         ]);
 
@@ -66,7 +67,7 @@ class VisitController extends Controller
                 'start_date' => $request->scheduled_at,
                 'created_by' => $request->planner_id, // The planner created this task
                 'status_id' => $request->task_status_id, // Use the status ID from the request
-                'task_type_id' =>  $taskType->id , // Use the ID from the fetched task type
+                'task_type_id' =>  $taskType->id, // Use the ID from the fetched task type
                 'priority_id' => $request->priority_id,
                 'department_id' => $request->department_id,
             ]);
@@ -190,18 +191,19 @@ class VisitController extends Controller
     /**
      * Update an existing visit.
      */
-    public function updateVisit(Request $request, $id): JsonResponse
+public function updateVisit(Request $request, $id): JsonResponse
     {
-         
+        // Find the visit by ID
         $visit = Visit::find($id);
 
+        // Check if the visit exists
         if (!$visit) {
             return response()->json(['message' => 'Visit not found.'], 404);
         }
 
-        // This is where a salesperson would update a visit
+        // Validate the request data
         $validator = Validator::make($request->all(), [
-         'status' => 'nullable|string',
+            'status' => 'nullable|string',
             'actual_start_at' => 'nullable|date_format:Y-m-d H:i:s',
             'actual_end_at' => 'nullable|date_format:Y-m-d H:i:s',
             'checkin_latitude' => 'nullable|numeric',
@@ -213,9 +215,10 @@ class VisitController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        try {
-            DB::beginTransaction();
+        // Start a database transaction to ensure atomicity
+        DB::beginTransaction();
 
+        try {
             // 1. Update the visit record
             $visit->update($request->only([
                 'status',
@@ -226,39 +229,44 @@ class VisitController extends Controller
                 'note',
             ]));
 
-            // 2. Update the related task and relation table
-            $relation = TaskVisitRelation::where('visit_id', $visit->id)->first();
-            if ($relation) {
-                // Update the relation status
+            // Find the related task and relation table
+            $relation = TaskVisitRelation::where('visit_id', $visit->id)->firstOrFail(); // Use firstOrFail() to throw an exception if not found
+            $task = Tasks::find($relation->task_id);
+
+            if ($task) {
+                // Find the ID for the 'Completed' status dynamically
+                $completedStatus = TaskStatus::where('status_name', 'Completed')->firstOrFail();
+
+                // 2. Update the task-visit relation status and other fields
                 $relation->update([
-                    'status' => 'Completed', // Assuming the visit is completed when updated by salesperson
-                    'note' => $request->note, // Update the note on the relation table as well
+                    'status' => $request->status, // Use the provided status from the request
+                    'note' => $request->note,
                     'latitude' => $request->checkin_latitude,
                     'longitude' => $request->checkin_longitude,
                 ]);
 
-                // Update the task status based on the visit status
-                $task = Tasks::find($relation->task_id);
-                if ($task) {
-                   
-                        // Find the ID for the 'Completed' status in your TaskStatus table
-                        // You should retrieve this from your database or configuration
-                        $completedStatusId = 5; // Placeholder ID for "Completed"
-                        $task->status_id = $completedStatusId;
-                        $task->completion_percentage = 100;
-                        $task->save();
-                    
-                }
+                // 3. Update the task status and completion percentage
+                $task->update([
+                    'status_id' => $completedStatus->id,
+                    'completion_percentage' => 100,
+                ]);
             }
 
+            // Commit the transaction if all updates were successful
             DB::commit();
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'Visit updated successfully.',
+                'message' => 'Visit and related task updated successfully.',
                 'visit' => $visit
             ], 200);
+
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            // Rollback the transaction on a model not found exception
+            DB::rollBack();
+            return response()->json(['message' => 'Related task or status not found.', 'error' => $e->getMessage()], 404);
         } catch (\Exception $e) {
+            // Rollback the transaction on any other exception
             DB::rollBack();
             return response()->json(['message' => 'Failed to update visit.', 'error' => $e->getMessage()], 500);
         }
