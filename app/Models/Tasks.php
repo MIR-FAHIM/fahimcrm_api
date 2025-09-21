@@ -79,7 +79,7 @@ class Tasks extends Model
 
         public function taskVisitRelation(): HasOne
     {
-        return $this->hasOne(TaskVisitRelation::class, 'visit_id', 'id');
+        return $this->hasOne(TaskVisitRelation::class, 'task_id', 'id');
     }
     // Optionally, you can add a $hidden property to hide sensitive data
     // protected $hidden = ['created_at', 'updated_at'];
