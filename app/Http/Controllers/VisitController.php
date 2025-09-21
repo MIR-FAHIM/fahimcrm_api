@@ -202,7 +202,7 @@ public function updateVisit( $id, Request $request,): JsonResponse
         }
 
        
- return response()->json(['message' => $id], 404);
+
         // Start a database transaction to ensure atomicity
         DB::beginTransaction();
 
