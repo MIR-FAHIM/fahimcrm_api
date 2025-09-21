@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
+use Illuminate\Database\Eloquent\Relations\HasOne;
 class Tasks extends Model
 {
     use HasFactory;
@@ -75,6 +75,11 @@ class Tasks extends Model
     public function tasks()
     {
         return $this->hasMany(Tasks::class, 'project_id');
+    }
+
+        public function taskVisitRelation(): HasOne
+    {
+        return $this->hasOne(TaskVisitRelation::class, 'visit_id', 'id');
     }
     // Optionally, you can add a $hidden property to hide sensitive data
     // protected $hidden = ['created_at', 'updated_at'];
