@@ -198,7 +198,7 @@ public function updateVisit( $id, Request $request,): JsonResponse
 
         // Check if the visit exists
         if (!$visit) {
-            return response()->json(['message' => 'Visit not found.'], 404);
+            return response()->json(['message' => $id], 404);
         }
 
        
