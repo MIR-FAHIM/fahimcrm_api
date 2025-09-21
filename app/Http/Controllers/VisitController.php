@@ -244,7 +244,7 @@ class VisitController extends Controller
 
                 $leadVisit = ProspectLogActivity::create([
                     'prospect_id' => $visit->lead_id,
-                    'related_id' => $visit->id,
+                    'related_id' => $visit->taskVisitRelation->task_id,
                     'activity_type' => 'visit',
                     'title' => null,
                     'notes' => $request->note,
