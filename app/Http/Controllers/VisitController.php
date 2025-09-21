@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Visit;
 use App\Models\Tasks;
+use App\Models\ProspectLogActivity;
 use App\Models\TaskStatus;
 use App\Models\TaskAssignedPersons; // Assuming this model exists
 use App\Models\TaskVisitRelation;
@@ -56,6 +57,7 @@ class VisitController extends Controller
                 'purpose' => $request->purpose,
                 'note' => $request->note,
             ]);
+
 
             $taskType = TaskType::where('type_name', 'Visit')->first();
 
@@ -191,7 +193,7 @@ class VisitController extends Controller
     /**
      * Update an existing visit.
      */
-public function updateVisit( $id, Request $request,): JsonResponse
+    public function updateVisit($id, Request $request,): JsonResponse
     {
         // Find the visit by ID
         $visit = Visit::find($id);
@@ -201,14 +203,14 @@ public function updateVisit( $id, Request $request,): JsonResponse
             return response()->json(['message' => 'Visit not found.'], 404);
         }
 
-       
+
 
         // Start a database transaction to ensure atomicity
         DB::beginTransaction();
 
         try {
             // 1. Update the visit record
-            
+
             $visit->update($request->only([
                 'status',
                 'actual_start_at',
@@ -239,6 +241,16 @@ public function updateVisit( $id, Request $request,): JsonResponse
                     'status_id' => $completedStatus->id,
                     'completion_percentage' => 100,
                 ]);
+
+                $leadVisit = ProspectLogActivity::create([
+                    'prospect_id' => $visit->lead_id,
+                    'related_id' => $visit->id,
+                    'activity_type' => 'visit',
+                    'title' => null,
+                    'notes' => $request->note,
+                    'activity_time' => now(),
+                    'created_by'    => $visit->employee_id,
+                ]);
             }
 
             // Commit the transaction if all updates were successful
@@ -249,7 +261,6 @@ public function updateVisit( $id, Request $request,): JsonResponse
                 'message' => 'Visit and related task updated successfully.',
                 'visit' => $visit
             ], 200);
-
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             // Rollback the transaction on a model not found exception
             DB::rollBack();
