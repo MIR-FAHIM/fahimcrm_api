@@ -80,4 +80,8 @@ class Visit extends Model
     {
         return $this->belongsTo(Zone::class, 'zone_id');
     }
+    public function task(): BelongsTo
+    {
+        return $this->belongsTo(TaskVisitRelation::class, 'id');
+    }
 }
