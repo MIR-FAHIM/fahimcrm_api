@@ -198,11 +198,11 @@ public function updateVisit( $id, Request $request,): JsonResponse
 
         // Check if the visit exists
         if (!$visit) {
-            return response()->json(['message' => $id], 404);
+            return response()->json(['message' => 'Visit not found.'], 404);
         }
 
        
- return response()->json(['message' => $request->checkin_latitude], 404);
+ return response()->json(['message' => $id], 404);
         // Start a database transaction to ensure atomicity
         DB::beginTransaction();
 
