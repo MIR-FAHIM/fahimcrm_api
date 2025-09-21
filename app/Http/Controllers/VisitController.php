@@ -109,6 +109,29 @@ class VisitController extends Controller
             'data' => $visits
         ], 200);
     }
+    public function getAllVisitByEmpAndDate(Request $request): JsonResponse
+    {
+        $query = Visit::with(['employee', 'planner', 'lead', 'zone']);
+
+        // Filter by date if provided
+        if ($request->has('date') && $request->date) {
+            $query->whereDate('created_at', $request->date);
+        }
+
+        // Filter by employee_id if provided
+        if ($request->has('employee_id') && $request->employee_id) {
+            $query->where('employee_id', $request->employee_id);
+        }
+
+        $visits = $query->get();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Visits fetched successfully.',
+            'data' => $visits
+        ], 200);
+    }
+
     public function getAllVisitDateGroup(): JsonResponse
     {
         try {
