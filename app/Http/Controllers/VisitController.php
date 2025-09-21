@@ -170,7 +170,7 @@ class VisitController extends Controller
     public function getVisitByEmployee($employee_id): JsonResponse
     {
         $visits = Visit::where('employee_id', $employee_id)
-            ->with(['planner', 'lead', 'zone', 'task'])
+            ->with(['planner', 'lead', 'zone', 'taskVisitRelation'])
             ->get();
 
         if ($visits->isEmpty()) {
