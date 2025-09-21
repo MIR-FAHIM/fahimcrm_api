@@ -220,6 +220,7 @@ public function updateVisit(Request $request, $id): JsonResponse
 
         try {
             // 1. Update the visit record
+             return response()->json(['errors' => $request->checkin_latitude], 422);
             $visit->update($request->only([
                 'status',
                 'actual_start_at',
