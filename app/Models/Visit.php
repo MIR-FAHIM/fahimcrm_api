@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Visit extends Model
 {
@@ -80,8 +81,12 @@ class Visit extends Model
     {
         return $this->belongsTo(Zone::class, 'zone_id');
     }
-    public function task(): BelongsTo
+
+    /**
+     * Get the task visit relation associated with the visit.
+     */
+    public function taskVisitRelation(): HasOne
     {
-        return $this->belongsTo(TaskVisitRelation::class, 'visit_id');
+        return $this->hasOne(TaskVisitRelation::class, 'visit_id', 'id');
     }
 }
