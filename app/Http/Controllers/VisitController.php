@@ -201,19 +201,7 @@ public function updateVisit(Request $request, $id): JsonResponse
             return response()->json(['message' => 'Visit not found.'], 404);
         }
 
-        // Validate the request data
-        $validator = Validator::make($request->all(), [
-            'status' => 'nullable|string',
-            'actual_start_at' => 'nullable|date_format:Y-m-d H:i:s',
-            'actual_end_at' => 'nullable|date_format:Y-m-d H:i:s',
-            'checkin_latitude' => 'nullable|numeric',
-            'checkin_longitude' => 'nullable|numeric',
-            'note' => 'nullable|string',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
+       
 
         // Start a database transaction to ensure atomicity
         DB::beginTransaction();
