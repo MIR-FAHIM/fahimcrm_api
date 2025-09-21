@@ -191,7 +191,7 @@ class VisitController extends Controller
     /**
      * Update an existing visit.
      */
-public function updateVisit(Request $request, $id): JsonResponse
+public function updateVisit( $id, Request $request,): JsonResponse
     {
         // Find the visit by ID
         $visit = Visit::find($id);
