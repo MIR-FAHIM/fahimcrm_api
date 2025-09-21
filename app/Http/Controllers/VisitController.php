@@ -6,6 +6,7 @@ use App\Models\Visit;
 use App\Models\Tasks;
 use App\Models\TaskAssignedPersons; // Assuming this model exists
 use App\Models\TaskVisitRelation;
+use App\Models\TaskType;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
@@ -33,7 +34,7 @@ class VisitController extends Controller
                 Rule::exists('prospects', 'id'),
             ],
             'task_status_id' => 'required|exists:task_statuses,id', // Add this to the request for the task status
-            'task_type_id' => 'required|exists:task_types,id', // Add this to the request for the task type
+            
             'department_id' => 'required|exists:departments,id', // Add this to the request for the department
         ]);
 
@@ -55,6 +56,8 @@ class VisitController extends Controller
                 'note' => $request->note,
             ]);
 
+            $taskType = TaskType::where('type_name', 'Visit')->first();
+
             // 2. Create the related task, using the field names from your Tasks model
             $task = Tasks::create([
                 'task_title' => 'Visit: ' . ($request->lead_id ? 'Lead ' . $request->lead_id : 'Zone ' . $request->zone_id),
@@ -63,7 +66,7 @@ class VisitController extends Controller
                 'start_date' => $request->scheduled_at,
                 'created_by' => $request->planner_id, // The planner created this task
                 'status_id' => $request->task_status_id, // Use the status ID from the request
-                'task_type_id' => $request->task_type_id,
+                'task_type_id' =>  $taskType->id , // Use the ID from the fetched task type
                 'priority_id' => $request->priority_id,
                 'department_id' => $request->department_id,
             ]);
