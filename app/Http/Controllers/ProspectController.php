@@ -188,7 +188,7 @@ class ProspectController extends Controller
     public function getProspectDetail($id)
     {
         try {
-            $prospect = Prospect::with('informationSource', 'industryType', 'stage', 'zone', 'interestedFor')->find($id);
+            $prospect = Prospect::with('informationSource', 'industryType', 'stage', 'zone', 'interestedFor', )->find($id);
 
             if (!$prospect) {
                 return response()->json([

@@ -38,7 +38,7 @@ class ProspectLogActivityController extends Controller
     public function getLogByProspectId($prospect_id)
     {
         try {
-            $logs = ProspectLogActivity::where('prospect_id', $prospect_id)->orderBy('activity_time', 'desc')->with('createdBy')->get();
+            $logs = ProspectLogActivity::where('prospect_id', $prospect_id)->orderBy('activity_time', 'desc')->with('createdBy', 'relatedTask')->get();
            
 
             return response()->json(['status' => true, 'data' => $logs]);
