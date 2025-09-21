@@ -202,7 +202,7 @@ public function updateVisit(Request $request, $id): JsonResponse
         }
 
        
-
+ return response()->json(['message' => $request->checkin_latitude], 404);
         // Start a database transaction to ensure atomicity
         DB::beginTransaction();
 
