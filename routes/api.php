@@ -429,5 +429,5 @@ Route::get('/visit/all', [VisitController::class, 'getAllVisit']);
 Route::get('/visit/all/datewise', [VisitController::class, 'getAllVisitDateGroup']);
 Route::get('/visit/employee/{employee_id}', [VisitController::class, 'getVisitByEmployee']);
 Route::get('/visit/date/emp', [VisitController::class, 'getAllVisitByEmpAndDate']);
-Route::put('/visit/update/{id}', [VisitController::class, 'updateVisit']);
+Route::patch('/visit/update/{id}', [VisitController::class, 'updateVisit']);
 Route::delete('/visit/delete/{id}', [VisitController::class, 'deleteVisit']);
