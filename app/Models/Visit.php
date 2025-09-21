@@ -82,6 +82,6 @@ class Visit extends Model
     }
     public function task(): BelongsTo
     {
-        return $this->belongsTo(TaskVisitRelation::class, 'id');
+        return $this->belongsTo(TaskVisitRelation::class, 'visit_id');
     }
 }
