@@ -247,7 +247,7 @@ $department = Department::find($id);
     {
         try {
             // Find the task by ID
-            $task = Tasks::where('id',$taskId)->with('taskType', 'project', 'priority', 'creator', 'status', 'assignedPersons', 'taskVisitRelation.visit')->first(); // This will throw a ModelNotFoundException if not found
+            $task = Tasks::where('id',$taskId)->with('taskType', 'project', 'priority', 'creator', 'status', 'assignedPersons', 'taskVisitRelation.visit.zone.planner')->first(); // This will throw a ModelNotFoundException if not found
     
             // Return success response with the task details
             return response()->json([
