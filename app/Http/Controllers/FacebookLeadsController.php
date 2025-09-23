@@ -91,7 +91,7 @@ class FacebookLeadsController extends Controller
                     'prospect_id' => $prospect->id,
                     'person_name' => $lead->name,
                     'email' => $lead->email,
-                    'mobile' => $lead->phone,
+                    'mobile' => $lead->mobile,
                     'note' => 'Lead converted from Facebook',
                     'is_primary' => 1,
                     'is_responsive' => 1,
