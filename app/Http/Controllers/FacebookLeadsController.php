@@ -13,13 +13,32 @@ class FacebookLeadsController extends Controller
     public function getFacebookLeads()
     {
         try {
+               $now = now();
+        $today = FacebookLeads::whereDate('created_at', $now->toDateString())->count();
+        $yesterday = FacebookLeads::whereDate('created_at', $now->subDay()->toDateString())->count();
+        $last7Days = FacebookLeads::where('created_at', '>=', $now->subDays(6)->startOfDay())->count();
+        $lastMonth = FacebookLeads::where('created_at', '>=', $now->subDays(30)->startOfDay())->count();
+        $last3Months = FacebookLeads::where('created_at', '>=', $now->subMonths(3)->startOfDay())->count();
+        $lastYear = FacebookLeads::where('created_at', '>=', $now->subYear()->startOfDay())->count();
+
+        $data = FacebookLeads::orderBy('created_at', 'desc')->get();
+
+        $report = [
+            'today_onboard' => $today,
+            'yesterday_onboard' => $yesterday,
+            'last_7_days_onboard' => $last7Days,
+            'last_1_month_onboard' => $lastMonth,
+            'last_3_month_onboard' => $last3Months,
+            'last_1_year_onboard' => $lastYear,
+        ];
             // Retrieve all departments
-            $data = FacebookLeads::orderBy('created_at', 'desc')->get();
+          
 
             // Return success response
             return response()->json([
                 'status' => 'success',
                 'message' => 'Facebook Leads retrieved successfully',
+                'report' => $report,
                 'data' => $data
             ], 200);
         } catch (Exception $e) {
