@@ -57,7 +57,7 @@ class FacebookLeadsController extends Controller
     public function convertToProspect(Request $request)
     {
         $request->validate([
-            'ids' => 'required|array',
+     
             'ids.*' => 'exists:facebook_leads,id',
         ]);
 
