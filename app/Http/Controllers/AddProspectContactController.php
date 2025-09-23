@@ -31,9 +31,13 @@ class AddProspectContactController extends Controller
             // Insert multiple contact persons at once
             AddProspectContact::insert($contacts);
 
-            return response()->json(['message' => 'Contacts added successfully!'], 200);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Contacts added successfully!'], 200);
         } catch (Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json([
+                'status' => 'error',
+                'error' => $e->getMessage()], 500);
         }
     }
 
