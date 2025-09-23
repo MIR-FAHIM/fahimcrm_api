@@ -73,7 +73,7 @@ class FacebookLeadsController extends Controller
                     'is_individual' => 1,
                     'industry_type_id' => 1,
                     'interested_for_id' => 1,
-                    'information_source_id' => 3,
+                    'information_source_id' => 1,
                     'zone_id' => 1,
                     'type' => 'prospect',
                     'address' => 'new address',
