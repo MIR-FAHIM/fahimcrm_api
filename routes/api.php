@@ -214,7 +214,7 @@ Route::get('/get-contact-person-prospect/{id}', [AddProspectContactController::c
 
 // marketing -facebook
 Route::get('/get-facebook-leads', [FacebookLeadsController::class, 'getFacebookLeads']);
-Route::post('/convert-to-prospect', [ProspectController::class, 'convertToProspect']);
+Route::post('/convert-to-prospect', [FacebookLeadsController::class, 'convertToProspect']);
 Route::post('/update-contact-status-facebook', [FacebookLeadsController::class, 'updateStatusForMultiple']);
 
 
