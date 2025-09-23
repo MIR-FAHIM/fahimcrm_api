@@ -12,7 +12,7 @@ class FacebookLeadsController extends Controller
     {
         try {
             // Retrieve all departments
-            $data = FacebookLeads::where('status', 1)->orderBy('created_at', 'desc')->get();
+            $data = FacebookLeads::orderBy('created_at', 'desc')->get();
 
             // Return success response
             return response()->json([
