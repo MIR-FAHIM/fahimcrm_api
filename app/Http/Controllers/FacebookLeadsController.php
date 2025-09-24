@@ -15,17 +15,18 @@ class FacebookLeadsController extends Controller
         try {
 $now = now();
 
-$today = FacebookLeads::whereDate('created_at', $now->toDateString())->count();
+$today = FacebookLeads::whereRaw("DATE(CONVERT_TZ(created_at, '+00:00', '+00:00')) = ?", [$now->toDateString()])->count();
 
-$yesterday = FacebookLeads::whereDate('created_at', $now->copy()->subDay()->toDateString())->count();
+$yesterday = FacebookLeads::whereRaw("DATE(CONVERT_TZ(created_at, '+00:00', '+00:00')) = ?", [$now->copy()->subDay()->toDateString()])->count();
 
-$last7Days = FacebookLeads::whereDate('created_at', '>=', $now->copy()->subDays(6)->toDateString())->count();
+$last7Days = FacebookLeads::whereRaw("DATE(CONVERT_TZ(created_at, '+00:00', '+00:00')) >= ?", [$now->copy()->subDays(6)->toDateString()])->count();
 
-$lastMonth = FacebookLeads::whereDate('created_at', '>=', $now->copy()->subDays(30)->toDateString())->count();
+$lastMonth = FacebookLeads::whereRaw("DATE(CONVERT_TZ(created_at, '+00:00', '+00:00')) >= ?", [$now->copy()->subDays(30)->toDateString()])->count();
 
-$last3Months = FacebookLeads::whereDate('created_at', '>=', $now->copy()->subMonths(3)->toDateString())->count();
+$last3Months = FacebookLeads::whereRaw("DATE(CONVERT_TZ(created_at, '+00:00', '+00:00')) >= ?", [$now->copy()->subMonths(3)->toDateString()])->count();
 
-$lastYear = FacebookLeads::whereDate('created_at', '>=', $now->copy()->subYear()->toDateString())->count();
+$lastYear = FacebookLeads::whereRaw("DATE(CONVERT_TZ(created_at, '+00:00', '+00:00')) >= ?", [$now->copy()->subYear()->toDateString()])->count();
+
 
 $data = FacebookLeads::orderBy('created_at', 'desc')->get();
 
