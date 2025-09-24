@@ -31,6 +31,7 @@ return new class extends Migration
             $table->unsignedBigInteger('planner_id');
             $table->unsignedBigInteger('lead_id')->nullable();
             $table->unsignedBigInteger('zone_id')->nullable();
+            $table->unsignedBigInteger('priority_id')->nullable();
 
             // Foreign key constraints
             // We use `->on()` to specify the table and `->references()` for the column name

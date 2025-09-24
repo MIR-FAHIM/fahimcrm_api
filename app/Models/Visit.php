@@ -82,6 +82,11 @@ class Visit extends Model
         return $this->belongsTo(Zone::class, 'zone_id');
     }
 
+    public function priority(): BelongsTo
+    {
+        return $this->belongsTo(Priority::class, 'priority_id');
+    }
+
     /**
      * Get the task visit relation associated with the visit.
      */

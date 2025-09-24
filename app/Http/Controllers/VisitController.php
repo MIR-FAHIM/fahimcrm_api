@@ -107,7 +107,7 @@ class VisitController extends Controller
      */
     public function getAllVisit(Request $request): JsonResponse
     {
-        $visits = Visit::with(['employee', 'planner', 'lead', 'zone'])->get();
+        $visits = Visit::with(['employee', 'planner', 'lead', 'zone', 'priority'])->get();
 
         return response()->json([
             'status' => 'success',
