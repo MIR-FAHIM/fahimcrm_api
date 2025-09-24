@@ -6,57 +6,87 @@ use App\Models\FacebookLeads;
 use App\Models\Prospect;
 use App\Models\AddProspectContact;
 use Exception;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class FacebookLeadsController extends Controller
 {
-    public function getFacebookLeads()
-    {
-        try {
-$now = now();
+public function getFacebookLeads()
+{
+    try {
+        // Work in UTC to match "+0000"
+        $now = Carbon::now('UTC');
 
-$today = FacebookLeads::whereRaw("DATE(CONVERT_TZ(created_at, '+00:00', '+00:00')) = ?", [$now->toDateString()])->count();
+        // Parse "YYYY-MM-DDTHH:MM:SS+0000" -> DATETIME
+        // 1) SUBSTRING(...,1,19) keeps "YYYY-MM-DDTHH:MM:SS"
+        // 2) REPLACE T with space
+        // 3) STR_TO_DATE into DATETIME
+        $parsed = "STR_TO_DATE(REPLACE(SUBSTRING(created_at,1,19),'T',' '), '%Y-%m-%d %H:%i:%s')";
 
-$yesterday = FacebookLeads::whereRaw("DATE(CONVERT_TZ(created_at, '+00:00', '+00:00')) = ?", [$now->copy()->subDay()->toDateString()])->count();
+        // Helpers
+        $dayStart = fn(Carbon $c) => $c->copy()->startOfDay()->format('Y-m-d H:i:s');
+        $dayEnd   = fn(Carbon $c) => $c->copy()->endOfDay()->format('Y-m-d H:i:s');
 
-$last7Days = FacebookLeads::whereRaw("DATE(CONVERT_TZ(created_at, '+00:00', '+00:00')) >= ?", [$now->copy()->subDays(6)->toDateString()])->count();
+        // today
+        $today = FacebookLeads::whereRaw("$parsed >= ? AND $parsed <= ?", [
+                $dayStart($now),
+                $dayEnd($now),
+            ])->count();
 
-$lastMonth = FacebookLeads::whereRaw("DATE(CONVERT_TZ(created_at, '+00:00', '+00:00')) >= ?", [$now->copy()->subDays(30)->toDateString()])->count();
+        // yesterday
+        $y = $now->copy()->subDay();
+        $yesterday =FacebookLeads::whereRaw("$parsed >= ? AND $parsed <= ?", [
+                $dayStart($y),
+                $dayEnd($y),
+            ])->count();
 
-$last3Months = FacebookLeads::whereRaw("DATE(CONVERT_TZ(created_at, '+00:00', '+00:00')) >= ?", [$now->copy()->subMonths(3)->toDateString()])->count();
+        // last 7 days (including today)
+        $last7Days = FacebookLeads::whereRaw("$parsed >= ?", [
+                $now->copy()->subDays(6)->startOfDay()->format('Y-m-d H:i:s'),
+            ])->count();
 
-$lastYear = FacebookLeads::whereRaw("DATE(CONVERT_TZ(created_at, '+00:00', '+00:00')) >= ?", [$now->copy()->subYear()->toDateString()])->count();
+        // last 30 days
+        $lastMonth = FacebookLeads::whereRaw("$parsed >= ?", [
+                $now->copy()->subDays(30)->startOfDay()->format('Y-m-d H:i:s'),
+            ])->count();
 
+        // last 3 months
+        $last3Months = FacebookLeads::whereRaw("$parsed >= ?", [
+                $now->copy()->subMonths(3)->startOfDay()->format('Y-m-d H:i:s'),
+            ])->count();
 
-$data = FacebookLeads::orderBy('created_at', 'desc')->get();
+        // last 1 year
+        $lastYear = FacebookLeads::whereRaw("$parsed >= ?", [
+                $now->copy()->subYear()->startOfDay()->format('Y-m-d H:i:s'),
+            ])->count();
+
+        // fetch data, ordered by parsed created_at desc
+        $data = FacebookLeads::orderByRaw("$parsed DESC")
+            ->get();
 
         $report = [
-            'today_onboard' => $today,
-            'yesterday_onboard' => $yesterday,
-            'last_7_days_onboard' => $last7Days,
+            'today_onboard'        => $today,
+            'yesterday_onboard'    => $yesterday,
+            'last_7_days_onboard'  => $last7Days,
             'last_1_month_onboard' => $lastMonth,
             'last_3_month_onboard' => $last3Months,
-            'last_1_year_onboard' => $lastYear,
+            'last_1_year_onboard'  => $lastYear,
         ];
-            // Retrieve all departments
-          
 
-            // Return success response
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Facebook Leads retrieved successfully',
-                'report' => $report,
-                'data' => $data
-            ], 200);
-        } catch (Exception $e) {
-            // Handle exceptions and return error response
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Failed to retrieve Facebook Leads: ' . $e->getMessage(),
-                'data' => null
-            ], 400);
-        }
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Facebook Leads retrieved successfully',
+            'report'  => $report,
+            'data'    => $data,
+        ], 200);
+    } catch (\Throwable $e) {
+        return response()->json([
+            'status'  => 'error',
+            'message' => 'Failed to retrieve Facebook Leads: ' . $e->getMessage(),
+            'data'    => null,
+        ], 400);
     }
+}
 
 
     public function updateStatusForMultiple(Request $request)
