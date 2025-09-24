@@ -117,7 +117,7 @@ class VisitController extends Controller
     }
     public function getAllVisitByEmpAndDate(Request $request): JsonResponse
     {
-        $query = Visit::with(['employee', 'planner', 'lead', 'zone']);
+        $query = Visit::with(['employee', 'planner', 'lead', 'zone', 'priority',]);
 
         // Filter by date if provided
         if ($request->has('date') && $request->date) {
@@ -142,7 +142,7 @@ class VisitController extends Controller
     {
         try {
             // Fetch all visits from the database, ordered by date to make grouping cleaner
-            $allVisits = Visit::with('planner', 'lead', 'zone', 'employee')->orderBy('scheduled_at')->get();
+            $allVisits = Visit::with('planner', 'lead', 'zone', 'employee', 'priority',)->orderBy('scheduled_at')->get();
 
             // Group the visits by the date part of the 'scheduled_at' timestamp
             $groupedVisits = $allVisits->groupBy(function ($visit) {
@@ -176,7 +176,7 @@ class VisitController extends Controller
     public function getVisitByEmployee($employee_id): JsonResponse
     {
         $visits = Visit::where('employee_id', $employee_id)
-            ->with(['planner', 'lead', 'zone', 'taskVisitRelation'])
+            ->with(['planner', 'lead', 'zone', 'taskVisitRelation', 'priority'])
             ->get();
 
         if ($visits->isEmpty()) {
