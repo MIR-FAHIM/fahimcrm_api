@@ -63,7 +63,7 @@ class VisitController extends Controller
 
             // 2. Create the related task, using the field names from your Tasks model
             $task = Tasks::create([
-                'task_title' => 'Visit: ' . ($request->lead_id ? 'Lead ' . $request->lead_id : 'Zone ' . $request->zone_id),
+                'task_title' => 'Visit: ' . ($request->lead_id ? 'Lead ' . $visit->lead->prospect_name : 'Zone ' . $visit->zone->zone_name),
                 'task_details' => $request->purpose ?? 'No purpose specified.',
                 'due_date' => $request->scheduled_at,
                 'start_date' => $request->scheduled_at,
