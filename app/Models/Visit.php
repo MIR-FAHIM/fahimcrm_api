@@ -87,6 +87,10 @@ class Visit extends Model
     {
         return $this->belongsTo(Priority::class, 'priority_id');
     }
+    public function status(): BelongsTo
+    {
+        return $this->belongsTo(TaskStatus::class, 'status_id');
+    }
 
     /**
      * Get the task visit relation associated with the visit.

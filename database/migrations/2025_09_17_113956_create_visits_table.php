@@ -17,7 +17,7 @@ return new class extends Migration
             // Core fields for a sales visit
             $table->string('purpose')->nullable();
             $table->text('note')->nullable();
-            $table->enum('status', ['Scheduled', 'Completed', 'Canceled', 'No Show'])->default('Scheduled');
+            $table->unsignedBigInteger('status', )->default(1);
             $table->enum('visit_type', ['Planned', 'Spontaneous'])->default('Planned');
             $table->dateTime('scheduled_at');
             $table->dateTime('actual_start_at')->nullable();
