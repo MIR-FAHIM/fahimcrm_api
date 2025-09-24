@@ -37,6 +37,7 @@ class Visit extends Model
         'planner_id',
         'lead_id',
         'zone_id',
+        'priority_id',
     ];
 
     /**
