@@ -13,15 +13,21 @@ class FacebookLeadsController extends Controller
     public function getFacebookLeads()
     {
         try {
-               $now = now();
-        $today = FacebookLeads::whereDate('created_at', $now->toDateString())->count();
-        $yesterday = FacebookLeads::whereDate('created_at', $now->subDay()->toDateString())->count();
-        $last7Days = FacebookLeads::where('created_at', '>=', $now->subDays(6)->startOfDay())->count();
-        $lastMonth = FacebookLeads::where('created_at', '>=', $now->subDays(30)->startOfDay())->count();
-        $last3Months = FacebookLeads::where('created_at', '>=', $now->subMonths(3)->startOfDay())->count();
-        $lastYear = FacebookLeads::where('created_at', '>=', $now->subYear()->startOfDay())->count();
+$now = now();
 
-        $data = FacebookLeads::orderBy('created_at', 'desc')->get();
+$today = FacebookLeads::whereDate('created_at', $now->toDateString())->count();
+
+$yesterday = FacebookLeads::whereDate('created_at', $now->copy()->subDay()->toDateString())->count();
+
+$last7Days = FacebookLeads::whereDate('created_at', '>=', $now->copy()->subDays(6)->toDateString())->count();
+
+$lastMonth = FacebookLeads::whereDate('created_at', '>=', $now->copy()->subDays(30)->toDateString())->count();
+
+$last3Months = FacebookLeads::whereDate('created_at', '>=', $now->copy()->subMonths(3)->toDateString())->count();
+
+$lastYear = FacebookLeads::whereDate('created_at', '>=', $now->copy()->subYear()->toDateString())->count();
+
+$data = FacebookLeads::orderBy('created_at', 'desc')->get();
 
         $report = [
             'today_onboard' => $today,
@@ -54,10 +60,6 @@ class FacebookLeadsController extends Controller
 
     public function updateStatusForMultiple(Request $request)
     {
-
-
-
-
         try {
             FacebookLeads::whereIn('id', $request->ids)->update(['status' => 1]);
 
