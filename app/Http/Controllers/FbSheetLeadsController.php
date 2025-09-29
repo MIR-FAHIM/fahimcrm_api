@@ -13,7 +13,7 @@ class FbSheetLeadsController extends Controller
 {
     public function store(Request $req)
     {
-         return response()->json(['message' => 'Unauthorized'], 401);
+  
         try {
             // Optional simple auth (recommend): send X-SHEET-KEY from Apps Script and check here
             if (config('services.sheets.key') && $req->header('X-SHEET-KEY') !== config('services.sheets.key')) {
