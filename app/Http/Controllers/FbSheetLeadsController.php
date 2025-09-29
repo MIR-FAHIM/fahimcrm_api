@@ -28,8 +28,8 @@ class FbSheetLeadsController extends Controller
                 'full_name'     => $data['full_name'] ?? null,
                 'phone_number'  => $data['phone_number'] ?? null,
                 'email'         => $data['email'] ?? null,
-                'created_time'  => isset($data['created_time'])
-                                    ? Carbon::parse($data['created_time']) : null,
+                'created_time'  => $data['created_time'] ?? null,
+                        
                 'ad_id'         => $data['ad_id'] ?? null,
                 'ad_name'       => $data['ad_name'] ?? null,
                 'adset_id'      => $data['adset_id'] ?? null,
