@@ -61,7 +61,7 @@ public function getFacebookLeads()
             ])->count();
 
         // fetch data, ordered by parsed created_at desc
-        $data = FacebookLeads::orderByRaw("$parsed DESC")
+        $data = FacebookLeads::orderByRaw("$parsed DESC")->with('product')
             ->get();
 
         $report = [

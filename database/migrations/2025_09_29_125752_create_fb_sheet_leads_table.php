@@ -18,7 +18,7 @@ return new class extends Migration
             $t->string('phone_number')->nullable();
             $t->string('email')->nullable();
 
-            $t->timestamp('created_time')->nullable();    // FB created_time
+            $t->string('created_time')->nullable();    // FB created_time
 
             $t->string('ad_id')->nullable();
             $t->string('ad_name')->nullable();

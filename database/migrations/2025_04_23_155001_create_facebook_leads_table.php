@@ -19,6 +19,7 @@ return new class extends Migration
             $table->text('note')->nullable();
             $table->string('ad_name')->nullable();
             $table->string('type')->nullable();
+            $table->unsignedBigInteger('product_id')->nullable();
             $table->string('status')->nullable();
             $table->timestamps();
         });

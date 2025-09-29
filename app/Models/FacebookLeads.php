@@ -16,7 +16,13 @@ class FacebookLeads extends Model
         'note',
         'ad_name',
         'type',
+        'product_id',
         'status',
         
     ];
+
+    public function product()
+    {
+        return $this->belongsTo(ProductItem::class, 'product_id');
+    }
 }
