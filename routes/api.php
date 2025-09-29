@@ -12,6 +12,7 @@ use App\Http\Controllers\LivekitTokenController;
 use App\Http\Controllers\ProjectWorkShopController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductOrderController;
+use App\Http\Controllers\FbSheetLeadsController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\PriorityController;
 use App\Http\Controllers\TaskTypeController;
@@ -431,3 +432,9 @@ Route::get('/visit/employee/{employee_id}', [VisitController::class, 'getVisitBy
 Route::get('/visit/date/emp', [VisitController::class, 'getAllVisitByEmpAndDate']);
 Route::patch('/visit/update/{id}', [VisitController::class, 'updateVisit']);
 Route::delete('/visit/delete/{id}', [VisitController::class, 'deleteVisit']);
+
+
+Route::post('/sheet/lead', [FbSheetLeadsController::class, 'store']);
+
+
+

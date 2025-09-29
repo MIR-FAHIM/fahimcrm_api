@@ -23,7 +23,7 @@ SHOW TABLES;
 DELETE FROM chat_messages;
 DROP TABLE prospect_log_activities;
 DESCRIBE project_phases;
-php artisan make:model TaskVisitRelation -mc  
+php artisan make:model FbSheetLeads -mc  
 php artisan make:migration MainCategories
 php artisan route:list
 php artisan route:clear
