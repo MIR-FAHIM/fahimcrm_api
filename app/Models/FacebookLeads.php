@@ -18,6 +18,10 @@ class FacebookLeads extends Model
         'type',
         'product_id',
         'status',
+        'is_called',
+        'is_whatsapp',
+        'is_email',
+        'priority_id',
         
     ];
 

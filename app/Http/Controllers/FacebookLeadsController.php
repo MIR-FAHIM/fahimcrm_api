@@ -35,6 +35,10 @@ class FacebookLeadsController extends Controller
                 'type' => $request->type,
                 'product_id' => $request->product_id,
                 'status' => $request->status,
+                 'is_called' =>0,
+        'is_whatsapp' =>0,
+        'is_email' =>0,
+        'priority_id' =>1,
             ]);
 
             // Return success response

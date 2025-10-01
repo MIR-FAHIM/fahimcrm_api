@@ -21,6 +21,10 @@ return new class extends Migration
             $table->string('type')->nullable();
             $table->unsignedBigInteger('product_id')->nullable();
             $table->string('status')->nullable();
+            $table->string('is_called')->default('0');
+            $table->string('is_whatsapp')->default('0');
+            $table->string('is_email')->default('0');
+            $table->string('priority_id')->default('1');
             $table->timestamps();
         });
     }
