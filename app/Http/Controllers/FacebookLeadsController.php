@@ -133,7 +133,33 @@ class FacebookLeadsController extends Controller
         }
     }
 
+public function updateFbLead(Request $request, $id)
+{
+    try {
+        $lead = FacebookLeads::find($id);
 
+        if (!$lead) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lead not found.',
+            ], 404);
+        }
+
+        // Update only the provided fields
+        $lead->update($request->all());
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Lead updated successfully.',
+            'data' => $lead,
+        ], 200);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage(),
+        ], 500);
+    }
+}
     public function updateStatusForMultiple(Request $request)
     {
         try {
