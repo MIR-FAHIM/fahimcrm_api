@@ -199,7 +199,7 @@ Route::get('/get-organization-prospect', [ProspectController::class, 'getOrganiz
 Route::post('/change-prospect-stage', [ProspectController::class, 'changeProspectStage']);
 Route::post('/update-prospect', [ProspectController::class, 'updateProspect']);
 Route::post('/add-fb-lead', [FacebookLeadsController::class, 'addFbLead']);
-Route::post('/update-fb-lead', [FacebookLeadsController::class, 'updateFbLead']);
+Route::post('/update-fb-lead/{id}', [FacebookLeadsController::class, 'updateFbLead']);
 Route::get('/delete-prospect/{id}', [ProspectController::class, 'deleteProspect']);
 
 //prospect log activity
