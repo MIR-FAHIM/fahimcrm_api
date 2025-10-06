@@ -93,4 +93,26 @@ class TaskAssignedPersonsController extends Controller
             ], 500);
         }
     }
+    public function unassigneTaskByUserId($id)
+    {
+        try {
+            // Get tasks assigned to the user along with related models
+            $tasks = TaskAssignedPersons::find($id)->delete();
+         
+            
+    
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Unassigned successfully.',
+                'data' => $tasks
+            ], 200);
+        } catch (\Exception $e) {
+            // Catch any exception and return a response with status code 500
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+                'data' => null
+            ], 500);
+        }
+    }
 }

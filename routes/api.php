@@ -141,6 +141,7 @@ Route::post('/update-task-status', [TasksController::class, 'updateStatus']);
 
 Route::post('/assign-task', [TaskAssignedPersonsController::class, 'assignEmployeeToTask']);
 Route::get('/get-assigned-task/{id}', [TaskAssignedPersonsController::class, 'getAssignedTaskByUserId']);
+Route::get('/unassign-task/{id}', [TaskAssignedPersonsController::class, 'unassigneTaskByUserId']);
 Route::post('/task/images/add', [TasksController::class, 'addTaskMultipleImages']);
 Route::get('/task/images/{task_id}', [TasksController::class, 'getTaskImagesById']);
 Route::get('/delete-task-image/{id}', [TasksController::class, 'removeTaskImage']);
