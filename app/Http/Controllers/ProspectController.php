@@ -54,12 +54,8 @@ class ProspectController extends Controller
                     'created_at'  => Carbon::now(),
                     'updated_at'  => Carbon::now(),
                 ]);
-                 return response()->json([
-                    'status'  => 'success',
-                    'message' => $request->input('is_client'),
-                    
-                ], 201);
-                if ( $request->input('is_client') === 1) {
+             
+                if ( $request->input('is_client') === '1') {
                    
                     Client::create([
                         'prospect_id' => $prospect->id,
