@@ -56,7 +56,7 @@ class ProspectController extends Controller
                 ]);
                  return response()->json([
                     'status'  => 'success',
-                    'message' => ' hlw successfully',
+                    'message' => $request->input('is_client'),
                     
                 ], 201);
                 if ( $request->input('is_client') === 1) {
