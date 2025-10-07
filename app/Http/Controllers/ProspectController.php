@@ -18,30 +18,68 @@ class ProspectController extends Controller
     public function createProspect(Request $request)
     {
         try {
-            $prospect = Prospect::create($request->all());
-            ProspectStageChangeLog::updateOrCreate(
-                [
+            return DB::transaction(function () use ($request) {
+                $prospect = new Prospect();
+
+                // Explicit field-by-field assignment (no validation)
+                $prospect->prospect_name         = trim((string) $request->input('prospect_name'));
+                $prospect->is_individual         = $request->boolean('is_individual');
+                $prospect->industry_type_id      = $request->input('industry_type_id');
+                $prospect->interested_for_id     = $request->input('interested_for_id');
+                $prospect->information_source_id = $request->input('information_source_id');
+                $prospect->website_link          = $request->input('website_link');
+                $prospect->facebook_page         = $request->input('facebook_page');
+                $prospect->linkedin              = $request->input('linkedin');
+                $prospect->zone_id               = $request->input('zone_id');
+                $prospect->type                  = $request->input('type', 'lead');
+                $prospect->latitude              = $request->input('latitude');
+                $prospect->longitude             = $request->input('longitude');
+                $prospect->address               = $request->input('address');
+                $prospect->note                  = $request->input('note');
+                $prospect->is_active             = $request->boolean('is_active', true);
+                $prospect->is_opportunity        = $request->boolean('is_opportunity');
+                $prospect->status                = $request->input('status', 'new');
+                $prospect->stage_id              = $request->input('stage_id');
+                $prospect->priority_id           = $request->input('priority_id');
+                $prospect->last_activity         = $request->input('last_activity'); // stored as-is
+
+                $prospect->save();
+
+                // Log initial stage (keep history rather than upsert)
+                ProspectStageChangeLog::create([
                     'prospect_id' => $prospect->id,
-                    'new_stage' => $prospect->stage_id,
-                ],
-                [
-                    'old_stage' => $prospect->stage_id,
-                    'changed_by' => 1,
-                    'updated_at' => Carbon::now(),
-                ]
-            );
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Prospect created successfully',
-                'data' => $prospect,
-            ], 201);
+                    'old_stage'   => null,
+                    'new_stage'   => $prospect->stage_id,
+                    'changed_by'  =>  1,
+                    'created_at'  => Carbon::now(),
+                    'updated_at'  => Carbon::now(),
+                ]);
+                if ( $request->is_client === 1) {
+                    Client::create([
+                        'prospect_id' => $prospect->id,
+                        'client_code' => uniqid('CL-'),
+                        'status'      => 'active',
+                        'isActive'    => true,
+                    ]);
+                }
+
+
+
+                return response()->json([
+                    'status'  => 'success',
+                    'message' => 'Prospect created successfully',
+                    'data'    => $prospect,
+                ], 201);
+            });
         } catch (Exception $e) {
-            Log::error('Create Prospect Error: ' . $e->getMessage());
+            Log::error('Create Prospect Error: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+            ]);
 
             return response()->json([
-                'status' => 'error',
+                'status'  => 'error',
                 'message' => 'Failed to create prospect',
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }
@@ -188,7 +226,7 @@ class ProspectController extends Controller
     public function getProspectDetail($id)
     {
         try {
-            $prospect = Prospect::with('informationSource', 'industryType', 'stage', 'zone', 'interestedFor', )->find($id);
+            $prospect = Prospect::with('informationSource', 'industryType', 'stage', 'zone', 'interestedFor',)->find($id);
 
             if (!$prospect) {
                 return response()->json([
@@ -432,7 +470,7 @@ class ProspectController extends Controller
     public function deleteProspect($id)
     {
         try {
-            
+
 
             Prospect::destroy($id);
 
