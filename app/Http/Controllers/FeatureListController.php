@@ -11,6 +11,7 @@ class FeatureListController extends Controller
     public function addFeature(Request $request)
     {
         $request->validate([
+            'module' => 'required|string|max:255',
             'feature_name' => 'required|string|max:255',
             'details' => 'nullable|string',
             'is_active' => 'boolean',
@@ -38,5 +39,20 @@ class FeatureListController extends Controller
             'data' => $features
         ], 200);
     }
+
+
+    public function getActiveFeatureGrouped()
+{
+    // Fetch all active features
+    $features = FeatureList::where('is_active', true)
+        ->get()
+        ->groupBy('module'); // Group features by module name
+
+    // Return grouped JSON response
+    return response()->json([
+        'status' => 'success',
+        'data' => $features
+    ], 200);
+}
 }
 

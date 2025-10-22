@@ -351,6 +351,7 @@ Route::post('/update-notice', [NoticeBoardController::class, 'updateNotice']);
 
 Route::post('/add-feature', [FeatureListController::class, 'addFeature']);
 Route::get('/active-features', [FeatureListController::class, 'getActiveFeature']);
+Route::get('/active-features-grouped', [FeatureListController::class, 'getActiveFeatureGrouped']);
 
 
 

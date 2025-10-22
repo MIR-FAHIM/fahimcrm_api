@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('feature_lists', function (Blueprint $table) {
             $table->id();
+            $table->string('module');
             $table->string('feature_name');
             $table->text('details')->nullable();
             $table->boolean('is_active')->default(true);

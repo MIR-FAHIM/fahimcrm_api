@@ -11,6 +11,7 @@ class FeatureList extends Model
 
     // Mass assignable fields
     protected $fillable = [
+        'module',
         'feature_name',
         'details',
         'is_active',
