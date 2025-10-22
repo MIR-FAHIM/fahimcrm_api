@@ -33,30 +33,40 @@ class UserFeaturePermissionController extends Controller
     }
 
     // Get all feature permissions for a user
-    public function getFeaturePermissionByUser($user_id)
-    {
-        // Get all features
-        $allFeatures = FeatureList::all();
+ public function getFeaturePermissionByUser($user_id)
+{
+    // Get all features
+    $allFeatures = FeatureList::all();
 
-        // Get user-specific permissions
-        $userPermissions = UserFeaturePermission::where('user_id', $user_id)->get()->keyBy('feature_id');
+    // Get user-specific permissions
+    $userPermissions = UserFeaturePermission::where('user_id', $user_id)
+        ->get()
+        ->keyBy('feature_id');
 
-        // Combine all features with user permission (default true)
-        $featuresWithPermissions = $allFeatures->map(function ($feature) use ($userPermissions) {
-            return [
-                'feature_id' => $feature->id,
-                'feature_name' => $feature->feature_name,
-                'details' => $feature->details,
-                'is_active' => $feature->is_active,
-                'has_permission' => $userPermissions[$feature->id]->has_permission ?? 1,
-            ];
+    // Combine all features with user permission (default true)
+    $featuresWithPermissions = $allFeatures->map(function ($feature) use ($userPermissions) {
+        return [
+            'module' => $feature->module,
+            'feature_id' => $feature->id,
+            'feature_name' => $feature->feature_name,
+            'details' => $feature->details,
+            'is_active' => $feature->is_active,
+            'has_permission' => $userPermissions[$feature->id]->has_permission ?? 1,
+        ];
+    });
+
+    // ✅ Group by module
+    $groupedFeatures = collect($featuresWithPermissions)
+        ->groupBy('module')
+        ->map(function ($group) {
+            return $group->values(); // reset keys to [0,1,2,...]
         });
 
-        return response()->json([
-            'status' => 'success',
-            'data' => $featuresWithPermissions
-        ], 200);
-    }
+    return response()->json([
+        'status' => 'success',
+        'data' => $groupedFeatures
+    ], 200);
+}
    
    
     public function updateFeaturePermissionForUser($user_id)
