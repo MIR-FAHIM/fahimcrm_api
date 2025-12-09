@@ -11,6 +11,7 @@ use App\Http\Controllers\WorkReportController;
 use App\Http\Controllers\LivekitTokenController;
 use App\Http\Controllers\ProjectWorkShopController;
 use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\ProductOrderController;
 use App\Http\Controllers\FbSheetLeadsController;
 use App\Http\Controllers\AttendanceController;
@@ -60,6 +61,21 @@ use App\Http\Controllers\VisitController;
 
 use App\Http\Middleware\CheckAppToken;
 
+
+Route::get('/test-email', function () {
+    $toEmail = 'ridoyfahim92@gmail.com';
+
+    try {
+        Mail::raw('This is a test email from my Laravel CRM.', function ($message) use ($toEmail) {
+            $message->to($toEmail)
+                    ->subject('Test Email from Laravel CRM');
+        });
+
+        return 'Test email sent successfully to ' . $toEmail;
+    } catch (\Exception $e) {
+        return 'Failed to send email: ' . $e->getMessage();
+    }
+});
 //Route::post('/login', [UserController::class, 'login']);
 Route::middleware([CheckAppToken::class])->group(function () {
 
