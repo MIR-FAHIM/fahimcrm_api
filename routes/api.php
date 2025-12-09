@@ -62,6 +62,13 @@ use App\Http\Controllers\VisitController;
 use App\Http\Middleware\CheckAppToken;
 
 
+
+//Route::post('/login', [UserController::class, 'login']);
+Route::middleware([CheckAppToken::class])->group(function () {
+
+   Route::post('/login', [UserController::class, 'login'])->withoutMiddleware([CheckAppToken::class]);
+   
+
 Route::get('/test-email', function () {
     $toEmail = 'ridoyfahim92@gmail.com';
 
@@ -76,13 +83,6 @@ Route::get('/test-email', function () {
         return 'Failed to send email: ' . $e->getMessage();
     }
 });
-//Route::post('/login', [UserController::class, 'login']);
-Route::middleware([CheckAppToken::class])->group(function () {
-
-   Route::post('/login', [UserController::class, 'login'])->withoutMiddleware([CheckAppToken::class]);
-   
-
-
 Route::post('/register-employee', [UserController::class, 'registerEmployee']);
 Route::get('/logout', [UserController::class, 'logout']);
 Route::get('/get-dashboard-report', [UserController::class, 'getDashBoardReport']);
