@@ -31,8 +31,13 @@ class AttendanceController extends Controller
         try {
             $user = $request->user_id;// Get the user ID from the request
             $userInfo = User::find($user);
+            
             $currentTime = Carbon::now();
-            $lateTime = Carbon::today()->setTime($userInfo->start_hour, minute: $userInfo->start_min); // 10:30 AM
+            $lateTime = Carbon::today()->setTime(
+    (int) $userInfo->start_hour,
+    (int) $userInfo->start_min,
+    0
+);
     
             // Check if the user has already checked in today
             $existingAttendance = Attendance::where('user_id', $user)
