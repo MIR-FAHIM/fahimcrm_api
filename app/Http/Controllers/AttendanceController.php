@@ -102,7 +102,7 @@ class AttendanceController extends Controller
                 'check_in_location' => 'nullable|string',
                 'check_in_time' => 'nullable|string',
             ]);
- $allowedIps = array_filter(array_map('trim', explode(',', (string) env('ATTENDANCE_ALLOWED_IPS', '103.106.236.235'))));
+ $allowedIps = array_filter(array_map('trim', explode(',', (string) env('ATTENDANCE_ALLOWED_IPS', '103.106.236.235' , '103.219.160.237', '103.219.160.238'))));
         if (!empty($allowedIps) && !in_array($request->ip(), $allowedIps, true)) {
             return response()->json([
                 'status' => 'failed',
