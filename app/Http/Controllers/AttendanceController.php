@@ -27,7 +27,7 @@ class AttendanceController extends Controller
 
         ]);
 
-        $allowedIps = array_filter(array_map('trim', explode(',', (string) env('ATTENDANCE_ALLOWED_IPS', '103.106.236.235'))));
+        $allowedIps = array_filter(array_map('trim', explode(',', (string) env('ATTENDANCE_ALLOWED_IPS', '103.106.236.235', '103.219.160.237', '103.219.160.238'))));
         if (!empty($allowedIps) && !in_array($request->ip(), $allowedIps, true)) {
             return response()->json([
                 'status' => 'failed',
@@ -102,14 +102,7 @@ class AttendanceController extends Controller
                 'check_in_location' => 'nullable|string',
                 'check_in_time' => 'nullable|string',
             ]);
- $allowedIps = array_filter(array_map('trim', explode(',', (string) env('ATTENDANCE_ALLOWED_IPS', '103.106.236.235' , '103.219.160.237', '103.219.160.238'))));
-        if (!empty($allowedIps) && !in_array($request->ip(), $allowedIps, true)) {
-            return response()->json([
-                'status' => 'failed',
-                 'success' => false,
-                'message' => 'Check-out is only allowed from the office Wi-Fi network.'
-            ], 403);
-        }
+
             // Find the attendance record
             $attendance = Attendance::find($request->attendance_id);
 
@@ -153,7 +146,14 @@ class AttendanceController extends Controller
                 'check_out_lat' => 'required|numeric', // Ensure latitude is provided
                 'check_out_lon' => 'required|numeric', // Ensure longitude is provided
             ]);
-
+ $allowedIps = array_filter(array_map('trim', explode(',', (string) env('ATTENDANCE_ALLOWED_IPS', '103.106.236.235' , '103.219.160.237', '103.219.160.238'))));
+        if (!empty($allowedIps) && !in_array($request->ip(), $allowedIps, true)) {
+            return response()->json([
+                'status' => 'failed',
+                 'success' => false,
+                'message' => 'Check-out is only allowed from the office Wi-Fi network.'
+            ], 403);
+        }
             $attendanceId = $request->attendance_id;
             $attendance = Attendance::find($attendanceId);
 
