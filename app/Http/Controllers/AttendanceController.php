@@ -31,6 +31,7 @@ class AttendanceController extends Controller
         if (!empty($allowedIps) && !in_array($request->ip(), $allowedIps, true)) {
             return response()->json([
                 'status' => 'failed',
+                 'success' => false,
                 'message' => 'Check-in is only allowed from the office Wi-Fi network.'
             ], 403);
         }
@@ -53,6 +54,7 @@ class AttendanceController extends Controller
             if ($existingAttendance) {
                 return response()->json([
                     'status' => 'failed',
+                     'success' => false,
                     'message' => 'You have already checked in today.',
                     'attendance' => $existingAttendance
                 ], 400); // Respond with a 400 Bad Request status
@@ -80,6 +82,7 @@ class AttendanceController extends Controller
             // Log the exception error message for debugging
             return response()->json([
                 'status' => 'fail',
+                 'success' => false,
                 'message' => $e->getMessage()
             ], 500);
         }
@@ -103,6 +106,7 @@ class AttendanceController extends Controller
         if (!empty($allowedIps) && !in_array($request->ip(), $allowedIps, true)) {
             return response()->json([
                 'status' => 'failed',
+                 'success' => false,
                 'message' => 'Check-out is only allowed from the office Wi-Fi network.'
             ], 403);
         }
