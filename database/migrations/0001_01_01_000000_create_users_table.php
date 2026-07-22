@@ -30,6 +30,8 @@ return new class extends Migration
             $table->string('password');
             $table->integer('start_hour')->nullable();
             $table->integer('start_min')->nullable();
+            $table->integer('end_hour')->nullable();
+            $table->integer('end_min')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

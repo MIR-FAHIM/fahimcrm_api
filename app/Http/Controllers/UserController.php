@@ -41,6 +41,10 @@ class UserController extends Controller
                 'bio' => 'nullable|string',
                 'fcm_token' => 'nullable|string',
                 'app_token' => 'nullable|string',
+                'start_hour' => 'nullable|integer|between:0,23',
+                'start_min' => 'nullable|integer|between:0,59',
+                'end_hour' => 'nullable|integer|between:0,23',
+                'end_min' => 'nullable|integer|between:0,59',
             ]);
 
             if ($validator->fails()) {
@@ -66,6 +70,10 @@ class UserController extends Controller
                 'bio' => $request->bio,
                 'fcm_token' => $request->fcm_token,
                 'app_token' => $request->app_token,
+                'start_hour' => $request->start_hour,
+                'start_min' => $request->start_min,
+                'end_hour' => $request->end_hour,
+                'end_min' => $request->end_min,
             ]);
 
             return response()->json([
@@ -410,7 +418,7 @@ $activity = UserActivityTracker::create([
             $user = User::findOrFail($request->user_id);
 
             // Dynamically update the user attributes
-            $fillable = ['name', 'email', 'phone', 'address', 'birthdate', 'role_id', 'department_id', 'designation_id', 'isActive', 'photo', 'bio', 'fcm_token', 'app_token', 'start_hour', 'start_min'];
+            $fillable = ['name', 'email', 'phone', 'address', 'birthdate', 'role_id', 'department_id', 'designation_id', 'isActive', 'photo', 'bio', 'fcm_token', 'app_token', 'start_hour', 'start_min', 'end_hour', 'end_min'];
 
             foreach ($fillable as $field) {
                 if ($request->has($field)) {

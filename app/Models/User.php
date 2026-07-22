@@ -32,7 +32,9 @@ class User extends Authenticatable
         'app_token',
      'password',
      'start_hour',
-     'start_min',
+     'start_hour',
+     'end_hour',
+     'end_min',
     ];
 
     /**

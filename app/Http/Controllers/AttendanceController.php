@@ -18,6 +18,20 @@ class AttendanceController extends Controller
         $this->notificationController = $notificationController;
     }
 
+    private function hasScheduleTime(User $user, string $hourField, string $minuteField): bool
+    {
+        return $user->{$hourField} !== null && $user->{$minuteField} !== null;
+    }
+
+    private function scheduleTimeForDate(Carbon $date, User $user, string $hourField, string $minuteField): Carbon
+    {
+        return $date->copy()->setTime(
+            (int) $user->{$hourField},
+            (int) $user->{$minuteField},
+            0
+        );
+    }
+
     public function checkInNow(Request $request)
     {
         $request->validate([
@@ -40,11 +54,6 @@ class AttendanceController extends Controller
             $userInfo = User::find($user);
 
             $currentTime = Carbon::now();
-            $lateTime = Carbon::today()->setTime(
-                (int) $userInfo->start_hour,
-                (int) $userInfo->start_min,
-                0
-            );
 
             // Check if the user has already checked in today
             $existingAttendance = Attendance::where('user_id', $user)
@@ -61,7 +70,11 @@ class AttendanceController extends Controller
             }
 
             // Determine if the check-in is late
-            $isLate = $currentTime->greaterThan($lateTime) ? 1 : 0;
+            $isLate = 0;
+            if ($this->hasScheduleTime($userInfo, 'start_hour', 'start_min')) {
+                $lateTime = $this->scheduleTimeForDate($currentTime, $userInfo, 'start_hour', 'start_min');
+                $isLate = $currentTime->greaterThan($lateTime) ? 1 : 0;
+            }
 
             // Create a new attendance record for the user
             $attendance = Attendance::create([
@@ -96,9 +109,9 @@ class AttendanceController extends Controller
             $request->validate([
                 'attendance_id' => 'required|exists:attendances,id',
                 'late_reason' => 'nullable|string',
-                'early_leave_reason	' => 'nullable|string',
-                'check_in_lat	' => 'nullable|string',
-                'check_in_lon	' => 'nullable|string',
+                'early_leave_reason' => 'nullable|string',
+                'check_in_lat' => 'nullable|string',
+                'check_in_lon' => 'nullable|string',
                 'check_in_location' => 'nullable|string',
                 'check_in_time' => 'nullable|string',
             ]);
@@ -145,6 +158,7 @@ class AttendanceController extends Controller
                 'check_out_location' => 'required|string', // Ensure check-out location is provided
                 'check_out_lat' => 'required|numeric', // Ensure latitude is provided
                 'check_out_lon' => 'required|numeric', // Ensure longitude is provided
+                'early_leave_reason' => 'nullable|string',
             ]);
  $allowedIps = array_filter(array_map('trim', explode(',', (string) env('ATTENDANCE_ALLOWED_IPS', '103.106.236.235' , '103.219.160.237', '103.219.160.238'))));
         if (!empty($allowedIps) && !in_array($request->ip(), $allowedIps, true)) {
@@ -156,6 +170,7 @@ class AttendanceController extends Controller
         }
             $attendanceId = $request->attendance_id;
             $attendance = Attendance::find($attendanceId);
+            $userInfo = User::find($request->user_id);
 
             if (!$attendance) {
                 return response()->json(['error' => 'Attendance record not found.'], 404);
@@ -168,6 +183,12 @@ class AttendanceController extends Controller
 
             // Calculate the total duration in seconds
             $totalDurationInSeconds = (int) $checkInTime->diffInSeconds($checkOutTime);
+            $isEarlyLeave = 0;
+
+            if ($userInfo && $this->hasScheduleTime($userInfo, 'end_hour', 'end_min')) {
+                $endTime = $this->scheduleTimeForDate($checkOutTime, $userInfo, 'end_hour', 'end_min');
+                $isEarlyLeave = $checkOutTime->lessThan($endTime) ? 1 : 0;
+            }
 
             // Update attendance record with check-out details
             $attendance->total_duration = $totalDurationInSeconds;
@@ -175,6 +196,8 @@ class AttendanceController extends Controller
             $attendance->check_out_location = $request->input('check_out_location');
             $attendance->check_out_lat = $request->input('check_out_lat');
             $attendance->check_out_lon = $request->input('check_out_lon');
+            $attendance->is_early_leave = $isEarlyLeave;
+            $attendance->early_leave_reason = $request->input('early_leave_reason');
             $attendance->save(); // Save changes to the database
 
             return response()->json([
@@ -361,6 +384,10 @@ class AttendanceController extends Controller
                 ->whereDate('check_in_time', $today)  // Check if check_in_time is today
                 ->count();
 
+            $earlyLeaveCount = Attendance::where('is_early_leave', 1)
+                ->whereDate('check_in_time', $today)
+                ->count();
+
             // 4. Calculate total working hours: Sum of total_duration (in minutes)
             $totalWorkingHours = Attendance::whereDate('check_in_time', $today)  // Check if check_in_time is today
                 ->whereNotNull('check_in_time')
@@ -379,6 +406,7 @@ class AttendanceController extends Controller
                     'present' => $attendanceCountToday,
                     'absent_count' => $absentCount,
                     'late_count' => $lateCount,
+                    'early_leave_count' => $earlyLeaveCount,
                     'total_working_hours' => $totalWorkingHours,  // In minutes
                     'work_from_home_count' => $workFromHomeCount,
                 ],
@@ -409,12 +437,20 @@ class AttendanceController extends Controller
 
             $attendance = Attendance::find($request->attendance_id);
             $user = $attendance->user;
-
-            // Determine if requested_time is late
-            $scheduledTime = Carbon::parse(Carbon::parse($request->requested_time)->format('Y-m-d') . ' ' . $user->start_hour . ':' . $user->start_min);
             $requestedTime = Carbon::parse($request->requested_time);
 
-            $isLate = $requestedTime->gt($scheduledTime) ? 1 : 0;
+            $isLate = 0;
+            $isEarly = 0;
+
+            if ($request->type === 'in' && $this->hasScheduleTime($user, 'start_hour', 'start_min')) {
+                $scheduledStartTime = $this->scheduleTimeForDate($requestedTime, $user, 'start_hour', 'start_min');
+                $isLate = $requestedTime->gt($scheduledStartTime) ? 1 : 0;
+            }
+
+            if ($request->type === 'out' && $this->hasScheduleTime($user, 'end_hour', 'end_min')) {
+                $scheduledEndTime = $this->scheduleTimeForDate($requestedTime, $user, 'end_hour', 'end_min');
+                $isEarly = $requestedTime->lt($scheduledEndTime) ? 1 : 0;
+            }
 
             $adjustment = AttendanceAdjustment::create([
                 'user_id'   => $request->user_id,
@@ -426,7 +462,7 @@ class AttendanceController extends Controller
                 'is_active'       => true,
                 'note'            => $request->note,
                 'is_late'         => $isLate,
-                'is_early'        => 0, // you can update this logic later if needed
+                'is_early'        => $isEarly,
             ]);
 
             return response()->json([
@@ -509,12 +545,17 @@ class AttendanceController extends Controller
                 $attendance->is_late = $adjustment->is_late ?? false;
             } elseif ($adjustment->type === 'out') {
                 $attendance->check_out_time = $adjustment->requested_time;
-                $attendance->is_early = $adjustment->is_early ?? false;
+                $attendance->is_early_leave = $adjustment->is_early ?? false;
             } else {
                 return response()->json([
                     'success' => false,
                     'message' => 'Invalid adjustment type. Must be "in" or "out".',
                 ]);
+            }
+
+            if ($attendance->check_in_time && $attendance->check_out_time) {
+                $attendance->total_duration = (int) Carbon::parse($attendance->check_in_time)
+                    ->diffInSeconds(Carbon::parse($attendance->check_out_time));
             }
 
             // Save attendance and update adjustment status
@@ -574,6 +615,7 @@ class AttendanceController extends Controller
             $absentDays = 0;
             $lateDays = 0;
             $onTimeDays = 0;
+            $earlyLeaveDays = 0;
             $workFromHomeDays = 0;
 
             $current = $startDate->copy();
@@ -591,6 +633,10 @@ class AttendanceController extends Controller
                             $lateDays++;
                         } else {
                             $onTimeDays++;
+                        }
+
+                        if ($attendance->is_early_leave) {
+                            $earlyLeaveDays++;
                         }
 
                         // Work from home
@@ -620,6 +666,7 @@ class AttendanceController extends Controller
                     'absent_days' => $absentDays,
                     'late_days' => $lateDays,
                     'on_time_days' => $onTimeDays,
+                    'early_leave_days' => $earlyLeaveDays,
                     'work_from_home_days' => $workFromHomeDays,
                 ]
             ], 200);
