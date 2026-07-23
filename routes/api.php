@@ -25,6 +25,7 @@ use App\Http\Controllers\ProductBrandController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\TasksController;
 use App\Http\Controllers\UserFeaturePermissionController;
+use App\Http\Controllers\RoleFeaturePermissionController;
 use App\Http\Controllers\FeatureListController;
 use App\Http\Controllers\TaskAssignedPersonsController;
 use App\Http\Controllers\NotificationController;
@@ -363,6 +364,12 @@ Route::get('/active-features-grouped', [FeatureListController::class, 'getActive
 Route::post('/add-feature-permission', [UserFeaturePermissionController::class, 'addFeaturePermission']);
 Route::get('/user-feature-permissions/{user_id}', [UserFeaturePermissionController::class, 'getFeaturePermissionByUser']);
 Route::post('/update-feature-permission', [UserFeaturePermissionController::class, 'updateSingleFeaturePermission']);
+// RoleFeaturePermissionController;
+
+Route::post('/add-role-feature-permission', [RoleFeaturePermissionController::class, 'addRoleFeaturePermission']);
+Route::get('/role-feature-permissions/{role_id}', [RoleFeaturePermissionController::class, 'getFeaturePermissionByRole']);
+Route::post('/update-role-feature-permission', [RoleFeaturePermissionController::class, 'updateSingleRoleFeaturePermission']);
+Route::post('/update-role-feature-permissions', [RoleFeaturePermissionController::class, 'updateRoleFeaturePermissions']);
 
 
 //track user activity
