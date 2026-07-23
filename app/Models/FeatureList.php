@@ -13,6 +13,7 @@ class FeatureList extends Model
     protected $fillable = [
         'module',
         'feature_name',
+        'feature_key',
         'details',
         'is_active',
     ];

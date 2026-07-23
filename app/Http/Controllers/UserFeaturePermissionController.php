@@ -48,6 +48,7 @@ class UserFeaturePermissionController extends Controller
         return [
             'module' => $feature->module,
             'feature_id' => $feature->id,
+            'feature_key' => $feature->feature_key,
             'feature_name' => $feature->feature_name,
             'details' => $feature->details,
             'is_active' => $feature->is_active,
@@ -81,6 +82,7 @@ class UserFeaturePermissionController extends Controller
         $featuresWithPermissions = $allFeatures->map(function ($feature) use ($userPermissions) {
             return [
                 'feature_id' => $feature->id,
+                'feature_key' => $feature->feature_key,
                 'feature_name' => $feature->feature_name,
                 'details' => $feature->details,
                 'is_active' => $feature->is_active,

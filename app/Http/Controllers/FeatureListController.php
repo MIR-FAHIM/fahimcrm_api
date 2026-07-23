@@ -13,12 +13,15 @@ class FeatureListController extends Controller
         $request->validate([
             'module' => 'required|string|max:255',
             'feature_name' => 'required|string|max:255',
+            'feature_key' => 'required|string|max:255|unique:feature_lists,feature_key',
             'details' => 'nullable|string',
             'is_active' => 'boolean',
         ]);
 
         $feature = FeatureList::create([
+            'module' => $request->module,
             'feature_name' => $request->feature_name,
+            'feature_key' => $request->feature_key,
             'details' => $request->details,
             'is_active' => $request->is_active ?? true, // default true
         ]);
