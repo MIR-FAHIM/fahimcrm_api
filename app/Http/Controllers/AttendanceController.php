@@ -32,6 +32,20 @@ class AttendanceController extends Controller
         );
     }
 
+    private function clientIp(Request $request): string
+    {
+        $cloudflareIp = $request->header('cf-connecting-ip');
+        if ($cloudflareIp) {
+            return trim($cloudflareIp);
+        }
+
+        $forwardedFor = $request->header('x-forwarded-for');
+        if ($forwardedFor) {
+            return trim(explode(',', $forwardedFor)[0]);
+        }
+
+        return $request->ip();
+    }
     public function checkInNow(Request $request)
     {
         $request->validate([
@@ -42,12 +56,14 @@ class AttendanceController extends Controller
         ]);
 
         $allowedIps = array_filter(array_map('trim', explode(',', (string) env('ATTENDANCE_ALLOWED_IPS', '103.106.236.235,103.219.160.237,103.219.160.238'))));
-        if (!empty($allowedIps) && !in_array($request->ip(), $allowedIps, true)) {
+        $clientIp = $this->clientIp($request);
+        if (!empty($allowedIps) && !in_array($clientIp, $allowedIps, true)) {
             return response()->json([
                 'status' => 'failed',
                  'success' => false,
                 'message' => 'Check-in is only allowed from the office Wi-Fi network.',
                 'request_ip' => $request->ip(),
+                'client_ip' => $clientIp,
                 'x_forwarded_for' => $request->header('x-forwarded-for'),
                 'cf_connecting_ip' => $request->header('cf-connecting-ip'),
                 'allowed_ips' => $allowedIps
@@ -165,12 +181,14 @@ class AttendanceController extends Controller
                 'early_leave_reason' => 'nullable|string',
             ]);
  $allowedIps = array_filter(array_map('trim', explode(',', (string) env('ATTENDANCE_ALLOWED_IPS', '103.106.236.235,103.219.160.237,103.219.160.238'))));
-        if (!empty($allowedIps) && !in_array($request->ip(), $allowedIps, true)) {
+        $clientIp = $this->clientIp($request);
+        if (!empty($allowedIps) && !in_array($clientIp, $allowedIps, true)) {
             return response()->json([
                 'status' => 'failed',
                  'success' => false,
                 'message' => 'Check-out is only allowed from the office Wi-Fi network.',
                 'request_ip' => $request->ip(),
+                'client_ip' => $clientIp,
                 'x_forwarded_for' => $request->header('x-forwarded-for'),
                 'cf_connecting_ip' => $request->header('cf-connecting-ip'),
                 'allowed_ips' => $allowedIps
