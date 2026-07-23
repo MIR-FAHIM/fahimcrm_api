@@ -41,7 +41,7 @@ class AttendanceController extends Controller
 
         ]);
 
-        $allowedIps = array_filter(array_map('trim', explode(',', (string) env('ATTENDANCE_ALLOWED_IPS', '103.106.236.235', '103.219.160.237', '103.219.160.238'))));
+        $allowedIps = array_filter(array_map('trim', explode(',', (string) env('ATTENDANCE_ALLOWED_IPS', '103.106.236.235,103.219.160.237,103.219.160.238'))));
         if (!empty($allowedIps) && !in_array($request->ip(), $allowedIps, true)) {
             return response()->json([
                 'status' => 'failed',
@@ -160,7 +160,7 @@ class AttendanceController extends Controller
                 'check_out_lon' => 'required|numeric', // Ensure longitude is provided
                 'early_leave_reason' => 'nullable|string',
             ]);
- $allowedIps = array_filter(array_map('trim', explode(',', (string) env('ATTENDANCE_ALLOWED_IPS', '103.106.236.235' , '103.219.160.237', '103.219.160.238'))));
+ $allowedIps = array_filter(array_map('trim', explode(',', (string) env('ATTENDANCE_ALLOWED_IPS', '103.106.236.235,103.219.160.237,103.219.160.238'))));
         if (!empty($allowedIps) && !in_array($request->ip(), $allowedIps, true)) {
             return response()->json([
                 'status' => 'failed',
