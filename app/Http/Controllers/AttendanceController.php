@@ -46,7 +46,11 @@ class AttendanceController extends Controller
             return response()->json([
                 'status' => 'failed',
                  'success' => false,
-                'message' => 'Check-in is only allowed from the office Wi-Fi network.'
+                'message' => 'Check-in is only allowed from the office Wi-Fi network.',
+                'request_ip' => $request->ip(),
+                'x_forwarded_for' => $request->header('x-forwarded-for'),
+                'cf_connecting_ip' => $request->header('cf-connecting-ip'),
+                'allowed_ips' => $allowedIps
             ], 403);
         }
         try {
@@ -165,7 +169,11 @@ class AttendanceController extends Controller
             return response()->json([
                 'status' => 'failed',
                  'success' => false,
-                'message' => 'Check-out is only allowed from the office Wi-Fi network.'
+                'message' => 'Check-out is only allowed from the office Wi-Fi network.',
+                'request_ip' => $request->ip(),
+                'x_forwarded_for' => $request->header('x-forwarded-for'),
+                'cf_connecting_ip' => $request->header('cf-connecting-ip'),
+                'allowed_ips' => $allowedIps
             ], 403);
         }
             $attendanceId = $request->attendance_id;
