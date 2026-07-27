@@ -11,4 +11,10 @@ class TaskStatus extends Model
         'department_id',
         'isActive',
     ];
+
+    public function department()
+    {
+        return $this->belongsTo(Department::class, 'department_id');
+    }
+
 }

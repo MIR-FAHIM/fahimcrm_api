@@ -16,7 +16,7 @@ class TaskStatusController extends Controller
     public function getTaskStatus()
     {
         try {
-            $taskStatuses = TaskStatus::all(); // Get all task statuses
+            $taskStatuses = TaskStatus::with('department')->get(); // Get all task statuses with department information
 
             return response()->json([
                 'status' => 'success',
