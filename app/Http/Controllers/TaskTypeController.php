@@ -16,7 +16,7 @@ class TaskTypeController extends Controller
     public function getTaskType()
     {
         try {
-            $taskTypes = TaskType::all(); // Get all task types
+            $taskTypes = TaskType::with('department')->get(); // Get all task types with department information
 
             return response()->json([
                 'status' => 'success',
