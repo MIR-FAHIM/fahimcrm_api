@@ -418,7 +418,7 @@ $activity = UserActivityTracker::create([
             $user = User::findOrFail($request->user_id);
 
             // Dynamically update the user attributes
-            $fillable = ['name', 'email', 'phone', 'address', 'birthdate', 'role_id', 'department_id', 'designation_id', 'isActive', 'photo', 'bio', 'fcm_token', 'app_token', 'start_hour', 'start_min', 'end_hour', 'end_min'];
+            $fillable = ['name', 'email', 'phone', 'address', 'birthdate', 'role_id', 'department_id', 'designation_id', 'isActive', 'photo', 'bio', 'fcm_token', 'app_token', 'start_hour', 'start_min', 'end_hour', 'end_min', 'is_dark_mode'];
 
             foreach ($fillable as $field) {
                 if ($request->has($field)) {
@@ -437,6 +437,77 @@ $activity = UserActivityTracker::create([
             return response()->json([
                 'status' => 'error',
                 'message' => 'An error occurred while updating employee information',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function updateUserModePreference(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'user_id' => 'required|exists:users,id',
+                'is_dark_mode' => 'required|boolean',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Validation failed',
+                    'errors' => $validator->errors(),
+                ], 400);
+            }
+
+            $user = User::findOrFail($request->user_id);
+            $user->is_dark_mode = $request->boolean('is_dark_mode');
+            $user->save();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'User mode preference updated successfully',
+                'data' => [
+                    'user_id' => $user->id,
+                    'is_dark_mode' => $user->is_dark_mode,
+                ],
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An error occurred while updating user mode preference',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function getUserModePreference(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'user_id' => 'required|exists:users,id',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Validation failed',
+                    'errors' => $validator->errors(),
+                ], 400);
+            }
+
+            $user = User::select('id', 'is_dark_mode')->findOrFail($request->user_id);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'User mode preference fetched successfully',
+                'data' => [
+                    'user_id' => $user->id,
+                    'is_dark_mode' => $user->is_dark_mode,
+                ],
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An error occurred while fetching user mode preference',
                 'error' => $e->getMessage(),
             ], 500);
         }

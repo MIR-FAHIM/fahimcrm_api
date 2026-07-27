@@ -79,6 +79,8 @@ Route::get('/get-all-employee', [UserController::class, 'getAllEmployees']);
 
 Route::post('/upload-user-image', [UserController::class, 'uploadProfilePicture']);
 Route::post('/update-userinfo', [UserController::class, 'updateInformation']);
+Route::post('/update-user-mode-preference', [UserController::class, 'updateUserModePreference']);
+Route::get('/get-user-mode-preference', [UserController::class, 'getUserModePreference']);
 Route::post('/change-password', [UserController::class, 'changePassword']);
 Route::get('/get-profile', [UserController::class, 'getProfile']);
 Route::post('/add-department', [DepartmentController::class, 'addDepartment']);
@@ -449,6 +451,5 @@ Route::delete('/visit/delete/{id}', [VisitController::class, 'deleteVisit']);
 
 
 Route::post('/sheet/lead', [FbSheetLeadsController::class, 'store']);
-
 
 

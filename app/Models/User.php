@@ -30,11 +30,12 @@ class User extends Authenticatable
         'bio',
         'fcm_token',
         'app_token',
-     'password',
-     'start_hour',
-     'start_hour',
-     'end_hour',
-     'end_min',
+        'password',
+        'start_hour',
+        'start_min',
+        'end_hour',
+        'end_min',
+        'is_dark_mode',
     ];
 
     /**
@@ -59,6 +60,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'birthdate' => 'date', // Casting birthdate as date
             'isActive' => 'boolean', // Casting isActive as boolean
+            'is_dark_mode' => 'boolean',
         ];
     }
 
