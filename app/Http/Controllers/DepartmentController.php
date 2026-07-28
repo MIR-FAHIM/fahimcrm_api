@@ -73,6 +73,52 @@ class DepartmentController extends Controller
             ], 400);
         }
     }
+
+    public function updateDepartment(Request $request, $id)
+    {
+        try {
+            $department = Department::findOrFail($id);
+
+            $validatedData = $request->validate([
+                'department_name' => 'sometimes|required|string|max:255',
+                'isActive' => 'sometimes|required|boolean',
+            ]);
+
+            $department->update($validatedData);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Department updated successfully',
+                'data' => $department
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to update department: ' . $e->getMessage(),
+                'data' => null
+            ], 400);
+        }
+    }
+
+    public function deleteDepartment($id)
+    {
+        try {
+            $department = Department::findOrFail($id);
+            $department->delete();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Department deleted successfully',
+                'data' => null
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to delete department: ' . $e->getMessage(),
+                'data' => null
+            ], 400);
+        }
+    }
 public function getDepartmentsWithEmp()
 {
     try {

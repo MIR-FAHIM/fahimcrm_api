@@ -65,4 +65,50 @@ class RoleController extends Controller
             ], 400);
         }
     }
+
+    public function updateRole(Request $request, $id)
+    {
+        try {
+            $role = Role::findOrFail($id);
+
+            $validatedData = $request->validate([
+                'role_name' => 'sometimes|required|string|max:255',
+                'isActive' => 'sometimes|required|boolean',
+            ]);
+
+            $role->update($validatedData);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Role updated successfully',
+                'data' => $role
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to update role: ' . $e->getMessage(),
+                'data' => null
+            ], 400);
+        }
+    }
+
+    public function deleteRole($id)
+    {
+        try {
+            $role = Role::findOrFail($id);
+            $role->delete();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Role deleted successfully',
+                'data' => null
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to delete role: ' . $e->getMessage(),
+                'data' => null
+            ], 400);
+        }
+    }
 }

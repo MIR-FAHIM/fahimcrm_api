@@ -79,4 +79,67 @@ class TaskTypeController extends Controller
             ], 500);
         }
     }
+
+    public function updateTaskType(Request $request, $id)
+    {
+        $taskType = TaskType::find($id);
+
+        if (!$taskType) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Task type not found.',
+                'data' => null
+            ], 404);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'type_name' => 'sometimes|required|string|max:255|unique:task_types,type_name,' . $id,
+            'department_id' => 'sometimes|required|exists:departments,id',
+            'isActive' => 'sometimes|required|boolean',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $validator->errors()->first(),
+                'data' => null
+            ], 400);
+        }
+
+        try {
+            $taskType->update($validator->validated());
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Task type updated successfully.',
+                'data' => $taskType->load('department')
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to update task type.',
+                'data' => null
+            ], 500);
+        }
+    }
+
+    public function deleteTaskType($id)
+    {
+        try {
+            $taskType = TaskType::findOrFail($id);
+            $taskType->delete();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Task type deleted successfully.',
+                'data' => null
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to delete task type.',
+                'data' => null
+            ], 500);
+        }
+    }
 }

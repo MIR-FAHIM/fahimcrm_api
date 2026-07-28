@@ -65,4 +65,50 @@ class DesignationsController extends Controller
             ], 400);
         }
     }
+
+    public function updateDesignation(Request $request, $id)
+    {
+        try {
+            $designation = Designations::findOrFail($id);
+
+            $validatedData = $request->validate([
+                'designation_name' => 'sometimes|required|string|max:255',
+                'isActive' => 'sometimes|required|boolean',
+            ]);
+
+            $designation->update($validatedData);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Designation updated successfully',
+                'data' => $designation
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to update designation: ' . $e->getMessage(),
+                'data' => null
+            ], 400);
+        }
+    }
+
+    public function deleteDesignation($id)
+    {
+        try {
+            $designation = Designations::findOrFail($id);
+            $designation->delete();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Designation deleted successfully',
+                'data' => null
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to delete designation: ' . $e->getMessage(),
+                'data' => null
+            ], 400);
+        }
+    }
 }

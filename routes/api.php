@@ -86,10 +86,16 @@ Route::get('/get-profile', [UserController::class, 'getProfile']);
 Route::post('/add-department', [DepartmentController::class, 'addDepartment']);
 Route::get('/get-department', [DepartmentController::class, 'getDepartments']);
 Route::get('/get-department-with-user', [DepartmentController::class, 'getDepartmentsWithEmp']);
+Route::put('/update-department/{id}', [DepartmentController::class, 'updateDepartment']);
+Route::delete('/delete-department/{id}', [DepartmentController::class, 'deleteDepartment']);
 Route::post('/add-designation', [DesignationsController::class, 'addDesignation']);
 Route::get('/get-designation', [DesignationsController::class, 'getDesignations']);
+Route::put('/update-designation/{id}', [DesignationsController::class, 'updateDesignation']);
+Route::delete('/delete-designation/{id}', [DesignationsController::class, 'deleteDesignation']);
 Route::post('/add-role', [RoleController::class, 'addRole']);
 Route::get('/get-role', [RoleController::class, 'getRole']);
+Route::put('/update-role/{id}', [RoleController::class, 'updateRole']);
+Route::delete('/delete-role/{id}', [RoleController::class, 'deleteRole']);
 
 
 //attendance
@@ -110,12 +116,18 @@ Route::post('/get-attendance-report-user', [AttendanceController::class, 'getAtt
 
 Route::get('/get-priorites', [PriorityController::class, 'getPriorites']);
 Route::post('/add-priority', [PriorityController::class, 'addPriority']);
+Route::put('/update-priority/{id}', [PriorityController::class, 'updatePriority']);
+Route::delete('/delete-priority/{id}', [PriorityController::class, 'deletePriority']);
 
 Route::get('/get-task-type', [TaskTypeController::class, 'getTaskType']);
 Route::post('/add-task-type', [TaskTypeController::class, 'addTaskType']);
+Route::put('/update-task-type/{id}', [TaskTypeController::class, 'updateTaskType']);
+Route::delete('/delete-task-type/{id}', [TaskTypeController::class, 'deleteTaskType']);
 
 Route::get('/get-task-status', [TaskStatusController::class, 'getTaskStatus']);
 Route::post('/add-task-status', [TaskStatusController::class, 'addTaskStatus']);
+Route::put('/update-task-status/{id}', [TaskStatusController::class, 'updateTaskStatus']);
+Route::delete('/delete-task-status/{id}', [TaskStatusController::class, 'deleteTaskStatus']);
 
 ///project_______
 Route::get('/get-project-details/{id}', [ProjectController::class, 'getProjectDetails']);
@@ -451,5 +463,4 @@ Route::delete('/visit/delete/{id}', [VisitController::class, 'deleteVisit']);
 
 
 Route::post('/sheet/lead', [FbSheetLeadsController::class, 'store']);
-
 

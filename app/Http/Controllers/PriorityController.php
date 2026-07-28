@@ -77,4 +77,67 @@ class PriorityController extends Controller
             ], 500);
         }
     }
+
+    public function updatePriority(Request $request, $id)
+    {
+        $priority = Priority::find($id);
+
+        if (!$priority) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Priority not found.',
+                'data' => null
+            ], 404);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'priority_name' => 'sometimes|required|string|max:255|unique:priorities,priority_name,' . $id,
+            'color_code' => 'nullable|string|max:255',
+            'isActive' => 'sometimes|required|boolean',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $validator->errors()->first(),
+                'data' => null
+            ], 400);
+        }
+
+        try {
+            $priority->update($validator->validated());
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Priority updated successfully.',
+                'data' => $priority
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to update priority.',
+                'data' => null
+            ], 500);
+        }
+    }
+
+    public function deletePriority($id)
+    {
+        try {
+            $priority = Priority::findOrFail($id);
+            $priority->delete();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Priority deleted successfully.',
+                'data' => null
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to delete priority.',
+                'data' => null
+            ], 500);
+        }
+    }
 }

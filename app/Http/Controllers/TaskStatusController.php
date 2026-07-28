@@ -78,4 +78,67 @@ class TaskStatusController extends Controller
             ], 500);
         }
     }
+
+    public function updateTaskStatus(Request $request, $id)
+    {
+        $taskStatus = TaskStatus::find($id);
+
+        if (!$taskStatus) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Task status not found.',
+                'data' => null
+            ], 404);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'status_name' => 'sometimes|required|string|max:255|unique:task_statuses,status_name,' . $id,
+            'department_id' => 'nullable|exists:departments,id',
+            'isActive' => 'sometimes|required|boolean',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $validator->errors()->first(),
+                'data' => null
+            ], 400);
+        }
+
+        try {
+            $taskStatus->update($validator->validated());
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Task status updated successfully.',
+                'data' => $taskStatus->load('department')
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to update task status.',
+                'data' => null
+            ], 500);
+        }
+    }
+
+    public function deleteTaskStatus($id)
+    {
+        try {
+            $taskStatus = TaskStatus::findOrFail($id);
+            $taskStatus->delete();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Task status deleted successfully.',
+                'data' => null
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to delete task status.',
+                'data' => null
+            ], 500);
+        }
+    }
 }
