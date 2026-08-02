@@ -226,6 +226,7 @@ class SetAllLeaveController extends Controller
             "{$leave->duration} days leave is approved.",
             $leave->employee_id, // User ID
             true,
+            $leave->id
         );
         // Return success response with updated leave information
         return response()->json([
@@ -268,7 +269,8 @@ class SetAllLeaveController extends Controller
             "Your Leave Request is rejected.", // Title
             "{$leave->duration} days leave is rejected.",
             $leave->employee_id,
-            true // User ID
+            true, // User ID
+            $leave->id
         );
         // Return success response with updated leave information
         return response()->json([
