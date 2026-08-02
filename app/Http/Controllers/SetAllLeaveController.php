@@ -1,12 +1,14 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\SetAllLeave;
 use App\Models\EmployeeLeave;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Carbon\Carbon; 
+use Carbon\Carbon;
 use App\Http\Controllers\NotificationController;
+
 class SetAllLeaveController extends Controller
 {
 
@@ -19,17 +21,17 @@ class SetAllLeaveController extends Controller
     public function setLeave(Request $request)
     {
         // Validation of incoming data
-        
+
 
         // If validation fails, return a 400 error with validation message
-        
+
 
         try {
             // Create a new project
             $project = SetAllLeave::create([
                 'leave_name' => $request->leave_name,
                 'total_day' => $request->total_day,
-              
+
             ]);
 
             return response()->json([
@@ -70,7 +72,7 @@ class SetAllLeaveController extends Controller
     {
         // Validate incoming request
 
-        try{
+        try {
             $validator = Validator::make($request->all(), [
                 'employee_id' => 'required|exists:users,id', // Assuming you have an Employee table
                 'leave_type_id' => 'required|exists:set_all_leaves,id', // Assuming you have a LeaveType table
@@ -79,7 +81,7 @@ class SetAllLeaveController extends Controller
                 'duration' => 'required|numeric|min:0',
                 'details' => 'nullable|string',
                 'isHalf' => 'nullable|boolean',
-                
+
             ]);
             $startDate = Carbon::parse($request->start_date)->format('Y-m-d');
             $endDate = Carbon::parse($request->end_date)->format('Y-m-d');
@@ -87,7 +89,7 @@ class SetAllLeaveController extends Controller
             if ($validator->fails()) {
                 return response()->json(['errors' => $validator->errors()], 400);
             }
-    
+
             // Create the leave record
             $leave = EmployeeLeave::create([
                 'employee_id' => $request->employee_id,
@@ -101,17 +103,16 @@ class SetAllLeaveController extends Controller
                 'is_approve' => false, // Leave is not approved by default
                 'status' => 'pending', // Pending status by default
             ]);
-    
+
             // Return success response
             return response()->json(['message' => 'Leave request created successfully!', 'data' => $leave], 201);
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
                 'message' => $e->getMessage(),
                 'data' => null
             ], 500);
         }
-      
     }
 
     /**
@@ -124,13 +125,18 @@ class SetAllLeaveController extends Controller
 
         // Check if there are any leaves
         if ($leaves->isEmpty()) {
-            return response()->json(['message' => 'No leaves found for this employee.'], 404);
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'No leaves found for this employee.',
+                'data' => null
+            ], 404);
         }
 
         // Return the leaves data
         return response()->json([
             'status' => 'success',
-            'data' => $leaves], 200);
+            'data' => $leaves
+        ], 200);
     }
     public function getAllLeave()
     {
@@ -139,13 +145,18 @@ class SetAllLeaveController extends Controller
 
         // Check if there are any leaves
         if ($leaves->isEmpty()) {
-            return response()->json(['message' => 'No leaves found .'], 404);
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'No leaves found.',
+                'data' => null
+            ], 404);
         }
 
         // Return the leaves data
         return response()->json([
             'status' => 'success',
-            'data' => $leaves], 200);
+            'data' => $leaves
+        ], 200);
     }
 
     public function getLeaveStatusByUserId($employee_id)
@@ -180,7 +191,8 @@ class SetAllLeaveController extends Controller
         // Return the leave status data
         return response()->json([
             'status' => "success",
-            'data' => $leaveStatus], 200);
+            'data' => $leaveStatus
+        ], 200);
     }
 
     public function approveLeave(Request $request, $leave_id)
@@ -211,13 +223,13 @@ class SetAllLeaveController extends Controller
         $leave->save();
         $this->notificationController->addNotification(
             "Your Leave Request is Approved.", // Title
-            "{$leave->duration} days leave is approved.", 
-            $leave->employee_id ,// User ID
+            "{$leave->duration} days leave is approved.",
+            $leave->employee_id, // User ID
             true,
         );
         // Return success response with updated leave information
         return response()->json([
-            'status'=>'success',
+            'status' => 'success',
             'message' => 'Leave approved successfully.',
             'data' => [
                 'leave_id' => $leave->id,
@@ -254,13 +266,13 @@ class SetAllLeaveController extends Controller
         $leave->save();
         $this->notificationController->addNotification(
             "Your Leave Request is rejected.", // Title
-            "{$leave->duration} days leave is rejected.", 
-            $leave->employee_id ,
-            true// User ID
+            "{$leave->duration} days leave is rejected.",
+            $leave->employee_id,
+            true // User ID
         );
         // Return success response with updated leave information
         return response()->json([
-            'status'=>'success',
+            'status' => 'success',
             'message' => 'Leave rejected .',
             'data' => [
                 'leave_id' => $leave->id,
@@ -269,5 +281,4 @@ class SetAllLeaveController extends Controller
             ]
         ], 200);
     }
-    
 }
