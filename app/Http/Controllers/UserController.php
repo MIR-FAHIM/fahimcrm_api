@@ -228,21 +228,21 @@ class UserController extends Controller
 
         // Assign the token to the user's token attribute
         $user->app_token = $token;
-      
 
-if ($request->filled('fcm_token')) {
-    $user->fcm_token = $request->fcm_token;
-}
+
+        if ($request->filled('fcm_token')) {
+            $user->fcm_token = $request->fcm_token;
+        }
 
         // Save the user model with the new token
         $user->save();
-$activity = UserActivityTracker::create([
-                'activity_name' => 'login',
-            
-                'user_id' => $user->id,
-                'details' => 'User logged in',
-               'type' => 'auth',
-            ]);
+        $activity = UserActivityTracker::create([
+            'activity_name' => 'login',
+
+            'user_id' => $user->id,
+            'details' => 'User logged in',
+            'type' => 'auth',
+        ]);
         return response()->json(
             [
                 'status' => 200,
@@ -522,7 +522,7 @@ $activity = UserActivityTracker::create([
             $totalProjectPhase = ProjectPhase::count();
             $totalProspects = Prospect::count();
             $totalTasks = Tasks::count();
-            
+
 
             return response()->json([
                 'status' => 'success',
@@ -533,7 +533,7 @@ $activity = UserActivityTracker::create([
                     'projectPhase' => $totalProjectPhase,
                     'prospects' => $totalProspects,
                     'tasks' => $totalTasks,
-                    
+
                 ]
             ], 200);
         } catch (\Exception $e) {
@@ -546,47 +546,46 @@ $activity = UserActivityTracker::create([
     }
 
     public function changePassword(Request $request)
-{
-    try {
-        $user = User::findOrFail($request->user_id);
+    {
+        try {
+            $user = User::findOrFail($request->user_id);
 
-        // Validate request parameters
-        $validator = Validator::make($request->all(), [
-            'current_password' => 'required',
-            'new_password' => 'required|min:6|different:current_password',
-        ]);
+            // Validate request parameters
+            $validator = Validator::make($request->all(), [
+                'current_password' => 'required',
+                'new_password' => 'required|min:6|different:current_password',
+            ]);
 
-        if ($validator->fails()) {
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Validation failed',
+                    'errors' => $validator->errors(),
+                ], status: 200);
+            }
+
+            // Check if the current password matches the stored password
+            if (!Hash::check($request->current_password, $user->password)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Current password is incorrect',
+                ], status: 200);
+            }
+
+            // Update the password with the new one
+            $user->password = Hash::make($request->new_password);
+            $user->save();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Password updated successfully',
+            ], 200);
+        } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Validation failed',
-                'errors' => $validator->errors(),
-            ], status: 200);
+                'message' => 'An error occurred while changing the password',
+                'error' => $e->getMessage(),
+            ], 500);
         }
-
-        // Check if the current password matches the stored password
-        if (!Hash::check($request->current_password, $user->password)) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Current password is incorrect',
-            ], status: 200);
-        }
-
-        // Update the password with the new one
-        $user->password = Hash::make($request->new_password);
-        $user->save();
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Password updated successfully',
-        ], 200);
-
-    } catch (\Exception $e) {
-        return response()->json([
-            'status' => 'error',
-            'message' => 'An error occurred while changing the password',
-            'error' => $e->getMessage(),
-        ], 500);
     }
-}
 }
