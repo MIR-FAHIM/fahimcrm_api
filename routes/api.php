@@ -297,6 +297,8 @@ Route::get('/report-text', [ReportController::class, 'reportText']);
 Route::post('/product/add', [ProductItemController::class, 'addProduct']);
 Route::get('/product/active', [ProductItemController::class, 'getActiveProduct']);
 Route::get('/product/active/variants', [ProductItemController::class, 'getActiveProductWithVariants']);
+Route::put('/product/update/{id}', [ProductItemController::class, 'updateProduct']);
+Route::delete('/product/delete/{id}', [ProductItemController::class, 'deleteProduct']);
 
 
 // --------- contact us ------

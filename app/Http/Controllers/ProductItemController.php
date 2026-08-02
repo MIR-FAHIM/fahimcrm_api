@@ -16,12 +16,14 @@ class ProductItemController extends Controller
             'description' => 'nullable|string',
             'is_active' => 'boolean',
             'category_id' => 'nullable|integer',
+            'brand_id' => 'nullable|integer',
+            'image' => 'nullable|string',
         ]);
 
         $product = ProductItem::create([
             'product_name' => $request->product_name,
             'description' => $request->description,
-            'image' => "imageurl",
+            'image' => $request->image,
             'brand_id' => $request->brand_id,
             'is_active' => $request->is_active ?? true,
             'category_id' => $request->category_id,
@@ -57,6 +59,57 @@ class ProductItemController extends Controller
         ], 500);
     }
 }
+
+    public function updateProduct(Request $request, $id)
+    {
+        try {
+            $product = ProductItem::findOrFail($id);
+
+            $validatedData = $request->validate([
+                'product_name' => 'sometimes|required|string|max:255',
+                'description' => 'nullable|string',
+                'is_active' => 'sometimes|required|boolean',
+                'category_id' => 'nullable|integer',
+                'brand_id' => 'nullable|integer',
+                'image' => 'nullable|string',
+            ]);
+
+            $product->update($validatedData);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Product updated successfully',
+                'data' => $product->load('category')
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to update product.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function deleteProduct($id)
+    {
+        try {
+            $product = ProductItem::findOrFail($id);
+            $product->delete();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Product deleted successfully',
+                'data' => null
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to delete product.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function getActiveProductWithVariants()
     {
         $products = ProductItem::where('is_active', true)->with('variants', 'category')->withCount('variants')->get();
@@ -67,7 +120,6 @@ class ProductItemController extends Controller
         ]);
     }
 }
-
 
 
 
