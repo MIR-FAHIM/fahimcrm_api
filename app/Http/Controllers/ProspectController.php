@@ -89,7 +89,7 @@ class ProspectController extends Controller
     public function getAllProspect()
     {
         try {
-            $prospects = Prospect::where('type', 'prospect')->with('stage', 'industryType', 'concernPersons', 'informationSource', 'zone', 'interestedFor')->get();
+            $prospects = Prospect::where('is_active', 1)->where('type', 'prospect')->with('stage', 'industryType', 'concernPersons', 'informationSource', 'zone', 'interestedFor')->get();
 
             // Get log activity counts grouped by prospect and activity_type
             $activityCounts = ProspectLogActivity::select(
@@ -138,7 +138,7 @@ class ProspectController extends Controller
     public function getAllWarehouse()
     {
         try {
-            $prospects = Prospect::where('type', 'warehouse')->with('stage', 'industryType', 'concernPersons', 'informationSource', 'zone', 'interestedFor')->get();
+            $prospects = Prospect::where('is_active', 1)->where('type', 'warehouse')->with('stage', 'industryType', 'concernPersons', 'informationSource', 'zone', 'interestedFor')->get();
 
             // Get log activity counts grouped by prospect and activity_type
             $activityCounts = ProspectLogActivity::select(
@@ -188,7 +188,7 @@ class ProspectController extends Controller
     public function getIndividualProspect()
     {
         try {
-            $individuals = Prospect::where('is_individual', true)->get();
+            $individuals = Prospect::where('is_active', 1)->where('is_individual', true)->get();
 
             return response()->json([
                 'status' => 'success',
@@ -208,7 +208,7 @@ class ProspectController extends Controller
     public function getOrganizationProspect()
     {
         try {
-            $organizations = Prospect::where('is_individual', false)->get();
+            $organizations = Prospect::where('is_active', 1)->where('is_individual', false)->get();
 
             return response()->json([
                 'status' => 'success',
