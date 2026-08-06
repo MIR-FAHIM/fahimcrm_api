@@ -495,7 +495,7 @@ class ProspectController extends Controller
     {
         try {
             // Load all prospects with relationships
-            $prospects = Prospect::where('type', 'prospect')->with('stage', 'industryType', 'zone', 'concernPersons', 'informationSource', 'interestedFor')->get();
+            $prospects = Prospect::where('is_active', 1)->where('type', 'prospect')->with('stage', 'industryType', 'zone', 'concernPersons', 'informationSource', 'interestedFor')->get();
 
             // Activity counts grouped by prospect and activity_type
             $activityCounts = ProspectLogActivity::select(
@@ -614,7 +614,7 @@ class ProspectController extends Controller
     {
         try {
             // Load prospects with their related information source
-            $prospects = Prospect::with('informationSource')->get();
+            $prospects = Prospect::where('is_active', 1)->with('informationSource')->get();
 
             $groupedBySource = [];
 
