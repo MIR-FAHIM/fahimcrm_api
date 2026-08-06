@@ -43,7 +43,7 @@ class TaskStatusController extends Controller
     {
         // Validation of incoming data
         $validator = Validator::make($request->all(), [
-            'status_name' => 'required|string|max:255|unique:task_statuses,status_name', // Ensure unique status name
+            'status_name' => 'required|string|max:255', // Ensure unique status name
             'isActive' => 'required|boolean', // Ensure isActive is a boolean value
         ]);
 
