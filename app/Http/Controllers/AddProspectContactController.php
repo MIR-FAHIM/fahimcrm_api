@@ -23,9 +23,18 @@ class AddProspectContactController extends Controller
         try {
          
             // Prepare data for bulk insertion
-            $contacts = $request->input('contacts');
+            $contacts = $request->input('contacts', []);
             foreach ($contacts as &$contact) {
                 $contact['prospect_id'] = $request->input('prospect_id');
+                $contact['designation_id'] = $this->nullableValue($contact['designation_id'] ?? null);
+                $contact['attitude_id'] = $this->nullableValue($contact['attitude_id'] ?? null);
+                $contact['influencing_role_id'] = $this->nullableValue($contact['influencing_role_id'] ?? null);
+                $contact['birth_date'] = $this->nullableValue($contact['birth_date'] ?? null);
+                $contact['anniversary'] = $this->nullableValue($contact['anniversary'] ?? null);
+                $contact['is_primary'] = $this->booleanValue($contact['is_primary'] ?? false);
+                $contact['is_responsive'] = $this->booleanValue($contact['is_responsive'] ?? true);
+                $contact['is_key_contact'] = $this->booleanValue($contact['is_key_contact'] ?? false);
+                $contact['is_switched_job'] = $this->booleanValue($contact['is_switched_job'] ?? false);
             }
 
             // Insert multiple contact persons at once
@@ -39,6 +48,24 @@ class AddProspectContactController extends Controller
                 'status' => 'error',
                 'error' => $e->getMessage()], 500);
         }
+    }
+
+    private function nullableValue($value)
+    {
+        if ($value === null || $value === '' || $value === 'undefined' || $value === 'null') {
+            return null;
+        }
+
+        return $value;
+    }
+
+    private function booleanValue($value): int
+    {
+        if ($value === true || $value === 1 || $value === '1' || $value === 'true') {
+            return 1;
+        }
+
+        return 0;
     }
 
     /**
@@ -63,3 +90,4 @@ class AddProspectContactController extends Controller
             ], 200);
     }
 }
+

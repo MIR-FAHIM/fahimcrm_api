@@ -27,6 +27,13 @@ class AddProspectContact extends Model
         'is_key_contact',
     ];
 
+    protected $casts = [
+        'is_primary' => 'boolean',
+        'is_responsive' => 'boolean',
+        'is_switched_job' => 'boolean',
+        'is_key_contact' => 'boolean',
+    ];
+
     // Define any relationships, if applicable
     // public function designation()
     // {
@@ -40,3 +47,4 @@ class AddProspectContact extends Model
     
     // Optionally, you can define custom attributes or methods if necessary
 }
+
