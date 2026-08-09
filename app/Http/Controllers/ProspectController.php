@@ -31,6 +31,9 @@ class ProspectController extends Controller
                 $prospect->facebook_page         = $request->input('facebook_page');
                 $prospect->linkedin              = $request->input('linkedin');
                 $prospect->zone_id               = $request->input('zone_id');
+                $prospect->division_id           = $request->input('division_id');
+                $prospect->district_id           = $request->input('district_id');
+                $prospect->thana_id              = $request->input('thana_id');
                 $prospect->type                  = $request->input('type', 'lead');
                 $prospect->latitude              = $request->input('latitude');
                 $prospect->longitude             = $request->input('longitude');
@@ -89,7 +92,7 @@ class ProspectController extends Controller
     public function getAllProspect()
     {
         try {
-            $prospects = Prospect::where('is_active', 1)->where('type', 'prospect')->with('stage', 'industryType', 'concernPersons', 'informationSource', 'zone', 'interestedFor')->get();
+            $prospects = Prospect::where('is_active', 1)->where('type', 'prospect')->with('stage', 'industryType', 'concernPersons', 'informationSource', 'zone', 'division', 'district', 'thana', 'interestedFor')->get();
 
             // Get log activity counts grouped by prospect and activity_type
             $activityCounts = ProspectLogActivity::select(
@@ -138,7 +141,7 @@ class ProspectController extends Controller
     public function getAllWarehouse()
     {
         try {
-            $prospects = Prospect::where('is_active', 1)->where('type', 'warehouse')->with('stage', 'industryType', 'concernPersons', 'informationSource', 'zone', 'interestedFor')->get();
+            $prospects = Prospect::where('is_active', 1)->where('type', 'warehouse')->with('stage', 'industryType', 'concernPersons', 'informationSource', 'zone', 'division', 'district', 'thana', 'interestedFor')->get();
 
             // Get log activity counts grouped by prospect and activity_type
             $activityCounts = ProspectLogActivity::select(
@@ -228,7 +231,7 @@ class ProspectController extends Controller
     public function getProspectDetail($id)
     {
         try {
-            $prospect = Prospect::with('informationSource', 'industryType', 'stage', 'zone', 'interestedFor',)->find($id);
+            $prospect = Prospect::with('informationSource', 'industryType', 'stage', 'zone', 'division', 'district', 'thana', 'interestedFor',)->find($id);
 
             if (!$prospect) {
                 return response()->json([
@@ -495,7 +498,7 @@ class ProspectController extends Controller
     {
         try {
             // Load all prospects with relationships
-            $prospects = Prospect::where('is_active', 1)->where('type', 'prospect')->with('stage', 'industryType', 'zone', 'concernPersons', 'informationSource', 'interestedFor')->get();
+            $prospects = Prospect::where('is_active', 1)->where('type', 'prospect')->with('stage', 'industryType', 'zone', 'division', 'district', 'thana', 'concernPersons', 'informationSource', 'interestedFor')->get();
 
             // Activity counts grouped by prospect and activity_type
             $activityCounts = ProspectLogActivity::select(

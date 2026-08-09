@@ -276,6 +276,9 @@ Route::get('/test-pusher', [ChatMessageController::class, 'pusherTest']);
 //ZoneController
 Route::post('/zone/add', [ZoneController::class, 'addZone']);
 Route::get('/zones', [ZoneController::class, 'getZones']);
+Route::get('/get-division', [ZoneController::class, 'getDivision']);
+Route::get('/get-district', [ZoneController::class, 'getDistrict']);
+Route::get('/get-upozela', [ZoneController::class, 'getUpozela']);
 
 //InfluencingRoleController
 Route::post('/add-influencing-role', [InfluencingRoleController::class, 'addInfluenceRole']);

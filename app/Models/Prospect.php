@@ -18,6 +18,9 @@ class Prospect extends Model
         'facebook_page',
         'linkedin',
         'zone_id',
+        'division_id',
+        'district_id',
+        'thana_id',
         'type',
         'latitude',
         'longitude',
@@ -35,6 +38,9 @@ class Prospect extends Model
         'is_individual' => 'boolean',
         'latitude' => 'float',
         'longitude' => 'float',
+        'division_id' => 'integer',
+        'district_id' => 'integer',
+        'thana_id' => 'integer',
     ];
 
     // Example relationships (uncomment & modify if needed)
@@ -69,5 +75,20 @@ class Prospect extends Model
     public function zone()
     {
         return $this->belongsTo(Zone::class);
+    }
+
+    public function division()
+    {
+        return $this->belongsTo(Division::class, 'division_id');
+    }
+
+    public function district()
+    {
+        return $this->belongsTo(District::class, 'district_id');
+    }
+
+    public function thana()
+    {
+        return $this->belongsTo(Upazila::class, 'thana_id');
     }
 }
