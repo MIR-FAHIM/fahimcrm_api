@@ -43,7 +43,7 @@ class ClientController extends Controller
     }
     public function getClientDetails($id)
     {
-        $clients = Client::with('prospect', 'prospect.industryType', 'prospect.informationSource')->find($id);
+        $clients = Client::with('prospect', 'prospect.industryType', 'prospect.informationSource', 'prospect.divison', 'prospect.district', 'prospect.thana')->find($id);
 
         return response()->json([
             'status' => 'success',
