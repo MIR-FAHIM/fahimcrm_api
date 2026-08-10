@@ -16,6 +16,10 @@ class CheckAppToken
      */
     public function handle(Request $request, Closure $next)
     {
+        if ($request->is('api/external/tickets/webhook') || $request->is('external/tickets/webhook')) {
+            return $next($request);
+        }
+
         // Check if the 'token' header exists
         $token = $request->header('token');
  
