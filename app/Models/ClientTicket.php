@@ -22,6 +22,26 @@ class ClientTicket extends Model
         'attachment',
         'is_completed',
         'createdBy',
+        'source',
+        'external_ticket_id',
+        'external_client_id',
+        'external_client_name',
+        'external_client_email',
+        'external_client_phone',
+        'match_status',
+        'matched_by',
+        'converted_task_id',
+        'external_priority',
+        'external_status',
+        'raw_payload',
+        'last_synced_at',
+    ];
+
+    protected $casts = [
+        'is_urgent' => 'boolean',
+        'is_completed' => 'boolean',
+        'raw_payload' => 'array',
+        'last_synced_at' => 'datetime',
     ];
 
     // Relationships (if needed)
@@ -33,5 +53,10 @@ class ClientTicket extends Model
     public function priority()
     {
         return $this->belongsTo(Priority::class, 'priority_id');
+    }
+
+    public function convertedTask()
+    {
+        return $this->belongsTo(Tasks::class, 'converted_task_id');
     }
 }

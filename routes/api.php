@@ -62,6 +62,8 @@ use App\Http\Controllers\VisitController;
 
 use App\Http\Middleware\CheckAppToken;
 
+Route::post('/external/tickets/webhook', [ClientTicketController::class, 'externalTicketWebhook'])->withoutMiddleware([CheckAppToken::class]);
+
 
 
 //Route::post('/login', [UserController::class, 'login']);
@@ -419,9 +421,12 @@ Route::prefix('tickets')->group(function () {
 
     // Get all tickets
     Route::get('/get-all-ticket', [ClientTicketController::class, 'getAllTicket']);
+    Route::get('/unmatched', [ClientTicketController::class, 'getUnmatchedTickets']);
 
     // Get tickets by client
     Route::get('/get-ticket-client/{clientId}', [ClientTicketController::class, 'getTicketByClient']);
+    Route::post('/match-client/{ticketId}', [ClientTicketController::class, 'matchTicketClient']);
+    Route::post('/convert-to-task/{ticketId}', [ClientTicketController::class, 'convertTicketToTask']);
 
     // Change ticket status
     Route::patch('/change-status/{ticketId}', [ClientTicketController::class, 'changeStatus']);
