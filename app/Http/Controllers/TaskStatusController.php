@@ -33,6 +33,28 @@ class TaskStatusController extends Controller
         }
     }
 
+    public function getStatusByDepartment($department_id)
+    {
+        try {
+            $taskStatuses = TaskStatus::where('department_id', $department_id)
+                ->where('isActive', true)
+                ->with('department')
+                ->get();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Task statuses fetched successfully.',
+                'data' => $taskStatuses
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to fetch task statuses.',
+                'data' => null
+            ], 500);
+        }
+    }
+
     /**
      * Store a new task status.
      *

@@ -33,6 +33,28 @@ class TaskTypeController extends Controller
         }
     }
 
+    public function getTaskTypeByDepartment($department_id)
+    {
+        try {
+            $taskTypes = TaskType::where('department_id', $department_id)
+                ->where('isActive', true)
+                ->with('department')
+                ->get();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Task types fetched successfully.',
+                'data' => $taskTypes
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to fetch task types.',
+                'data' => null
+            ], 500);
+        }
+    }
+
     /**
      * Store a new task type.
      *

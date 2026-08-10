@@ -123,11 +123,13 @@ Route::put('/update-priority/{id}', [PriorityController::class, 'updatePriority'
 Route::delete('/delete-priority/{id}', [PriorityController::class, 'deletePriority']);
 
 Route::get('/get-task-type', [TaskTypeController::class, 'getTaskType']);
+Route::get('/get-task-type-by-department/{department_id}', [TaskTypeController::class, 'getTaskTypeByDepartment']);
 Route::post('/add-task-type', [TaskTypeController::class, 'addTaskType']);
 Route::put('/update-task-type/{id}', [TaskTypeController::class, 'updateTaskType']);
 Route::delete('/delete-task-type/{id}', [TaskTypeController::class, 'deleteTaskType']);
 
 Route::get('/get-task-status', [TaskStatusController::class, 'getTaskStatus']);
+Route::get('/get-task-status-by-department/{department_id}', [TaskStatusController::class, 'getStatusByDepartment']);
 Route::post('/add-task-status', [TaskStatusController::class, 'addTaskStatus']);
 Route::put('/update-task-status/{id}', [TaskStatusController::class, 'updateTaskStatus']);
 Route::delete('/delete-task-status/{id}', [TaskStatusController::class, 'deleteTaskStatus']);
