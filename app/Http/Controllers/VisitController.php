@@ -36,6 +36,7 @@ class VisitController extends Controller
                 Rule::exists('prospects', 'id'),
             ],
             'task_status_id' => 'required|exists:task_statuses,id', // Add this to the request for the task status
+            'priority_id' => 'required|exists:priorities,id',
 
             'department_id' => 'required|exists:departments,id', // Add this to the request for the department
         ]);
@@ -60,6 +61,15 @@ class VisitController extends Controller
 
 
             $taskType = TaskType::where('type_name', 'Visit')->first();
+
+            if (!$taskType) {
+                DB::rollBack();
+
+                return response()->json([
+                    'status' => 'failed',
+                    'message' => 'Visit task type not found. Please create a task type named Visit first.',
+                ], 400);
+            }
 
             // 2. Create the related task, using the field names from your Tasks model
             $task = Tasks::create([
