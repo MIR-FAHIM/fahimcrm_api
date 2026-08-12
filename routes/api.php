@@ -472,7 +472,10 @@ Route::post('/visit/add', [VisitController::class, 'addVisit']);
 Route::get('/visit/all', [VisitController::class, 'getAllVisit']);
 Route::get('/visit/all/datewise', [VisitController::class, 'getAllVisitDateGroup']);
 Route::get('/visit/employee/{employee_id}', [VisitController::class, 'getVisitByEmployee']);
+Route::get('/visit/employee/{employee_id}/schedule', [VisitController::class, 'getEmployeeVisitSchedule']);
 Route::get('/visit/date/emp', [VisitController::class, 'getAllVisitByEmpAndDate']);
+Route::patch('/visit/start/{id}', [VisitController::class, 'startVisit']);
+Route::patch('/visit/complete/{id}', [VisitController::class, 'completeVisit']);
 Route::patch('/visit/update/{id}', [VisitController::class, 'updateVisit']);
 Route::delete('/visit/delete/{id}', [VisitController::class, 'deleteVisit']);
 
