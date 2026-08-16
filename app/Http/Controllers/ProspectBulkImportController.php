@@ -269,6 +269,10 @@ class ProspectBulkImportController extends Controller
             'industry_type_id',
             'interested_for_id',
             'information_source_id',
+            'division_name',
+            'district_name',
+            'thana_name',
+            'upazila_name',
             'website_link',
             'facebook_page',
             'linkedin',
@@ -302,6 +306,10 @@ class ProspectBulkImportController extends Controller
                 'ABC Company',
                 '',
                 '',
+                '',
+                'Dhaka',
+                'Dhaka',
+                'Dhanmondi',
                 '',
                 'https://abc.com',
                 '',
@@ -345,6 +353,8 @@ class ProspectBulkImportController extends Controller
             $errors[] = 'prospect_name is required.';
         }
 
+        $locationIds = $this->resolveLocationIds($rawData, $warnings);
+
         $prospectData = [
             'prospect_name' => $prospectName,
             'is_individual' => false,
@@ -354,10 +364,10 @@ class ProspectBulkImportController extends Controller
             'website_link' => $this->clean($rawData['website_link'] ?? null),
             'facebook_page' => $this->clean($rawData['facebook_page'] ?? null),
             'linkedin' => $this->clean($rawData['linkedin'] ?? null),
-            'zone_id' => null,
-            'division_id' => null,
-            'district_id' => null,
-            'thana_id' => null,
+            'zone_id' => $this->nullableIdOrWarning($rawData['zone_id'] ?? null, 'zones', $warnings),
+            'division_id' => $locationIds['division_id'],
+            'district_id' => $locationIds['district_id'],
+            'thana_id' => $locationIds['thana_id'],
             'type' => 'prospect',
             'latitude' => $this->nullableNumber($rawData['latitude'] ?? null, 'latitude', $errors),
             'longitude' => $this->nullableNumber($rawData['longitude'] ?? null, 'longitude', $errors),
@@ -443,6 +453,108 @@ class ProspectBulkImportController extends Controller
             'attitude_id' => $this->nullableId($rawData['attitude_id'] ?? null, 'attitudes', $errors, false),
             'is_key_contact' => false,
         ];
+    }
+
+    private function resolveLocationIds(array $rawData, array &$warnings): array
+    {
+        $divisionInput = $this->firstClean($rawData, ['division_name', 'division', 'division_id']);
+        $districtInput = $this->firstClean($rawData, ['district_name', 'district', 'district_id']);
+        $thanaInput = $this->firstClean($rawData, ['thana_name', 'upazila_name', 'thana', 'upazila', 'thana_id']);
+
+        $divisionId = $this->resolveIdOrName(
+            $divisionInput,
+            'divisions',
+            'Division',
+            $warnings
+        );
+
+        $districtId = $this->resolveIdOrName(
+            $districtInput,
+            'districts',
+            'District',
+            $warnings,
+            $divisionId ? ['division_id' => $divisionId] : []
+        );
+
+        $thanaId = $this->resolveIdOrName(
+            $thanaInput,
+            'upazilas',
+            'Thana/Upazila',
+            $warnings,
+            $districtId ? ['district_id' => $districtId] : []
+        );
+
+        return [
+            'division_id' => $divisionId,
+            'district_id' => $districtId,
+            'thana_id' => $thanaId,
+        ];
+    }
+
+    private function resolveIdOrName($value, string $table, string $label, array &$warnings, array $constraints = []): ?int
+    {
+        $value = $this->clean($value);
+
+        if ($value === null) {
+            return null;
+        }
+
+        $query = DB::table($table);
+
+        foreach ($constraints as $column => $constraintValue) {
+            $query->where($column, $constraintValue);
+        }
+
+        if (ctype_digit((string) $value)) {
+            $exists = (clone $query)->where('id', (int) $value)->exists();
+
+            if ($exists) {
+                return (int) $value;
+            }
+
+            $warnings[] = "{$label} ID {$value} was not found. It will be saved empty.";
+            return null;
+        }
+
+        $match = $this->findLocationNameMatch($query, $value);
+
+        if ($match) {
+            return (int) $match->id;
+        }
+
+        $warnings[] = "{$label} \"{$value}\" was not found. It will be saved empty.";
+        return null;
+    }
+
+    private function findLocationNameMatch($query, string $value)
+    {
+        $normalizedValue = $this->normalizeMatchText($value);
+        $candidates = $query->select('id', 'name', 'bn_name')->get();
+
+        foreach ($candidates as $candidate) {
+            if ($this->normalizeMatchText($candidate->name ?? '') === $normalizedValue) {
+                return $candidate;
+            }
+
+            if ($this->normalizeMatchText($candidate->bn_name ?? '') === $normalizedValue) {
+                return $candidate;
+            }
+        }
+
+        return null;
+    }
+
+    private function firstClean(array $data, array $keys)
+    {
+        foreach ($keys as $key) {
+            $value = $this->clean($data[$key] ?? null);
+
+            if ($value !== null) {
+                return $value;
+            }
+        }
+
+        return null;
     }
 
     private function readCsvRows(string $path): array
@@ -607,6 +719,27 @@ class ProspectBulkImportController extends Controller
         return (int) $value;
     }
 
+    private function nullableIdOrWarning($value, string $table, array &$warnings): ?int
+    {
+        $value = $this->clean($value);
+
+        if ($value === null) {
+            return null;
+        }
+
+        if (!ctype_digit((string) $value)) {
+            $warnings[] = "{$table} id {$value} is not numeric. It will be saved empty.";
+            return null;
+        }
+
+        if (Schema::hasTable($table) && !DB::table($table)->where('id', (int) $value)->exists()) {
+            $warnings[] = "{$table} id {$value} was not found. It will be saved empty.";
+            return null;
+        }
+
+        return (int) $value;
+    }
+
     private function nullableNumber($value, string $field, array &$errors): ?float
     {
         $value = $this->clean($value);
@@ -628,6 +761,14 @@ class ProspectBulkImportController extends Controller
         $value = strtolower((string) $this->clean($value));
 
         return in_array($value, ['1', 'true', 'yes', 'y'], true) ? 1 : 0;
+    }
+
+    private function normalizeMatchText($value): string
+    {
+        $value = strtolower(trim((string) $value));
+        $value = preg_replace('/\s+/', ' ', $value);
+
+        return $value ?? '';
     }
 
     private function filledValues(array $data): array
