@@ -198,6 +198,8 @@ Route::get('/get-all-leave', [SetAllLeaveController::class, 'getAllLeave']);
 
 // prospect-stage
 Route::post('/add-prospect-stage', [ProspectStageController::class, 'addProspectStage']);
+Route::post('/update-prospect-stage/{id}', [ProspectStageController::class, 'updateProspectStage']);
+Route::post('/update-prospect-stage-order', [ProspectStageController::class, 'updateProspectStageOrder']);
 Route::post('/prospectstage-by-log-and-prospect', [ProspectStageController::class, 'getProspectStageListWithLogs']);
 Route::get('/get-prospect-stages', [ProspectStageController::class, 'getProspectStage']);
 
