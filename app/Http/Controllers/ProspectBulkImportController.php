@@ -165,6 +165,8 @@ class ProspectBulkImportController extends Controller
                     $prospectData = $data['prospect'];
                     $prospectData['status'] = $this->nullableIntegerValue($prospectData['status'] ?? null)
                         ?? $this->defaultProspectStageStatusId();
+                    $prospectData['stage_id'] = $this->nullableIntegerValue($prospectData['stage_id'] ?? null)
+                        ?? $this->defaultProspectStageStatusId();
                     $contactData = $data['contact'];
                     $isClient = (bool) ($data['is_client'] ?? false);
 
@@ -378,7 +380,7 @@ class ProspectBulkImportController extends Controller
             'is_active' => $this->booleanValue($rawData['is_active'] ?? true),
             'is_opportunity' => $this->booleanValue($rawData['is_opportunity'] ?? false),
             'status' => $this->nullableIntegerOrDefaultWarning($rawData['status'] ?? null, 'Prospect status', $warnings),
-            'stage_id' => $this->nullableId($rawData['stage_id'] ?? null, 'prospect_stages', $errors),
+            'stage_id' => $this->nullableProspectStageIdOrDefault($rawData['stage_id'] ?? null, $warnings),
             'priority_id' => $this->nullableId($rawData['priority_id'] ?? null, 'priorities', $errors),
             'last_activity' => $this->clean($rawData['last_activity'] ?? null),
         ];
@@ -770,6 +772,28 @@ class ProspectBulkImportController extends Controller
         if (!ctype_digit((string) $value)) {
             $warnings[] = "{$label} \"{$value}\" is not numeric. Default status ID {$defaultStatusId} will be used.";
             return $defaultStatusId;
+        }
+
+        return (int) $value;
+    }
+
+    private function nullableProspectStageIdOrDefault($value, array &$warnings): int
+    {
+        $defaultStageId = $this->defaultProspectStageStatusId();
+        $value = $this->clean($value);
+
+        if ($value === null) {
+            return $defaultStageId;
+        }
+
+        if (!ctype_digit((string) $value)) {
+            $warnings[] = "Prospect stage \"{$value}\" is not numeric. Default stage ID {$defaultStageId} will be used.";
+            return $defaultStageId;
+        }
+
+        if (Schema::hasTable('prospect_stages') && !DB::table('prospect_stages')->where('id', (int) $value)->exists()) {
+            $warnings[] = "Prospect stage ID {$value} was not found. Default stage ID {$defaultStageId} will be used.";
+            return $defaultStageId;
         }
 
         return (int) $value;
