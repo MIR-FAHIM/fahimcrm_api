@@ -163,6 +163,8 @@ class ProspectBulkImportController extends Controller
                 DB::transaction(function () use ($row, &$imported, &$skipped) {
                     $data = $row->normalized_data;
                     $prospectData = $data['prospect'];
+                    $prospectData['status'] = $this->nullableIntegerValue($prospectData['status'] ?? null)
+                        ?? $this->defaultProspectStageStatusId();
                     $contactData = $data['contact'];
                     $isClient = (bool) ($data['is_client'] ?? false);
 
@@ -320,7 +322,7 @@ class ProspectBulkImportController extends Controller
                 'Imported prospect',
                 '1',
                 '0',
-                'new',
+                '1',
                 '',
                 '',
                 '',
@@ -375,7 +377,7 @@ class ProspectBulkImportController extends Controller
             'note' => $this->clean($rawData['note'] ?? null),
             'is_active' => $this->booleanValue($rawData['is_active'] ?? true),
             'is_opportunity' => $this->booleanValue($rawData['is_opportunity'] ?? false),
-            'status' => $this->clean($rawData['status'] ?? null) ?: 'new',
+            'status' => $this->nullableIntegerOrDefaultWarning($rawData['status'] ?? null, 'Prospect status', $warnings),
             'stage_id' => $this->nullableId($rawData['stage_id'] ?? null, 'prospect_stages', $errors),
             'priority_id' => $this->nullableId($rawData['priority_id'] ?? null, 'priorities', $errors),
             'last_activity' => $this->clean($rawData['last_activity'] ?? null),
@@ -738,6 +740,63 @@ class ProspectBulkImportController extends Controller
         }
 
         return (int) $value;
+    }
+
+    private function nullableIntegerOrWarning($value, string $label, array &$warnings): ?int
+    {
+        $value = $this->clean($value);
+
+        if ($value === null) {
+            return null;
+        }
+
+        if (!ctype_digit((string) $value)) {
+            $warnings[] = "{$label} \"{$value}\" is not numeric. It will be saved empty.";
+            return null;
+        }
+
+        return (int) $value;
+    }
+
+    private function nullableIntegerOrDefaultWarning($value, string $label, array &$warnings): int
+    {
+        $defaultStatusId = $this->defaultProspectStageStatusId();
+        $value = $this->clean($value);
+
+        if ($value === null) {
+            return $defaultStatusId;
+        }
+
+        if (!ctype_digit((string) $value)) {
+            $warnings[] = "{$label} \"{$value}\" is not numeric. Default status ID {$defaultStatusId} will be used.";
+            return $defaultStatusId;
+        }
+
+        return (int) $value;
+    }
+
+    private function nullableIntegerValue($value): ?int
+    {
+        $value = $this->clean($value);
+
+        if ($value === null || !ctype_digit((string) $value)) {
+            return null;
+        }
+
+        return (int) $value;
+    }
+
+    private function defaultProspectStageStatusId(): int
+    {
+        if (Schema::hasTable('prospect_stages')) {
+            $statusId = DB::table('prospect_stages')->orderBy('id')->value('id');
+
+            if ($statusId) {
+                return (int) $statusId;
+            }
+        }
+
+        return 1;
     }
 
     private function nullableNumber($value, string $field, array &$errors): ?float
