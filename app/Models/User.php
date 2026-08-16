@@ -36,6 +36,7 @@ class User extends Authenticatable
         'end_hour',
         'end_min',
         'is_dark_mode',
+        'is_prospect_table_view',
     ];
 
     /**
@@ -61,6 +62,7 @@ class User extends Authenticatable
             'birthdate' => 'date', // Casting birthdate as date
             'isActive' => 'boolean', // Casting isActive as boolean
             'is_dark_mode' => 'boolean',
+            'is_prospect_table_view' => 'boolean',
         ];
     }
 

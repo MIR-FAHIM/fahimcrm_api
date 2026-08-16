@@ -84,6 +84,8 @@ Route::post('/upload-user-image', [UserController::class, 'uploadProfilePicture'
 Route::post('/update-userinfo', [UserController::class, 'updateInformation']);
 Route::post('/update-user-mode-preference', [UserController::class, 'updateUserModePreference']);
 Route::get('/get-user-mode-preference', [UserController::class, 'getUserModePreference']);
+Route::post('/update-prospect-view-preference', [UserController::class, 'updateProspectViewPreference']);
+Route::get('/get-prospect-view-preference', [UserController::class, 'getProspectViewPreference']);
 Route::post('/change-password', [UserController::class, 'changePassword']);
 Route::get('/get-profile', [UserController::class, 'getProfile']);
 Route::post('/change-department/{userId}', [UserController::class, 'changeDepartment']);
