@@ -482,6 +482,7 @@ Route::get('projects/features/{id}', [ProjectFeaturesController::class, 'getProj
 Route::post('/visit/add', [VisitController::class, 'addVisit']);
 Route::get('/visit/all', [VisitController::class, 'getAllVisit']);
 Route::get('/visit/all/datewise', [VisitController::class, 'getAllVisitDateGroup']);
+Route::get('/visit/all/datewise/employee/{employee_id}', [VisitController::class, 'getAllVisitDateGroupByEmployee']);
 Route::get('/visit/employee/{employee_id}', [VisitController::class, 'getVisitByEmployee']);
 Route::get('/visit/employee/{employee_id}/schedule', [VisitController::class, 'getEmployeeVisitSchedule']);
 Route::get('/visit/date/emp', [VisitController::class, 'getAllVisitByEmpAndDate']);

@@ -241,6 +241,40 @@ class VisitController extends Controller
             ], 500);
         }
     }
+
+    public function getAllVisitDateGroupByEmployee($employee_id): JsonResponse
+    {
+        try {
+            $allVisits = Visit::where('employee_id', $employee_id)
+                ->with('planner', 'lead', 'zone', 'employee', 'priority', 'status', 'taskVisitRelation.task.status')
+                ->orderBy('scheduled_at')
+                ->get();
+
+            $groupedVisits = $allVisits->groupBy(function ($visit) {
+                return $visit->scheduled_at->format('Y-m-d');
+            });
+
+            $formattedData = $groupedVisits->map(function ($visits, $date) {
+                return [
+                    'date' => $date,
+                    'visits' => $visits->toArray()
+                ];
+            })->values()->all();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Employee visits grouped by date fetched successfully.',
+                'data' => $formattedData,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to retrieve employee grouped visit data.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
     /**
      * Get all visits for a specific employee.
      */
