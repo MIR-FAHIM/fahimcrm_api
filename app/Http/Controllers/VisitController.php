@@ -9,6 +9,7 @@ use App\Models\TaskStatus;
 use App\Models\TaskAssignedPersons; // Assuming this model exists
 use App\Models\TaskVisitRelation;
 use App\Models\TaskType;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
@@ -17,6 +18,13 @@ use Illuminate\Validation\Rule;
 
 class VisitController extends Controller
 {
+    protected $notificationController;
+
+    public function __construct(NotificationController $notificationController)
+    {
+        $this->notificationController = $notificationController;
+    }
+
     /**
      * Add a new visit.
      * This will also automatically create a task and a relation entry.
@@ -140,6 +148,17 @@ class VisitController extends Controller
                 'task_id' => $task->id,
                 'status' => 'Pending',
             ]);
+
+            $planner = User::find($request->planner_id);
+            $notificationTitle = ($planner?->name ?? 'A manager') . ' assigned a visit for you.';
+
+            $this->notificationController->addNotification(
+                $notificationTitle,
+                $task->task_title,
+                $request->employee_id,
+                true,
+                $task->id
+            );
 
             DB::commit();
 
