@@ -321,6 +321,9 @@ class VisitController extends Controller
             'employee_id' => 'nullable|exists:users,id',
             'latitude' => 'nullable|numeric',
             'longitude' => 'nullable|numeric',
+            'start_latitude' => 'nullable|numeric',
+            'start_longitude' => 'nullable|numeric',
+            'start_location' => 'nullable|string',
             'note' => 'nullable|string',
         ]);
 
@@ -374,9 +377,15 @@ class VisitController extends Controller
                 ], 400);
             }
 
+            $startLatitude = $request->input('start_latitude', $request->input('latitude'));
+            $startLongitude = $request->input('start_longitude', $request->input('longitude'));
+
             $visit->actual_start_at = $visit->actual_start_at ?? now();
-            $visit->checkin_latitude = $request->latitude ?? $visit->checkin_latitude;
-            $visit->checkin_longitude = $request->longitude ?? $visit->checkin_longitude;
+            $visit->start_latitude = $startLatitude ?? $visit->start_latitude;
+            $visit->start_longitude = $startLongitude ?? $visit->start_longitude;
+            $visit->start_location = $request->input('start_location', $visit->start_location);
+            $visit->checkin_latitude = $visit->checkin_latitude ?? $startLatitude;
+            $visit->checkin_longitude = $visit->checkin_longitude ?? $startLongitude;
             $visit->note = $request->note ?? $visit->note;
             $visit->status = $inProgressStatusId;
 
@@ -386,8 +395,8 @@ class VisitController extends Controller
                 $relation->update([
                     'status' => 'In Progress',
                     'note' => $request->note ?? $relation->note,
-                    'latitude' => $request->latitude ?? $relation->latitude,
-                    'longitude' => $request->longitude ?? $relation->longitude,
+                    'latitude' => $startLatitude ?? $relation->latitude,
+                    'longitude' => $startLongitude ?? $relation->longitude,
                 ]);
             }
 
@@ -419,6 +428,9 @@ class VisitController extends Controller
             'employee_id' => 'nullable|exists:users,id',
             'latitude' => 'nullable|numeric',
             'longitude' => 'nullable|numeric',
+            'complete_latitude' => 'nullable|numeric',
+            'complete_longitude' => 'nullable|numeric',
+            'complete_location' => 'nullable|string',
             'note' => 'nullable|string',
         ]);
 
@@ -472,10 +484,18 @@ class VisitController extends Controller
                 ], 400);
             }
 
+            $completeLatitude = $request->input('complete_latitude', $request->input('latitude'));
+            $completeLongitude = $request->input('complete_longitude', $request->input('longitude'));
+
             $visit->actual_start_at = $visit->actual_start_at ?? now();
             $visit->actual_end_at = now();
-            $visit->checkin_latitude = $request->latitude ?? $visit->checkin_latitude;
-            $visit->checkin_longitude = $request->longitude ?? $visit->checkin_longitude;
+            $visit->start_latitude = $visit->start_latitude ?? $completeLatitude;
+            $visit->start_longitude = $visit->start_longitude ?? $completeLongitude;
+            $visit->complete_latitude = $completeLatitude ?? $visit->complete_latitude;
+            $visit->complete_longitude = $completeLongitude ?? $visit->complete_longitude;
+            $visit->complete_location = $request->input('complete_location', $visit->complete_location);
+            $visit->checkin_latitude = $visit->checkin_latitude ?? $visit->start_latitude;
+            $visit->checkin_longitude = $visit->checkin_longitude ?? $visit->start_longitude;
             $visit->note = $request->note ?? $visit->note;
             $visit->status = $completedStatusId;
             $visit->save();
@@ -484,8 +504,8 @@ class VisitController extends Controller
                 $relation->update([
                     'status' => 'Visited',
                     'note' => $request->note ?? $relation->note,
-                    'latitude' => $request->latitude ?? $relation->latitude,
-                    'longitude' => $request->longitude ?? $relation->longitude,
+                    'latitude' => $completeLatitude ?? $relation->latitude,
+                    'longitude' => $completeLongitude ?? $relation->longitude,
                 ]);
             }
 
@@ -537,6 +557,12 @@ class VisitController extends Controller
             'actual_end_at' => 'nullable|date',
             'checkin_latitude' => 'nullable|numeric',
             'checkin_longitude' => 'nullable|numeric',
+            'start_latitude' => 'nullable|numeric',
+            'start_longitude' => 'nullable|numeric',
+            'start_location' => 'nullable|string',
+            'complete_latitude' => 'nullable|numeric',
+            'complete_longitude' => 'nullable|numeric',
+            'complete_location' => 'nullable|string',
             'note' => 'nullable|string',
         ]);
 
@@ -575,6 +601,12 @@ class VisitController extends Controller
                 'actual_end_at',
                 'checkin_latitude',
                 'checkin_longitude',
+                'start_latitude',
+                'start_longitude',
+                'start_location',
+                'complete_latitude',
+                'complete_longitude',
+                'complete_location',
                 'note',
             ]));
 
@@ -590,8 +622,8 @@ class VisitController extends Controller
                 $relation->update([
                     'status' => $statusName ?? $relation->status,
                     'note' => $request->note ?? $relation->note,
-                    'latitude' => $request->checkin_latitude ?? $relation->latitude,
-                    'longitude' => $request->checkin_longitude ?? $relation->longitude,
+                    'latitude' => $request->complete_latitude ?? $request->start_latitude ?? $request->checkin_latitude ?? $relation->latitude,
+                    'longitude' => $request->complete_longitude ?? $request->start_longitude ?? $request->checkin_longitude ?? $relation->longitude,
                 ]);
 
                 if ($isCompletedStatus) {

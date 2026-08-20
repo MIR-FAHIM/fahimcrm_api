@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Attendance;
 use App\Models\AttendanceAdjustment;
+use App\Models\AttendanceMethod;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Validator;
 
 class AttendanceController extends Controller
 {
@@ -46,32 +48,178 @@ class AttendanceController extends Controller
 
         return $request->ip();
     }
+
+    private function attendanceMethodForUser(User $user): ?AttendanceMethod
+    {
+        if ($user->attendanceMethod) {
+            return $user->attendanceMethod;
+        }
+
+        return AttendanceMethod::where('is_active', true)->first();
+    }
+
+    private function attendanceMethodName(?AttendanceMethod $attendanceMethod): string
+    {
+        return $attendanceMethod?->method ?? 'none';
+    }
+
+    private function normalizedIpList($ips): array
+    {
+        if (is_string($ips)) {
+            $ips = explode(',', $ips);
+        }
+
+        if (!is_array($ips)) {
+            return [];
+        }
+
+        return array_values(array_filter(array_map('trim', $ips)));
+    }
+
+    private function attendanceMethodRules(string $method, string $type): array
+    {
+        $rules = [
+            'user_id' => 'required|exists:users,id',
+        ];
+
+        if ($type === 'out') {
+            $rules['attendance_id'] = 'required|exists:attendances,id';
+            $rules['early_leave_reason'] = 'nullable|string';
+        }
+
+        $locationField = $type === 'in' ? 'check_in_location' : 'check_out_location';
+        $latField = $type === 'in' ? 'check_in_lat' : 'check_out_lat';
+        $lonField = $type === 'in' ? 'check_in_lon' : 'check_out_lon';
+
+        if (in_array($method, ['ip_address', 'none'], true)) {
+            $rules[$locationField] = 'nullable|string';
+            $rules[$latField] = 'nullable|numeric';
+            $rules[$lonField] = 'nullable|numeric';
+        } else {
+            $rules[$locationField] = 'required|string';
+            $rules[$latField] = 'required|numeric|between:-90,90';
+            $rules[$lonField] = 'required|numeric|between:-180,180';
+        }
+
+        return $rules;
+    }
+
+    private function attendanceMethodError(Request $request, ?AttendanceMethod $attendanceMethod, string $type)
+    {
+        $method = $this->attendanceMethodName($attendanceMethod);
+
+        if ($method === 'ip_address') {
+            $allowedIps = $this->normalizedIpList($attendanceMethod?->ip_addresses);
+
+            if (empty($allowedIps)) {
+                $allowedIps = $this->normalizedIpList((string) env('ATTENDANCE_ALLOWED_IPS', '103.106.236.235,103.219.160.237,103.219.160.238'));
+            }
+
+            $clientIp = $this->clientIp($request);
+
+            if (!empty($allowedIps) && !in_array($clientIp, $allowedIps, true)) {
+                return response()->json([
+                    'status' => 'failed',
+                    'success' => false,
+                    'message' => $type === 'in'
+                        ? 'Check-in is only allowed from the office Wi-Fi network.'
+                        : 'Check-out is only allowed from the office Wi-Fi network.',
+                    'attendance_method' => $method,
+                    'request_ip' => $request->ip(),
+                    'client_ip' => $clientIp,
+                    'x_forwarded_for' => $request->header('x-forwarded-for'),
+                    'cf_connecting_ip' => $request->header('cf-connecting-ip'),
+                    'allowed_ips' => $allowedIps,
+                ], 403);
+            }
+        }
+
+        if ($method === 'geo_fenced') {
+            $latField = $type === 'in' ? 'check_in_lat' : 'check_out_lat';
+            $lonField = $type === 'in' ? 'check_in_lon' : 'check_out_lon';
+
+            if ($attendanceMethod?->latitude === null || $attendanceMethod?->longitude === null || !$attendanceMethod?->radius_meters) {
+                return response()->json([
+                    'status' => 'failed',
+                    'success' => false,
+                    'message' => 'Geo-fenced attendance method is not configured properly.',
+                    'attendance_method' => $method,
+                ], 400);
+            }
+
+            $distance = $this->distanceInMeters(
+                (float) $request->input($latField),
+                (float) $request->input($lonField),
+                (float) $attendanceMethod->latitude,
+                (float) $attendanceMethod->longitude
+            );
+
+            if ($distance > (int) $attendanceMethod->radius_meters) {
+                return response()->json([
+                    'status' => 'failed',
+                    'success' => false,
+                    'message' => $type === 'in'
+                        ? 'Check-in is only allowed inside the allowed geo-fence.'
+                        : 'Check-out is only allowed inside the allowed geo-fence.',
+                    'attendance_method' => $method,
+                    'distance_meters' => round($distance, 2),
+                    'allowed_radius_meters' => (int) $attendanceMethod->radius_meters,
+                ], 403);
+            }
+        }
+
+        return null;
+    }
+
+    private function distanceInMeters(float $lat1, float $lon1, float $lat2, float $lon2): float
+    {
+        $earthRadius = 6371000;
+        $latDelta = deg2rad($lat2 - $lat1);
+        $lonDelta = deg2rad($lon2 - $lon1);
+
+        $a = sin($latDelta / 2) * sin($latDelta / 2)
+            + cos(deg2rad($lat1)) * cos(deg2rad($lat2))
+            * sin($lonDelta / 2) * sin($lonDelta / 2);
+
+        return $earthRadius * (2 * atan2(sqrt($a), sqrt(1 - $a)));
+    }
+
     public function checkInNow(Request $request)
     {
-        $request->validate([
-            'user_id' => 'required|exists:users,id', // Ensure user exists
-
-            'check_in_location' => 'required|string', // Ensure check-out location is provided
-
-        ]);
-
-        $allowedIps = array_filter(array_map('trim', explode(',', (string) env('ATTENDANCE_ALLOWED_IPS', '103.106.236.235,103.219.160.237,103.219.160.238'))));
-        $clientIp = $this->clientIp($request);
-        if (!empty($allowedIps) && !in_array($clientIp, $allowedIps, true)) {
-            return response()->json([
-                'status' => 'failed',
-                 'success' => false,
-                'message' => 'Check-in is only allowed from the office Wi-Fi network.',
-                'request_ip' => $request->ip(),
-                'client_ip' => $clientIp,
-                'x_forwarded_for' => $request->header('x-forwarded-for'),
-                'cf_connecting_ip' => $request->header('cf-connecting-ip'),
-                'allowed_ips' => $allowedIps
-            ], 403);
-        }
         try {
+            $userValidator = Validator::make($request->all(), [
+                'user_id' => 'required|exists:users,id',
+            ]);
+
+            if ($userValidator->fails()) {
+                return response()->json([
+                    'status' => 'failed',
+                    'success' => false,
+                    'message' => 'Validation failed',
+                    'errors' => $userValidator->errors(),
+                ], 422);
+            }
+
             $user = $request->user_id; // Get the user ID from the request
-            $userInfo = User::find($user);
+            $userInfo = User::with('attendanceMethod')->findOrFail($user);
+            $attendanceMethod = $this->attendanceMethodForUser($userInfo);
+            $method = $this->attendanceMethodName($attendanceMethod);
+
+            $validator = Validator::make($request->all(), $this->attendanceMethodRules($method, 'in'));
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => 'failed',
+                    'success' => false,
+                    'message' => 'Validation failed',
+                    'errors' => $validator->errors(),
+                    'attendance_method' => $method,
+                ], 422);
+            }
+
+            $methodError = $this->attendanceMethodError($request, $attendanceMethod, 'in');
+            if ($methodError) {
+                return $methodError;
+            }
 
             $currentTime = Carbon::now();
 
@@ -104,11 +252,13 @@ class AttendanceController extends Controller
                 'check_in_lat' => $request->input('check_in_lat'),
                 'check_in_lon' => $request->input('check_in_lon'),
                 'is_late' => $isLate, // Store late check-in status
+                'from_field' => in_array($method, ['location_based', 'geo_fenced'], true),
             ]);
 
             return response()->json([
                 'status' => 'success',
                 'message' => 'Checked in successfully!',
+                'attendance_method' => $method,
                 'attendance' => $attendance
             ], 200);
         } catch (\Exception $e) {
@@ -171,35 +321,61 @@ class AttendanceController extends Controller
     public function checkOutNow(Request $request)
     {
         try {
-            // Validate if required fields are provided
-            $request->validate([
-                'user_id' => 'required|exists:users,id', // Ensure user exists
-                'attendance_id' => 'required|exists:attendances,id', // Ensure attendance exists
-                'check_out_location' => 'required|string', // Ensure check-out location is provided
-                'check_out_lat' => 'required|numeric', // Ensure latitude is provided
-                'check_out_lon' => 'required|numeric', // Ensure longitude is provided
-                'early_leave_reason' => 'nullable|string',
+            $userValidator = Validator::make($request->all(), [
+                'user_id' => 'required|exists:users,id',
             ]);
- $allowedIps = array_filter(array_map('trim', explode(',', (string) env('ATTENDANCE_ALLOWED_IPS', '103.106.236.235,103.219.160.237,103.219.160.238'))));
-        $clientIp = $this->clientIp($request);
-        if (!empty($allowedIps) && !in_array($clientIp, $allowedIps, true)) {
-            return response()->json([
-                'status' => 'failed',
-                 'success' => false,
-                'message' => 'Check-out is only allowed from the office Wi-Fi network.',
-                'request_ip' => $request->ip(),
-                'client_ip' => $clientIp,
-                'x_forwarded_for' => $request->header('x-forwarded-for'),
-                'cf_connecting_ip' => $request->header('cf-connecting-ip'),
-                'allowed_ips' => $allowedIps
-            ], 403);
-        }
+
+            if ($userValidator->fails()) {
+                return response()->json([
+                    'status' => 'failed',
+                    'success' => false,
+                    'message' => 'Validation failed',
+                    'errors' => $userValidator->errors(),
+                ], 422);
+            }
+
+            $userInfo = User::with('attendanceMethod')->findOrFail($request->user_id);
+            $attendanceMethod = $this->attendanceMethodForUser($userInfo);
+            $method = $this->attendanceMethodName($attendanceMethod);
+
+            $validator = Validator::make($request->all(), $this->attendanceMethodRules($method, 'out'));
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => 'failed',
+                    'success' => false,
+                    'message' => 'Validation failed',
+                    'errors' => $validator->errors(),
+                    'attendance_method' => $method,
+                ], 422);
+            }
+
+            $methodError = $this->attendanceMethodError($request, $attendanceMethod, 'out');
+            if ($methodError) {
+                return $methodError;
+            }
+
             $attendanceId = $request->attendance_id;
             $attendance = Attendance::find($attendanceId);
-            $userInfo = User::find($request->user_id);
 
             if (!$attendance) {
                 return response()->json(['error' => 'Attendance record not found.'], 404);
+            }
+
+            if ((int) $attendance->user_id !== (int) $request->user_id) {
+                return response()->json([
+                    'status' => 'failed',
+                    'success' => false,
+                    'message' => 'This attendance record does not belong to the selected user.',
+                ], 403);
+            }
+
+            if ($attendance->check_out_time) {
+                return response()->json([
+                    'status' => 'failed',
+                    'success' => false,
+                    'message' => 'You have already checked out for this attendance.',
+                    'attendance' => $attendance,
+                ], 400);
             }
 
             // Ensure the check-in time exists and parse it
@@ -224,11 +400,13 @@ class AttendanceController extends Controller
             $attendance->check_out_lon = $request->input('check_out_lon');
             $attendance->is_early_leave = $isEarlyLeave;
             $attendance->early_leave_reason = $request->input('early_leave_reason');
+            $attendance->from_field = $attendance->from_field || in_array($method, ['location_based', 'geo_fenced'], true);
             $attendance->save(); // Save changes to the database
 
             return response()->json([
                 'status' => 'success',
                 'message' => 'Checked out successfully!!',
+                'attendance_method' => $method,
                 'attendance' => $attendance
             ], 200);
         } catch (\Exception $e) {
