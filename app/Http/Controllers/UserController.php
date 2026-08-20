@@ -415,10 +415,23 @@ class UserController extends Controller
     public function updateInformation(Request $request)
     {
         try {
+            $validator = Validator::make($request->all(), [
+                'user_id' => 'required|exists:users,id',
+                'attendance_method_id' => 'nullable|exists:attendance_methods,id',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Validation failed',
+                    'errors' => $validator->errors(),
+                ], 400);
+            }
+
             $user = User::findOrFail($request->user_id);
 
             // Dynamically update the user attributes
-            $fillable = ['name', 'email', 'phone', 'address', 'birthdate', 'role_id', 'department_id', 'designation_id', 'isActive', 'photo', 'bio', 'fcm_token', 'app_token', 'start_hour', 'start_min', 'end_hour', 'end_min', 'is_dark_mode', 'is_prospect_table_view'];
+            $fillable = ['name', 'email', 'phone', 'address', 'birthdate', 'role_id', 'department_id', 'designation_id', 'attendance_method_id', 'isActive', 'photo', 'bio', 'fcm_token', 'app_token', 'start_hour', 'start_min', 'end_hour', 'end_min', 'is_dark_mode', 'is_prospect_table_view'];
 
             foreach ($fillable as $field) {
                 if ($request->has($field)) {

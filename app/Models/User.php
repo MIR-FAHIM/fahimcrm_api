@@ -29,7 +29,8 @@ class User extends Authenticatable
         'photo',
         'bio',
         'fcm_token',
-        'app_token',
+        'attendance_method_id',
+        'birthdate',
         'password',
         'start_hour',
         'start_min',
@@ -64,6 +65,11 @@ class User extends Authenticatable
             'is_dark_mode' => 'boolean',
             'is_prospect_table_view' => 'boolean',
         ];
+    }
+
+    public function attendanceMethod()
+    {
+        return $this->belongsTo(AttendanceMethod::class);
     }
 
     /**

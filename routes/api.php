@@ -15,6 +15,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductOrderController;
 use App\Http\Controllers\FbSheetLeadsController;
 use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\AttendanceMethodController;
 use App\Http\Controllers\PriorityController;
 use App\Http\Controllers\TaskTypeController;
 use App\Http\Controllers\ContactUSFormController;
@@ -107,6 +108,11 @@ Route::delete('/delete-role/{id}', [RoleController::class, 'deleteRole']);
 
 
 //attendance
+Route::get('/attendance-methods', [AttendanceMethodController::class, 'index']);
+Route::get('/attendance-methods/{attendanceMethod}', [AttendanceMethodController::class, 'show']);
+Route::post('/attendance-methods', [AttendanceMethodController::class, 'store']);
+Route::put('/attendance-methods/{attendanceMethod}', [AttendanceMethodController::class, 'update']);
+Route::delete('/attendance-methods/{attendanceMethod}', [AttendanceMethodController::class, 'destroy']);
 Route::post('/check-in-now', [AttendanceController::class, 'checkInNow']);
 Route::post('/attendanceReportByUser-count-data', [AttendanceController::class, 'attendanceReportByUserCountData']);
 Route::post('/update-attendance', [AttendanceController::class, 'updateAttendance']);
