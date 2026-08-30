@@ -496,6 +496,12 @@ class VisitController extends Controller
             $visit->complete_location = $request->input('complete_location', $visit->complete_location);
             $visit->checkin_latitude = $visit->checkin_latitude ?? $visit->start_latitude;
             $visit->checkin_longitude = $visit->checkin_longitude ?? $visit->start_longitude;
+            $visit->straight_distance_meters = $this->calculateStraightDistance(
+                $visit->start_latitude,
+                $visit->start_longitude,
+                $visit->complete_latitude,
+                $visit->complete_longitude
+            );
             $visit->note = $request->note ?? $visit->note;
             $visit->status = $completedStatusId;
             $visit->save();
@@ -609,6 +615,23 @@ class VisitController extends Controller
                 'complete_location',
                 'note',
             ]));
+
+            if (
+                $request->hasAny([
+                    'start_latitude',
+                    'start_longitude',
+                    'complete_latitude',
+                    'complete_longitude',
+                ])
+            ) {
+                $visit->straight_distance_meters = $this->calculateStraightDistance(
+                    $visit->start_latitude,
+                    $visit->start_longitude,
+                    $visit->complete_latitude,
+                    $visit->complete_longitude
+                );
+                $visit->save();
+            }
 
             // Find the related task and relation table
             $relation = TaskVisitRelation::where('visit_id', $visit->id)->firstOrFail(); // Use firstOrFail() to throw an exception if not found
@@ -728,5 +751,27 @@ class VisitController extends Controller
         }
 
         return $status?->id;
+    }
+
+    private function calculateStraightDistance($startLatitude, $startLongitude, $completeLatitude, $completeLongitude): ?float
+    {
+        if (
+            $startLatitude === null ||
+            $startLongitude === null ||
+            $completeLatitude === null ||
+            $completeLongitude === null
+        ) {
+            return null;
+        }
+
+        $earthRadius = 6371000;
+        $latDelta = deg2rad((float) $completeLatitude - (float) $startLatitude);
+        $lonDelta = deg2rad((float) $completeLongitude - (float) $startLongitude);
+
+        $a = sin($latDelta / 2) * sin($latDelta / 2)
+            + cos(deg2rad((float) $startLatitude)) * cos(deg2rad((float) $completeLatitude))
+            * sin($lonDelta / 2) * sin($lonDelta / 2);
+
+        return round($earthRadius * (2 * atan2(sqrt($a), sqrt(1 - $a))), 2);
     }
 }

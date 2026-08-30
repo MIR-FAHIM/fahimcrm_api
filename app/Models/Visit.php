@@ -39,6 +39,7 @@ class Visit extends Model
         'complete_latitude',
         'complete_longitude',
         'complete_location',
+        'straight_distance_meters',
         'employee_id',
         'planner_id',
         'lead_id',
@@ -55,6 +56,13 @@ class Visit extends Model
         'scheduled_at' => 'datetime',
         'actual_start_at' => 'datetime',
         'actual_end_at' => 'datetime',
+        'checkin_latitude' => 'float',
+        'checkin_longitude' => 'float',
+        'start_latitude' => 'float',
+        'start_longitude' => 'float',
+        'complete_latitude' => 'float',
+        'complete_longitude' => 'float',
+        'straight_distance_meters' => 'float',
     ];
 
     /**
