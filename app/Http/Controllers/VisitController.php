@@ -35,7 +35,7 @@ class VisitController extends Controller
         $validator = Validator::make($request->all(), [
             'employee_id' => 'required|exists:users,id',
             'planner_id' => 'required|exists:users,id',
-            'zone_id' => 'nullable|exists:zones,id',
+            'zone_id' => 'nullable',
             'scheduled_at' => 'required|date_format:Y-m-d H:i:s',
             'visit_type' => 'nullable|in:Planned,Spontaneous',
             'purpose' => 'nullable|string|max:255',
