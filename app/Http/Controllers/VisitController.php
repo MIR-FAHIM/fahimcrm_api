@@ -46,8 +46,6 @@ class VisitController extends Controller
             ],
             'task_status_id' => 'required|exists:task_statuses,id', // Add this to the request for the task status
             'priority_id' => 'required|exists:priorities,id',
-            'task_type_id' => 'nullable|exists:task_types,id',
-
             'department_id' => 'required|exists:departments,id', // Add this to the request for the department
         ]);
 
@@ -97,9 +95,15 @@ class VisitController extends Controller
                 ], 409);
             }
 
-            $taskType = $request->filled('task_type_id')
-                ? TaskType::find($request->task_type_id)
-                : TaskType::where('type_name', 'Visit')->first();
+            $taskType = TaskType::where('type_name', 'Visit')
+                ->when($request->filled('department_id'), function ($query) use ($request) {
+                    $query->where('department_id', (int) $request->department_id);
+                })
+                ->first();
+
+            if (!$taskType) {
+                $taskType = TaskType::where('type_name', 'Visit')->first();
+            }
 
             if (!$taskType) {
                 DB::rollBack();
