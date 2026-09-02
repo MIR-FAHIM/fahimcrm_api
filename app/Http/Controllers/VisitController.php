@@ -51,12 +51,6 @@ class VisitController extends Controller
             'department_id' => 'required|exists:departments,id', // Add this to the request for the department
         ]);
 
-        $validator->after(function ($validator) use ($request) {
-            if (!$request->filled('zone_id') && !$request->filled('lead_id')) {
-                $validator->errors()->add('visit_target', 'Either zone_id or lead_id is required.');
-            }
-        });
-
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
@@ -64,11 +58,13 @@ class VisitController extends Controller
         try {
             DB::beginTransaction();
 
+            $zoneId = $this->resolveOptionalForeignId($request->input('zone_id'), 'zones');
+
             // 1. Create the new visit record
             $visit = Visit::create([
                 'employee_id' => $request->employee_id,
                 'planner_id' => $request->planner_id,
-                'zone_id' => $request->zone_id,
+                'zone_id' => $zoneId,
                 'lead_id' => $request->lead_id,
                 'priority_id' => $request->priority_id,
                 'status' => $request->task_status_id,
@@ -80,11 +76,13 @@ class VisitController extends Controller
 
             $duplicateVisit = Visit::where('employee_id', $request->employee_id)
                 ->where('scheduled_at', $request->scheduled_at)
-                ->where(function ($query) use ($request) {
+                ->where(function ($query) use ($request, $zoneId) {
                     if ($request->filled('lead_id')) {
                         $query->where('lead_id', $request->lead_id);
+                    } elseif ($zoneId) {
+                        $query->where('zone_id', $zoneId);
                     } else {
-                        $query->where('zone_id', $request->zone_id);
+                        $query->whereNull('lead_id')->whereNull('zone_id');
                     }
                 })
                 ->where('id', '!=', $visit->id)
@@ -751,6 +749,21 @@ class VisitController extends Controller
         }
 
         return $status?->id;
+    }
+
+    private function resolveOptionalForeignId($value, string $table): ?int
+    {
+        if ($value === null || $value === '' || $value === 'null' || $value === 'undefined') {
+            return null;
+        }
+
+        if (!is_numeric($value)) {
+            return null;
+        }
+
+        $id = (int) $value;
+
+        return DB::table($table)->where('id', $id)->exists() ? $id : null;
     }
 
     private function calculateStraightDistance($startLatitude, $startLongitude, $completeLatitude, $completeLongitude): ?float
