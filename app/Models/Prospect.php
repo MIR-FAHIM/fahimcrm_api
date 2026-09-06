@@ -52,6 +52,12 @@ class Prospect extends Model
     {
         return $this->belongsTo(ProspectStage::class);
     }
+
+    public function priority()
+    {
+        return $this->belongsTo(Priority::class);
+    }
+
     public function logActivities()
     {
         return $this->hasMany(ProspectLogActivity::class);

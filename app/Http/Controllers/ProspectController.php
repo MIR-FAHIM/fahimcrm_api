@@ -89,10 +89,87 @@ class ProspectController extends Controller
         }
     }
 
-    public function getAllProspect()
+    public function getAllProspect(Request $request)
     {
         try {
-            $prospects = Prospect::where('is_active', 1)->where('type', 'prospect')->with('stage', 'industryType', 'concernPersons', 'informationSource', 'zone', 'division', 'district', 'thana', 'interestedFor')->get();
+            $query = Prospect::query()
+                ->where('is_active', 1)
+                ->where('type', 'prospect')
+                ->with([
+                    'stage',
+                    'industryType',
+                    'concernPersons',
+                    'informationSource',
+                    'zone',
+                    'division',
+                    'district',
+                    'thana',
+                    'interestedFor',
+                    'priority',
+                ]);
+
+            $ids = static function ($value): array {
+                $values = is_array($value) ? $value : explode(',', (string) $value);
+
+                return array_values(array_filter(array_map('trim', $values), static fn ($item) => $item !== ''));
+            };
+
+            $query->when($request->filled('search'), function ($query) use ($request) {
+                $search = trim($request->input('search'));
+                $query->where(function ($query) use ($search) {
+                    $query->where('prospect_name', 'like', "%{$search}%")
+                        ->orWhere('address', 'like', "%{$search}%")
+                        ->orWhere('note', 'like', "%{$search}%")
+                        ->orWhere('website_link', 'like', "%{$search}%")
+                        ->orWhere('facebook_page', 'like', "%{$search}%")
+                        ->orWhere('linkedin', 'like', "%{$search}%")
+                        ->orWhereHas('stage', fn ($relation) => $relation->where('stage_name', 'like', "%{$search}%"))
+                        ->orWhereHas('industryType', fn ($relation) => $relation->where('industry_type_name', 'like', "%{$search}%"))
+                        ->orWhereHas('informationSource', fn ($relation) => $relation->where('information_source_name', 'like', "%{$search}%"))
+                        ->orWhereHas('interestedFor', fn ($relation) => $relation->where('product_name', 'like', "%{$search}%"))
+                        ->orWhereHas('zone', fn ($relation) => $relation->where('zone_name', 'like', "%{$search}%"))
+                        ->orWhereHas('division', fn ($relation) => $relation->where('name', 'like', "%{$search}%"))
+                        ->orWhereHas('district', fn ($relation) => $relation->where('name', 'like', "%{$search}%"))
+                        ->orWhereHas('thana', fn ($relation) => $relation->where('name', 'like', "%{$search}%"))
+                        ->orWhereHas('concernPersons', function ($relation) use ($search) {
+                            $relation->where('person_name', 'like', "%{$search}%")
+                                ->orWhere('mobile', 'like', "%{$search}%")
+                                ->orWhere('email', 'like', "%{$search}%");
+                        });
+                });
+            });
+
+            $query->when($request->filled('prospect_name'), fn ($query) => $query->where('prospect_name', 'like', '%' . trim($request->input('prospect_name')) . '%'));
+            $query->when($request->filled('type'), fn ($query) => $query->whereIn('type', $ids($request->input('type'))));
+            $query->when($request->filled('status'), fn ($query) => $query->whereIn('status', $ids($request->input('status'))));
+
+            foreach ([
+                'stage_id',
+                'priority_id',
+                'industry_type_id',
+                'interested_for_id',
+                'information_source_id',
+                'zone_id',
+                'division_id',
+                'district_id',
+                'thana_id',
+            ] as $column) {
+                $query->when($request->filled($column), fn ($query) => $query->whereIn($column, $ids($request->input($column))));
+            }
+
+            foreach (['is_individual', 'is_opportunity'] as $column) {
+                $query->when($request->has($column), fn ($query) => $query->where($column, $request->boolean($column)));
+            }
+
+            $query->when($request->filled('created_from'), fn ($query) => $query->whereDate('created_at', '>=', $request->input('created_from')));
+            $query->when($request->filled('created_to'), fn ($query) => $query->whereDate('created_at', '<=', $request->input('created_to')));
+            $query->when($request->filled('last_activity_from'), fn ($query) => $query->whereDate('last_activity', '>=', $request->input('last_activity_from')));
+            $query->when($request->filled('last_activity_to'), fn ($query) => $query->whereDate('last_activity', '<=', $request->input('last_activity_to')));
+
+            $sortColumns = ['prospect_name', 'created_at', 'updated_at', 'last_activity', 'status'];
+            $sortBy = in_array($request->input('sort_by'), $sortColumns, true) ? $request->input('sort_by') : 'created_at';
+            $sortDirection = strtolower($request->input('sort_direction', 'desc')) === 'asc' ? 'asc' : 'desc';
+            $prospects = $query->orderBy($sortBy, $sortDirection)->get();
 
             // Get log activity counts grouped by prospect and activity_type
             $activityCounts = ProspectLogActivity::select(
