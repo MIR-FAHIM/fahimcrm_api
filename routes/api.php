@@ -420,6 +420,7 @@ Route::post('/update-role-feature-permissions', [RoleFeaturePermissionController
 Route::post('/add-user-activity', [UserActivityTrackerController::class, 'addUserActivity']);
 Route::get('/get-user-activity', [UserActivityTrackerController::class, 'getUserActivity']);
 Route::get('/get-all-user-activity', [UserActivityTrackerController::class, 'getAllUserActivity']);
+Route::get('/user-activity/daily-report', [UserActivityTrackerController::class, 'getDailyActivityReport']);
 
 //cart_______________
 Route::post('/cart/single', [CartController::class, 'createSingleCart']);

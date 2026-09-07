@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\UserActivityTracker; // Import the UserActivityTracker model
+use App\Models\User;
 use Illuminate\Support\Facades\Auth; // Import Auth facade for getting authenticated user
+use Illuminate\Support\Facades\DB;
 
 class UserActivityTrackerController extends Controller
 {
@@ -134,6 +136,81 @@ class UserActivityTrackerController extends Controller
         } catch (\Exception $e) {
            
             return response()->json(['message' => 'Failed to retrieve activities.', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function getDailyActivityReport(Request $request)
+    {
+        $request->validate([
+            'date' => 'nullable|date',
+            'platform' => 'nullable|in:web,app',
+        ]);
+
+        $date = $request->input('date', now()->toDateString());
+        $platform = $request->input('platform');
+
+        try {
+            $activityQuery = UserActivityTracker::query()
+                ->whereDate('created_at', $date);
+
+            if ($platform) {
+                $activityQuery->where('platform', $platform);
+            }
+
+            $activeUserIds = (clone $activityQuery)
+                ->distinct()
+                ->pluck('user_id')
+                ->filter()
+                ->values();
+
+            $activitySummaries = (clone $activityQuery)
+                ->select(
+                    'user_id',
+                    DB::raw('COUNT(*) as activity_count'),
+                    DB::raw('MAX(created_at) as last_activity_time')
+                )
+                ->groupBy('user_id')
+                ->get()
+                ->keyBy('user_id');
+
+            $activeUsers = User::with(['role', 'department', 'designation', 'latestActivity'])
+                ->whereIn('id', $activeUserIds)
+                ->get()
+                ->map(function ($user) use ($activitySummaries) {
+                    $summary = $activitySummaries->get($user->id);
+                    $user->today_activity_count = (int) ($summary?->activity_count ?? 0);
+                    $user->today_last_activity_time = $summary?->last_activity_time;
+
+                    return $user;
+                });
+
+            $inactiveUsers = User::with(['role', 'department', 'designation', 'latestActivity'])
+                ->where('isActive', true)
+                ->whereNotIn('id', $activeUserIds)
+                ->get();
+
+            $totalActiveEmployees = User::where('isActive', true)->count();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Daily activity report fetched successfully.',
+                'data' => [
+                    'date' => $date,
+                    'platform' => $platform,
+                    'total_active_employee_count' => $totalActiveEmployees,
+                    'active_user_count' => $activeUsers->count(),
+                    'inactive_user_count' => $inactiveUsers->count(),
+                    'total_activity_count' => (clone $activityQuery)->count(),
+                    'active_users' => $activeUsers,
+                    'inactive_users' => $inactiveUsers,
+                ],
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to retrieve daily activity report.',
+                'error' => $e->getMessage(),
+            ], 500);
         }
     }
 }
