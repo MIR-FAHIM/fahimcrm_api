@@ -15,11 +15,15 @@ abstract class Controller
         }
 
         try {
+            $platform = $request->input('platform', $request->header('X-Platform', 'web'));
+            $platform = in_array($platform, ['web', 'app'], true) ? $platform : 'web';
+
             UserActivityTracker::create([
                 'user_id' => $userId,
                 'activity_name' => $activityName,
                 'details' => $details,
                 'type' => $type,
+                'platform' => $platform,
                 'ip_address' => $request->ip(),
                 'user_agent' => $request->header('User-Agent'),
                 'url' => $request->fullUrl(),

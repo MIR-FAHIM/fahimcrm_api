@@ -24,6 +24,7 @@ class UserActivityTracker extends Model
         'activity_name',
         'details',
         'type',
+        'platform',
         'ip_address',
         'user_agent',
         'url',

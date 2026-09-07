@@ -21,6 +21,7 @@ class UserActivityTrackerController extends Controller
             'activity_name' => 'required|string|max:255',
             'details' => 'nullable|string',
             'type' => 'nullable|string|max:255',
+            'platform' => 'nullable|in:web,app',
         ]);
 
         // Get the authenticated user's ID. If no user is authenticated, you might log it as 'guest' or handle it differently.
@@ -41,6 +42,7 @@ class UserActivityTrackerController extends Controller
                 'activity_name' => $request->input('activity_name'),
                 'details' => $request->input('details'),
                 'type' => $request->input('type'),
+                'platform' => $request->input('platform', $request->header('X-Platform', 'web')),
                 'ip_address' => $request->ip(), // Get the user's IP address
                 'user_agent' => $request->header('User-Agent'), // Get the user agent string
                 'url' => $request->fullUrl(), // Get the full URL of the request
