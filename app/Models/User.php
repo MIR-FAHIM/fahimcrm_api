@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -51,6 +53,15 @@ class User extends Authenticatable
     ];
 
     /**
+     * The accessors to append to the model's array form.
+     *
+     * @var list<string>
+     */
+    protected $appends = [
+        'last_activity_time',
+    ];
+
+    /**
      * The attributes that should be cast.
      *
      * @return array<string, string>
@@ -94,5 +105,24 @@ class User extends Authenticatable
     public function department()
     {
         return $this->belongsTo(Department::class);
+    }
+
+    public function activityTrackers(): HasMany
+    {
+        return $this->hasMany(UserActivityTracker::class);
+    }
+
+    public function latestActivity(): HasOne
+    {
+        return $this->hasOne(UserActivityTracker::class)->latestOfMany();
+    }
+
+    public function getLastActivityTimeAttribute(): ?string
+    {
+        $activity = $this->relationLoaded('latestActivity')
+            ? $this->latestActivity
+            : $this->latestActivity()->first();
+
+        return $activity?->created_at?->toDateTimeString();
     }
 }

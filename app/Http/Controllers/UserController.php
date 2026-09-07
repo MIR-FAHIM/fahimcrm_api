@@ -151,7 +151,7 @@ class UserController extends Controller
     public function getAllEmployees()
     {
         try {
-            $employees = User::with(['role', 'department', 'designation'])->get();
+            $employees = User::with(['role', 'department', 'designation', 'latestActivity:id,user_id,created_at'])->get();
 
             return response()->json([
                 'status' => 'success',
@@ -175,7 +175,7 @@ class UserController extends Controller
         try {
             $userID = $request->user_id;
 
-            $user  = User::where('id', $userID)->with('designation', 'role', 'department')->first();
+            $user  = User::where('id', $userID)->with('designation', 'role', 'department', 'latestActivity:id,user_id,created_at')->first();
             return response()->json([
                 'status' => 'success',
                 'message' => 'User profile fetched successfully',
