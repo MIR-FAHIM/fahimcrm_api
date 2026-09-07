@@ -57,6 +57,13 @@ class TaskAssignedPersonsController extends Controller
                 
             );
 
+            $this->recordUserActivity(
+                $request,
+                $request->assigned_by,
+                'Task assigned',
+                "Assigned task #{$task->id} to user #{$request->assigned_person}",
+                'task'
+            );
           
             return response()->json([
                 'status'=>'success',

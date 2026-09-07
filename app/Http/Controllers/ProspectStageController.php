@@ -111,6 +111,14 @@ class ProspectStageController extends Controller
             ]));
             $stage->save();
 
+            $this->recordUserActivity(
+                $request,
+                $request->input('user_id', $request->input('created_by')),
+                'Prospect stage updated',
+                "Updated prospect stage #{$stage->id}: {$stage->stage_name}",
+                'prospect'
+            );
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Prospect stage updated successfully',

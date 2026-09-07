@@ -140,6 +140,14 @@ $department = Department::find($id);
             $prospect = Tasks::find($request->task_id);
             $prospect->update($request->except('task_id'));
 
+            $this->recordUserActivity(
+                $request,
+                $request->input('user_id', $prospect->created_by),
+                'Task updated',
+                "Updated task #{$prospect->id}: {$prospect->task_title}",
+                'task'
+            );
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Task updated successfully',
@@ -303,6 +311,13 @@ $department = Department::find($id);
                 taskID: $request->task_id,
                 type: 'activity'
             );
+            $this->recordUserActivity(
+                $request,
+                $request->input('user_id', $task->created_by),
+                'Task status updated',
+                "Updated task #{$task->id} status to #{$request->status_id}",
+                'task'
+            );
             return response()->json([
                 'status' => 'success',
                 'message' => 'Task status updated successfully.',
@@ -398,6 +413,13 @@ $department = Department::find($id);
                 $request->created_by ,// User ID
                 false,
                 $task->id,
+            );
+            $this->recordUserActivity(
+                $request,
+                $request->created_by,
+                'Task created',
+                "Created task #{$task->id}: {$task->task_title}",
+                'task'
             );
             return response()->json([
                 'status' => 'success',

@@ -162,6 +162,14 @@ class VisitController extends Controller
                 $task->id
             );
 
+            $this->recordUserActivity(
+                $request,
+                $request->planner_id,
+                'Visit created',
+                "Created visit #{$visit->id} for employee #{$request->employee_id}",
+                'visit'
+            );
+
             DB::commit();
 
             return response()->json([
@@ -406,6 +414,14 @@ class VisitController extends Controller
                 $task->update(['status_id' => $inProgressStatusId]);
             }
 
+            $this->recordUserActivity(
+                $request,
+                $request->input('employee_id', $visit->employee_id),
+                'Visit started',
+                "Started visit #{$visit->id}",
+                'visit'
+            );
+
             DB::commit();
 
             return response()->json([
@@ -535,6 +551,14 @@ class VisitController extends Controller
                     'created_by' => $visit->employee_id,
                 ]);
             }
+
+            $this->recordUserActivity(
+                $request,
+                $request->input('employee_id', $visit->employee_id),
+                'Visit completed',
+                "Completed visit #{$visit->id}",
+                'visit'
+            );
 
             DB::commit();
 

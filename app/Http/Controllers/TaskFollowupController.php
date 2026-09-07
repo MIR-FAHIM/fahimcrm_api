@@ -39,6 +39,14 @@ class TaskFollowupController extends Controller
             'created_by' => $request->created_by,
         ]);
 
+        $this->recordUserActivity(
+            $request,
+            $request->created_by,
+            'Task follow-up added',
+            "Added follow-up #{$followup->id} to task #{$followup->task_id}: {$followup->followup_title}",
+            'task'
+        );
+
         // Return the created follow-up as a response
         return response()->json([
             'status' => 'success',

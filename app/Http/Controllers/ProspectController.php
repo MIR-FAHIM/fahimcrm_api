@@ -68,6 +68,13 @@ class ProspectController extends Controller
                     ]);
                 }
 
+                $this->recordUserActivity(
+                    $request,
+                    $request->input('user_id', $request->input('created_by')),
+                    'Prospect created',
+                    "Created prospect #{$prospect->id}: {$prospect->prospect_name}",
+                    'prospect'
+                );
 
 
                 return response()->json([
@@ -471,6 +478,14 @@ class ProspectController extends Controller
                 }
             }
 
+            $this->recordUserActivity(
+                $request,
+                $request->user_id,
+                'Prospect stage changed',
+                "Changed prospect #{$prospect->id} stage from {$oldStage} to {$newStage}",
+                'prospect'
+            );
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Prospect stage updated',
@@ -497,6 +512,14 @@ class ProspectController extends Controller
 
             $prospect = Prospect::find($request->prospect_id);
             $prospect->update($request->except('prospect_id'));
+
+            $this->recordUserActivity(
+                $request,
+                $request->input('user_id', $request->input('created_by')),
+                'Prospect updated',
+                "Updated prospect #{$prospect->id}: {$prospect->prospect_name}",
+                'prospect'
+            );
 
             return response()->json([
                 'status' => 'success',

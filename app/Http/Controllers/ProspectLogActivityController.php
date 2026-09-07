@@ -28,6 +28,14 @@ class ProspectLogActivityController extends Controller
 
             $log = ProspectLogActivity::create($request->all());
 
+            $this->recordUserActivity(
+                $request,
+                $request->created_by,
+                'Prospect activity added',
+                "Added {$log->activity_type} activity to prospect #{$log->prospect_id}",
+                'prospect'
+            );
+
             return response()->json(['status' => true, 'message' => 'Log activity added successfully', 'data' => $log]);
         } catch (\Exception $e) {
             return response()->json(['status' => false, 'message' => 'Failed to add log activity', 'error' => $e->getMessage()], 500);
