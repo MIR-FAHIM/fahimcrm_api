@@ -67,7 +67,7 @@ class UserController extends Controller
                 'designation_id' => $request->designation_id,
                 'isActive' => $request->isActive ?? true,
                 'photo' => $request->photo,
-                'bio' => $request->bio,
+                'bio' => $request->bio ?? 'No Bio Added',
                 'fcm_token' => $request->fcm_token,
                 'app_token' => $request->app_token,
                 'start_hour' => $request->start_hour,
