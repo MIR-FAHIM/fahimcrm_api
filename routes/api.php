@@ -58,6 +58,7 @@ use App\Http\Controllers\OpportunityController;
 use App\Http\Controllers\ModulepermissionController;
 use App\Http\Controllers\UserActivityTrackerController;
 use App\Http\Controllers\VisitController;
+use App\Http\Controllers\ApiErrorLogController;
 
 
 
@@ -483,6 +484,16 @@ Route::prefix('project-features')->group(function () {
     Route::delete('/delete-feature/{id}',     [ProjectFeaturesController::class, 'deleteFeature']);           // delete
 });
 Route::get('projects/features/{id}', [ProjectFeaturesController::class, 'getProjectFeatureByProject']);
+
+// API Error Logs
+Route::prefix('error-logs')->group(function () {
+    Route::get('/', [ApiErrorLogController::class, 'index']);
+    Route::post('/', [ApiErrorLogController::class, 'store']);
+    Route::delete('/clear', [ApiErrorLogController::class, 'clearLogs']);
+    Route::get('/{id}', [ApiErrorLogController::class, 'show']);
+    Route::patch('/{id}/resolve', [ApiErrorLogController::class, 'toggleResolve']);
+    Route::delete('/{id}', [ApiErrorLogController::class, 'destroy']);
+});
 });
 
 //visit

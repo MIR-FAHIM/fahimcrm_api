@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use App\Services\ApiErrorLogService;
 
 use Illuminate\Support\Str;
 
@@ -82,6 +83,7 @@ class UserController extends Controller
                 'data' => $user,
             ], 201);
         } catch (\Exception $e) {
+            ApiErrorLogService::logException($e, $request);
             return response()->json([
                 'status' => 'error',
                 'message' => 'An error occurred while registering employee',
@@ -191,67 +193,73 @@ class UserController extends Controller
     }
     public function login(Request $request)
     {
-        // Validate incoming request
-        $validator = Validator::make($request->all(), [
-            'email' => 'nullable|email',
-            'phone' => 'nullable|string',
-            'password' => 'required|string|min:6',
-        ]);
+        try {
+            // Validate incoming request
+            $validator = Validator::make($request->all(), [
+                'email' => 'nullable|email',
+                'phone' => 'nullable|string',
+                'password' => 'required|string|min:6',
+            ]);
 
-        if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], 400);
+            if ($validator->fails()) {
+                ApiErrorLogService::logError('Login validation failed', 400, null, $request);
+                return response()->json(['error' => $validator->errors()], 400);
+            }
+
+            // Check if email or phone exists in the database
+            $user = null;
+            if ($request->has('email')) {
+                $user = User::where('email', $request->email)->first();
+            }
+
+            if (!$user && $request->has('phone')) {
+                $user = User::where('phone', $request->phone)->first();
+            }
+
+            // Check if user exists
+            if (!$user) {
+                ApiErrorLogService::logError('User not found during login', 404, null, $request);
+                return response()->json(['error' => 'User not found'], 404);
+            }
+
+            // Check if password is correct
+            if (!Hash::check($request->password, $user->password)) {
+                ApiErrorLogService::logError('Invalid login credentials', 401, null, $request, ['user_id' => $user->id]);
+                return response()->json(['error' => 'Invalid credentials'], 401);
+            }
+
+            // Generate a token for the authenticated user
+            $token = uniqid('prefix_', true);
+
+            // Assign the token to the user's token attribute
+            $user->app_token = $token;
+
+            if ($request->filled('fcm_token')) {
+                $user->fcm_token = $request->fcm_token;
+            }
+
+            // Save the user model with the new token
+            $user->save();
+            $activity = UserActivityTracker::create([
+                'activity_name' => 'login',
+                'user_id' => $user->id,
+                'details' => 'User logged in',
+                'type' => 'auth',
+            ]);
+
+            return response()->json(
+                [
+                    'status' => 200,
+                    'message' => 'Login successful',
+                    'user' => $user,
+                    'token' => $token
+                ],
+                200
+            );
+        } catch (\Exception $e) {
+            ApiErrorLogService::logException($e, $request);
+            return response()->json(['error' => 'An error occurred during login', 'details' => $e->getMessage()], 500);
         }
-
-        // Check if email or phone exists in the database
-        $user = null;
-        if ($request->has('email')) {
-            $user = User::where('email', $request->email)->first();
-        }
-
-        if (!$user && $request->has('phone')) {
-            $user = User::where('phone', $request->phone)->first();
-        }
-
-        // Check if user exists
-        if (!$user) {
-            return response()->json(['error' => 'User not found'], 404);
-        }
-
-        // Check if password is correct
-        if (!Hash::check($request->password, $user->password)) {
-            return response()->json(['error' => 'Invalid credentials'], 401);
-        }
-
-        // Generate a token for the authenticated user
-        // Generate a unique token
-        $token = uniqid('prefix_', true);
-
-        // Assign the token to the user's token attribute
-        $user->app_token = $token;
-
-
-        if ($request->filled('fcm_token')) {
-            $user->fcm_token = $request->fcm_token;
-        }
-
-        // Save the user model with the new token
-        $user->save();
-        $activity = UserActivityTracker::create([
-            'activity_name' => 'login',
-
-            'user_id' => $user->id,
-            'details' => 'User logged in',
-            'type' => 'auth',
-        ]);
-        return response()->json(
-            [
-                'status' => 200,
-                'message' => 'Login successful',
-                'user' => $user,
-                'token' => $token
-            ],
-            200
-        );
     }
 
     public function logout(Request $request)
@@ -650,6 +658,7 @@ class UserController extends Controller
 
             // Check if the current password matches the stored password
             if (!Hash::check($request->current_password, $user->password)) {
+                ApiErrorLogService::logError('Current password is incorrect', 400, null, $request, ['user_id' => $user->id]);
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Current password is incorrect',
@@ -665,6 +674,7 @@ class UserController extends Controller
                 'message' => 'Password updated successfully',
             ], 200);
         } catch (\Exception $e) {
+            ApiErrorLogService::logException($e, $request);
             return response()->json([
                 'status' => 'error',
                 'message' => 'An error occurred while changing the password',

@@ -15,6 +15,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use App\Services\ApiErrorLogService;
 
 class VisitController extends Controller
 {
@@ -349,18 +350,24 @@ class VisitController extends Controller
             if ($request->filled('employee_id') && (int) $request->employee_id !== (int) $visit->employee_id) {
                 DB::rollBack();
 
+                $msg = 'You are not allowed to start this visit.';
+                ApiErrorLogService::logError($msg, 403, null, $request);
+
                 return response()->json([
                     'status' => 'failed',
-                    'message' => 'You are not allowed to start this visit.',
+                    'message' => $msg,
                 ], 403);
             }
 
             if ($visit->actual_end_at) {
                 DB::rollBack();
 
+                $msg = 'Completed visits cannot be started again.';
+                ApiErrorLogService::logError($msg, 400, null, $request);
+
                 return response()->json([
                     'status' => 'failed',
-                    'message' => 'Completed visits cannot be started again.',
+                    'message' => $msg,
                 ], 400);
             }
 
@@ -370,9 +377,12 @@ class VisitController extends Controller
             if (!$relation || !$task) {
                 DB::rollBack();
 
+                $msg = 'Related visit task not found.';
+                ApiErrorLogService::logError($msg, 404, null, $request);
+
                 return response()->json([
                     'status' => 'failed',
-                    'message' => 'Related visit task not found.',
+                    'message' => $msg,
                 ], 404);
             }
 
@@ -381,9 +391,12 @@ class VisitController extends Controller
             if (!$inProgressStatusId) {
                 DB::rollBack();
 
+                $msg = 'In Progress task status not found. Please create a task status named In Progress first.';
+                ApiErrorLogService::logError($msg, 400, null, $request);
+
                 return response()->json([
                     'status' => 'failed',
-                    'message' => 'In Progress task status not found. Please create a task status named In Progress first.',
+                    'message' => $msg,
                 ], 400);
             }
 
@@ -431,6 +444,7 @@ class VisitController extends Controller
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
+            ApiErrorLogService::logException($e, $request);
 
             return response()->json([
                 'status' => 'error',
@@ -464,18 +478,24 @@ class VisitController extends Controller
             if ($request->filled('employee_id') && (int) $request->employee_id !== (int) $visit->employee_id) {
                 DB::rollBack();
 
+                $msg = 'You are not allowed to complete this visit.';
+                ApiErrorLogService::logError($msg, 403, null, $request);
+
                 return response()->json([
                     'status' => 'failed',
-                    'message' => 'You are not allowed to complete this visit.',
+                    'message' => $msg,
                 ], 403);
             }
 
             if ($visit->actual_end_at) {
                 DB::rollBack();
 
+                $msg = 'This visit is already completed.';
+                ApiErrorLogService::logError($msg, 400, null, $request);
+
                 return response()->json([
                     'status' => 'failed',
-                    'message' => 'This visit is already completed.',
+                    'message' => $msg,
                 ], 400);
             }
 
@@ -485,9 +505,12 @@ class VisitController extends Controller
             if (!$relation || !$task) {
                 DB::rollBack();
 
+                $msg = 'Related visit task not found.';
+                ApiErrorLogService::logError($msg, 404, null, $request);
+
                 return response()->json([
                     'status' => 'failed',
-                    'message' => 'Related visit task not found.',
+                    'message' => $msg,
                 ], 404);
             }
 
@@ -496,9 +519,12 @@ class VisitController extends Controller
             if (!$completedStatusId) {
                 DB::rollBack();
 
+                $msg = 'Completed task status not found. Please create a task status named Completed first.';
+                ApiErrorLogService::logError($msg, 400, null, $request);
+
                 return response()->json([
                     'status' => 'failed',
-                    'message' => 'Completed task status not found. Please create a task status named Completed first.',
+                    'message' => $msg,
                 ], 400);
             }
 
@@ -569,6 +595,7 @@ class VisitController extends Controller
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
+            ApiErrorLogService::logException($e, $request);
 
             return response()->json([
                 'status' => 'error',

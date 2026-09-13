@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use App\Services\ApiErrorLogService;
 
 class ProspectController extends Controller
 {
@@ -84,6 +85,7 @@ class ProspectController extends Controller
                 ], 201);
             });
         } catch (Exception $e) {
+            ApiErrorLogService::logException($e, $request);
             Log::error('Create Prospect Error: ' . $e->getMessage(), [
                 'trace' => $e->getTraceAsString(),
             ]);
@@ -492,6 +494,7 @@ class ProspectController extends Controller
                 'data' => $prospect,
             ]);
         } catch (Exception $e) {
+            ApiErrorLogService::logException($e, $request);
             Log::error('Change Prospect Stage Error: ' . $e->getMessage());
 
             return response()->json([

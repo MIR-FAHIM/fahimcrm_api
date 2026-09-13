@@ -4,6 +4,8 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use App\Http\Middleware\CheckAppToken;
+use App\Services\ApiErrorLogService;
+
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
@@ -16,5 +18,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->append(CheckAppToken::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        $exceptions->reportable(function (\Throwable $e) {
+            $request = request();
+            if ($request && ($request->is('api/*') || $request->expectsJson() || $request->wantsJson())) {
+                ApiErrorLogService::logException($e, $request);
+            }
+        });
     })->create();

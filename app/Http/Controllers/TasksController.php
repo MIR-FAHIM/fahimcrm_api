@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\TaskActivityController;
 use App\Services\FirebaseNotificationService;
+use App\Services\ApiErrorLogService;
 class TasksController extends Controller
 {
     protected $notificationController;
@@ -154,7 +155,7 @@ $department = Department::find($id);
                 'data' => $prospect,
             ]);
         } catch (Exception $e) {
-           
+            ApiErrorLogService::logException($e, $request);
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to update task',
@@ -428,6 +429,7 @@ $department = Department::find($id);
             ], 200); // Return created response with status code 201
            
         } catch (Exception $e) {
+            ApiErrorLogService::logException($e, $request);
             // Catch any exception and return a response with status code 500
             return response()->json([
                 'status' => 'error',

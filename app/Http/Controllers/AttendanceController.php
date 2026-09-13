@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
+use App\Services\ApiErrorLogService;
 
 class AttendanceController extends Controller
 {
@@ -262,18 +263,16 @@ class AttendanceController extends Controller
                 'attendance' => $attendance
             ], 200);
         } catch (\Exception $e) {
-            // Log the exception error message for debugging
+            ApiErrorLogService::logException($e, $request);
             return response()->json([
                 'status' => 'fail',
-                 'success' => false,
+                'success' => false,
                 'message' => $e->getMessage()
             ], 500);
         }
     }
 
-
     public function updateAttendance(Request $request)
-    {
         try {
             // Validate request
             $request->validate([
@@ -410,13 +409,13 @@ class AttendanceController extends Controller
                 'attendance' => $attendance
             ], 200);
         } catch (\Exception $e) {
+            ApiErrorLogService::logException($e, $request);
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 
     // Get Attendances by Date
     public function getAttendancesByDate(Request $request)
-    {
         try {
             // Validate the date input
             $request->validate([

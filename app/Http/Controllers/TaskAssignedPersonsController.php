@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\NotificationController;
 use App\Services\FirebaseNotificationService;
+use App\Services\ApiErrorLogService;
 class TaskAssignedPersonsController extends Controller
 {
     protected $notificationController;
@@ -69,8 +70,9 @@ class TaskAssignedPersonsController extends Controller
                 'status'=>'success',
                 'message' => 'Employee assigned successfully', 'data' => $assignment], 200);
         } catch (\Exception $e) {
+            ApiErrorLogService::logException($e, $request);
             return response()->json([
-                'status'=>'success',
+                'status'=>'error',
                 'error'   => 'Something went wrong', 'message' => $e->getMessage()], 500);
         }
     }
