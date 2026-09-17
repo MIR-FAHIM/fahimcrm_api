@@ -6,23 +6,23 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->boolean('is_dark_mode')->default(false)->after('end_min');
-        });
+        if (!Schema::hasColumn('users', 'is_dark_mode')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->boolean('is_dark_mode')
+                    ->default(false)
+                    ->after('end_min');
+            });
+        }
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('is_dark_mode');
-        });
+        if (Schema::hasColumn('users', 'is_dark_mode')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->dropColumn('is_dark_mode');
+            });
+        }
     }
 };
