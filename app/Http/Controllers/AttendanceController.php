@@ -273,6 +273,7 @@ class AttendanceController extends Controller
     }
 
     public function updateAttendance(Request $request)
+    {
         try {
             // Validate request
             $request->validate([
