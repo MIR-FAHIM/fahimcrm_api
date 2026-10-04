@@ -16,7 +16,7 @@ class AttendanceController extends Controller
     protected $notificationController;
     // Check-in API endpoint
 
-    public function __construct(NotificationController $notificationController,)
+    public function __construct(NotificationController $notificationController)
     {
         $this->notificationController = $notificationController;
     }
@@ -262,7 +262,7 @@ class AttendanceController extends Controller
                 'attendance_method' => $method,
                 'attendance' => $attendance
             ], 200);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             ApiErrorLogService::logException($e, $request);
             return response()->json([
                 'status' => 'fail',
@@ -417,6 +417,7 @@ class AttendanceController extends Controller
 
     // Get Attendances by Date
     public function getAttendancesByDate(Request $request)
+    {
         try {
             // Validate the date input
             $request->validate([
