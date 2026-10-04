@@ -7,6 +7,29 @@ use App\Models\NoticeBoard;
 
 class NoticeBoardController extends Controller
 {
+    private function noticeData(Request $request): array
+    {
+        $data = $request->only([
+            'title',
+            'notice',
+            'created_by',
+            'type',
+            'color_code',
+            'start_date',
+            'end_date',
+        ]);
+
+        if ($request->has('is_active')) {
+            $data['is_active'] = $request->boolean('is_active');
+        }
+
+        if ($request->has('highlight')) {
+            $data['highlight'] = $request->boolean('highlight');
+        }
+
+        return $data;
+    }
+
     public function getAllNotices()
     {
         try {
@@ -37,7 +60,7 @@ class NoticeBoardController extends Controller
             ]);
         }
 
-        $notice->update($request->all());
+        $notice->update($this->noticeData($request));
 
         return response()->json([
             'status' => 'success',
@@ -80,17 +103,7 @@ public function deleteNotice(Request $request)
     public function addNotice(Request $request)
     {
         try {
-            $data = $request->only([
-                'title',
-                'notice',
-                'created_by',
-                'type',
-                'is_active',
-                'highlight',
-                'color_code',
-                'start_date',
-                'end_date',
-            ]);
+            $data = $this->noticeData($request);
 
             $notice = NoticeBoard::create($data);
 

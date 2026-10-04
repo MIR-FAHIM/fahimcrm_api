@@ -232,7 +232,7 @@ class AttendanceController extends Controller
             if ($existingAttendance) {
                 return response()->json([
                     'status' => 'failed',
-                     'success' => false,
+                    'success' => false,
                     'message' => 'You have already checked in today.',
                     'attendance' => $existingAttendance
                 ], 400); // Respond with a 400 Bad Request status
