@@ -16,7 +16,17 @@ class CheckAppToken
      */
     public function handle(Request $request, Closure $next)
     {
-        if ($request->is('api/external/tickets/webhook') || $request->is('external/tickets/webhook')) {
+        if (
+            $request->is('api/app-version/latest*') ||
+            $request->is('app-version/latest*') ||
+            $request->is('api/login*') ||
+            $request->is('login*') ||
+            $request->is('api/external/tickets/webhook*') ||
+            $request->is('external/tickets/webhook*') ||
+            $request->is('api/sheet/lead*') ||
+            $request->is('sheet/lead*') ||
+            $request->is('up')
+        ) {
             return $next($request);
         }
 

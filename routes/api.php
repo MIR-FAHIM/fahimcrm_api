@@ -67,6 +67,7 @@ use App\Http\Controllers\AppVersionController;
 use App\Http\Middleware\CheckAppToken;
 
 Route::post('/external/tickets/webhook', [ClientTicketController::class, 'externalTicketWebhook'])->withoutMiddleware([CheckAppToken::class]);
+Route::get('/app-version/latest', [AppVersionController::class, 'getLatestAppVersion'])->withoutMiddleware([CheckAppToken::class]);
 
 
 
@@ -397,7 +398,6 @@ Route::post('/update-notice', [NoticeBoardController::class, 'updateNotice']);
 
 // App versions
 Route::get('/app-version/all', [AppVersionController::class, 'getAllAppVersions']);
-Route::get('/app-version/latest', [AppVersionController::class, 'getLatestAppVersion'])->withoutMiddleware([CheckAppToken::class]);
 Route::get('/app-version/{id}', [AppVersionController::class, 'getAppVersionById'])->whereNumber('id');
 Route::post('/app-version/add', [AppVersionController::class, 'addAppVersion']);
 Route::post('/app-version/update/{id}', [AppVersionController::class, 'updateAppVersion'])->whereNumber('id');
