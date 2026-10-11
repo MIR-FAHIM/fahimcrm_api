@@ -59,6 +59,7 @@ use App\Http\Controllers\ModulepermissionController;
 use App\Http\Controllers\UserActivityTrackerController;
 use App\Http\Controllers\VisitController;
 use App\Http\Controllers\ApiErrorLogController;
+use App\Http\Controllers\AppVersionController;
 
 
 
@@ -393,6 +394,14 @@ Route::post('/notice/add', [NoticeBoardController::class, 'addNotice']);
 Route::get('/notice/all', [NoticeBoardController::class, 'getAllNotices']);
 Route::post('/delete-notice', [NoticeBoardController::class, 'deleteNotice']);
 Route::post('/update-notice', [NoticeBoardController::class, 'updateNotice']);
+
+// App versions
+Route::get('/app-version/all', [AppVersionController::class, 'getAllAppVersions']);
+Route::get('/app-version/latest', [AppVersionController::class, 'getLatestAppVersion']);
+Route::get('/app-version/{id}', [AppVersionController::class, 'getAppVersionById'])->whereNumber('id');
+Route::post('/app-version/add', [AppVersionController::class, 'addAppVersion']);
+Route::post('/app-version/update/{id}', [AppVersionController::class, 'updateAppVersion'])->whereNumber('id');
+Route::post('/app-version/delete/{id}', [AppVersionController::class, 'deleteAppVersion'])->whereNumber('id');
 
 
 //   FeatureListController
