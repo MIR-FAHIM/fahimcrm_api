@@ -34,7 +34,7 @@ class ApiErrorLogService
                 ?? ($extraData['user_id'] ?? null);
 
             $requestData = $request
-                ? $request->except(['password', 'password_confirmation', 'token', 'secret', 'auth_token'])
+                ? $request->except(['password', 'password_confirmation', 'token', 'secret', 'auth_token', 'otp', 'code'])
                 : [];
 
             if (isset($extraData['request_data']) && is_array($extraData['request_data'])) {
@@ -85,7 +85,7 @@ class ApiErrorLogService
                 ?? ($extraData['user_id'] ?? null);
 
             $requestData = $request
-                ? $request->except(['password', 'password_confirmation', 'token', 'secret', 'auth_token'])
+                ? $request->except(['password', 'password_confirmation', 'token', 'secret', 'auth_token', 'otp', 'code'])
                 : [];
 
             if (isset($extraData['request_data']) && is_array($extraData['request_data'])) {

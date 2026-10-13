@@ -21,6 +21,10 @@ class CheckAppToken
             $request->is('app-version/latest*') ||
             $request->is('api/login*') ||
             $request->is('login*') ||
+            $request->is('api/forgot-password*') ||
+            $request->is('forgot-password*') ||
+            $request->is('api/reset-password*') ||
+            $request->is('reset-password*') ||
             $request->is('api/external/tickets/webhook*') ||
             $request->is('external/tickets/webhook*') ||
             $request->is('api/sheet/lead*') ||

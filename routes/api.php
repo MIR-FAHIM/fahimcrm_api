@@ -60,6 +60,7 @@ use App\Http\Controllers\UserActivityTrackerController;
 use App\Http\Controllers\VisitController;
 use App\Http\Controllers\ApiErrorLogController;
 use App\Http\Controllers\AppVersionController;
+use App\Http\Controllers\PasswordResetOtpController;
 
 
 
@@ -68,6 +69,8 @@ use App\Http\Middleware\CheckAppToken;
 
 Route::post('/external/tickets/webhook', [ClientTicketController::class, 'externalTicketWebhook'])->withoutMiddleware([CheckAppToken::class]);
 Route::get('/app-version/latest', [AppVersionController::class, 'getLatestAppVersion'])->withoutMiddleware([CheckAppToken::class]);
+Route::post('/forgot-password', [PasswordResetOtpController::class, 'forgotPassword'])->withoutMiddleware([CheckAppToken::class]);
+Route::post('/reset-password', [PasswordResetOtpController::class, 'resetPassword'])->withoutMiddleware([CheckAppToken::class]);
 
 
 
