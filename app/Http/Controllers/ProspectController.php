@@ -8,6 +8,7 @@ use App\Models\Client;
 use Carbon\Carbon;
 use App\Models\ProspectLogActivity;
 use App\Models\Prospect;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Exception;
 use Illuminate\Support\Facades\Log;
@@ -16,6 +17,17 @@ use App\Services\ApiErrorLogService;
 
 class ProspectController extends Controller
 {
+    private function currentEmployeeId(Request $request): ?int
+    {
+        $token = $request->header('token');
+
+        if (!$token) {
+            return null;
+        }
+
+        return User::where('app_token', $token)->value('id');
+    }
+
     public function createProspect(Request $request)
     {
         try {
@@ -101,9 +113,15 @@ class ProspectController extends Controller
     public function getAllProspect(Request $request)
     {
         try {
+            $employeeId = $this->currentEmployeeId($request);
+            if ($employeeId === null) {
+                return response()->json(['status' => 450, 'message' => 'Invalid app token'], 450);
+            }
+
             $query = Prospect::query()
                 ->where('is_active', 1)
                 ->where('type', 'prospect')
+                ->assignedToEmployee($employeeId)
                 ->with([
                     'stage',
                     'industryType',
@@ -186,6 +204,7 @@ class ProspectController extends Controller
                 'activity_type',
                 DB::raw('count(*) as count')
             )
+                ->whereIn('prospect_id', $prospects->modelKeys())
                 ->groupBy('prospect_id', 'activity_type')
                 ->get()
                 ->groupBy('prospect_id');
@@ -405,10 +424,20 @@ class ProspectController extends Controller
         }
     }
 
-    public function getAllProspectStageOverview()
+    public function getAllProspectStageOverview(Request $request)
     {
         try {
-            $data = ProspectStage::withCount(['prospects'])->get();
+            $employeeId = $this->currentEmployeeId($request);
+            if ($employeeId === null) {
+                return response()->json(['status' => 450, 'message' => 'Invalid app token'], 450);
+            }
+
+            $data = ProspectStage::withCount([
+                'prospects' => fn ($prospects) => $prospects
+                    ->where('is_active', 1)
+                    ->where('type', 'prospect')
+                    ->assignedToEmployee($employeeId),
+            ])->get();
 
             return response()->json([
                 'status' => 'success',

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class Prospect extends Model
@@ -71,6 +72,13 @@ class Prospect extends Model
     public function teamMembers()
     {
         return $this->hasMany(ProspectConcernPersonTeam::class, 'prospect_id');
+    }
+
+    public function scopeAssignedToEmployee(Builder $query, int $employeeId): Builder
+    {
+        return $query->whereHas('teamMembers', function (Builder $members) use ($employeeId) {
+            $members->where('employee_id', $employeeId)->where('is_active', true);
+        });
     }
 
     public function interestedFor()
