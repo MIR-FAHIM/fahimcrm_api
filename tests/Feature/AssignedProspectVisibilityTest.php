@@ -114,6 +114,7 @@ class AssignedProspectVisibilityTest extends TestCase
 
         $headers = ['token' => $employee->app_token];
         $this->getJson('/api/get-all-prospect', $headers)->assertOk()->assertJsonPath('data', []);
+        $this->getJson('/api/get-prospect-by-stage', $headers)->assertOk()->assertJsonPath('data', []);
         $this->getJson('/api/get-prospect-stage-overview', $headers)->assertOk()
             ->assertJsonPath('data.0.prospects_count', 0);
     }
@@ -164,7 +165,7 @@ class AssignedProspectVisibilityTest extends TestCase
             ->assertOk()->assertJsonCount(1, 'data');
     }
 
-    public function test_admin_and_super_admin_also_require_assignment_on_these_two_endpoints(): void
+    public function test_admin_and_super_admin_also_require_assignment_on_the_prospect_endpoints(): void
     {
         $other = $this->employee();
         $stage = ProspectStage::create(['stage_name' => 'New']);
@@ -179,6 +180,8 @@ class AssignedProspectVisibilityTest extends TestCase
                 ->assertJsonCount(1, 'data')->assertJsonPath('data.0.id', $own->id);
             $this->getJson('/api/get-prospect-stage-overview', $headers)->assertOk()
                 ->assertJsonPath('data.0.prospects_count', 1);
+            $this->getJson('/api/get-prospect-by-stage', $headers)->assertOk()
+                ->assertJsonCount(1, 'data.New')->assertJsonPath('data.New.0.id', $own->id);
             $this->getJson('/api/prospect-concern-person/admin/prospects', $headers)->assertOk()
                 ->assertJsonPath('pagination.total', $roleName === 'Admin' ? 2 : 3);
         }
@@ -194,17 +197,47 @@ class AssignedProspectVisibilityTest extends TestCase
         $this->getJson('/api/get-all-prospect', $headers)->assertOk()->assertJsonCount(1, 'data');
         ProspectConcernPersonTeam::where('employee_id', $employee->id)->update(['is_active' => false]);
         $this->getJson('/api/get-all-prospect', $headers)->assertOk()->assertJsonPath('data', []);
+        $this->getJson('/api/get-prospect-by-stage', $headers)->assertOk()->assertJsonPath('data', []);
         $this->getJson('/api/get-prospect-stage-overview', $headers)->assertOk()
             ->assertJsonPath('data.0.prospects_count', 0);
         ProspectConcernPersonTeam::where('employee_id', $employee->id)->delete();
         $this->getJson('/api/get-all-prospect', $headers)->assertOk()->assertJsonPath('data', []);
+        $this->getJson('/api/get-prospect-by-stage', $headers)->assertOk()->assertJsonPath('data', []);
     }
 
-    public function test_both_endpoints_reject_missing_or_invalid_tokens(): void
+    public function test_prospect_endpoints_reject_missing_or_invalid_tokens(): void
     {
-        foreach (['/api/get-all-prospect', '/api/get-prospect-stage-overview'] as $endpoint) {
+        foreach (['/api/get-all-prospect', '/api/get-prospect-stage-overview', '/api/get-prospect-by-stage'] as $endpoint) {
             $this->getJson($endpoint)->assertStatus(450);
             $this->getJson($endpoint, ['token' => 'invalid-token'])->assertStatus(450);
         }
+    }
+
+    public function test_stage_grouped_list_only_includes_current_employees_active_assignments(): void
+    {
+        $employee = $this->employee();
+        $other = $this->employee();
+        $new = ProspectStage::create(['stage_name' => 'New']);
+        $qualified = ProspectStage::create(['stage_name' => 'Qualified']);
+        $visible = $this->prospect(['stage_id' => $new->id]);
+        $unknownStage = $this->prospect();
+        $this->assign($visible, $employee);
+        $this->assign($visible, $employee);
+        $this->assign($unknownStage, $employee);
+        $this->assign($this->prospect(['stage_id' => $new->id]), $other);
+        $this->assign($this->prospect(['stage_id' => $qualified->id]), $other);
+        $this->assign($this->prospect(['stage_id' => $new->id]), $employee, false);
+        $this->assign($this->prospect(['stage_id' => $new->id, 'is_active' => 0]), $employee);
+        $this->assign($this->prospect(['stage_id' => $new->id, 'type' => 'warehouse']), $employee);
+        ProspectLogActivity::create(['prospect_id' => $visible->id, 'activity_type' => 'call']);
+
+        $response = $this->getJson('/api/get-prospect-by-stage?user_id='.$other->id.'&employee_id='.$other->id, [
+            'token' => $employee->app_token,
+        ])->assertOk()->assertJsonPath('status', 'success')
+            ->assertJsonCount(2, 'data')->assertJsonCount(1, 'data.New')
+            ->assertJsonPath('data.New.0.id', $visible->id)
+            ->assertJsonPath('data.New.0.activity_summary.call', 1)
+            ->assertJsonCount(1, 'data.Unknown')->assertJsonPath('data.Unknown.0.id', $unknownStage->id);
+        $this->assertArrayNotHasKey('Qualified', $response->json('data'));
     }
 }

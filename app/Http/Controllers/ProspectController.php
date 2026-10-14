@@ -626,11 +626,17 @@ class ProspectController extends Controller
         }
     }
 
-    public function getProspectByStage()
+    public function getProspectByStage(Request $request)
     {
         try {
-            // Load all prospects with relationships
-            $prospects = Prospect::where('is_active', 1)->where('type', 'prospect')->with('stage', 'industryType', 'zone', 'division', 'district', 'thana', 'concernPersons', 'informationSource', 'interestedFor')->get();
+            $employeeId = $this->currentEmployeeId($request);
+            if ($employeeId === null) {
+                return response()->json(['status' => 450, 'message' => 'Invalid app token'], 450);
+            }
+
+            $prospects = Prospect::where('is_active', 1)->where('type', 'prospect')
+                ->assignedToEmployee($employeeId)
+                ->with('stage', 'industryType', 'zone', 'division', 'district', 'thana', 'concernPersons', 'informationSource', 'interestedFor')->get();
 
             // Activity counts grouped by prospect and activity_type
             $activityCounts = ProspectLogActivity::select(
@@ -638,6 +644,7 @@ class ProspectController extends Controller
                 'activity_type',
                 DB::raw('count(*) as count')
             )
+                ->whereIn('prospect_id', $prospects->modelKeys())
                 ->groupBy('prospect_id', 'activity_type')
                 ->get()
                 ->groupBy('prospect_id');
