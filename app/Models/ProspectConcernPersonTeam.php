@@ -15,6 +15,13 @@ class ProspectConcernPersonTeam extends Model
         'notify',
     ];
 
+    protected $casts = [
+        'prospect_id' => 'integer',
+        'employee_id' => 'integer',
+        'is_active' => 'boolean',
+        'notify' => 'boolean',
+    ];
+
     /**
      * Get the prospect associated with the team member.
      */

@@ -312,6 +312,10 @@ Route::post('/add-influencing-role', [InfluencingRoleController::class, 'addInfl
 Route::get('/influencing-roles', [InfluencingRoleController::class, 'getInfluenceRoles']);
 
 //ProspectConcernPersonTeamController--------------------------
+Route::get('/prospect-concern-person/admin/prospects', [ProspectConcernPersonTeamController::class, 'getAdminProspects']);
+Route::post('/prospect-concern-person/admin/add', [ProspectConcernPersonTeamController::class, 'adminAddConcernPersons']);
+Route::post('/prospect-concern-person/admin/remove', [ProspectConcernPersonTeamController::class, 'adminRemoveConcernPerson']);
+Route::post('/prospect-concern-person/admin/bulk-add', [ProspectConcernPersonTeamController::class, 'bulkAddConcernPerson']);
 Route::post('/prospect-concern-person/add', [ProspectConcernPersonTeamController::class, 'addConcernPersons']);
 Route::get('/prospect-concern-person/{prospect_id}', [ProspectConcernPersonTeamController::class, 'getConcernPersons']);
 Route::post('/prospect-concern-person/remove', [ProspectConcernPersonTeamController::class, 'removeConcernPerson']);

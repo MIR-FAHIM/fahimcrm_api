@@ -68,6 +68,11 @@ class Prospect extends Model
         return $this->hasMany(AddProspectContact::class, 'prospect_id');
     }
 
+    public function teamMembers()
+    {
+        return $this->hasMany(ProspectConcernPersonTeam::class, 'prospect_id');
+    }
+
     public function interestedFor()
     {
         return $this->belongsTo(ProductItem::class, 'interested_for_id');
