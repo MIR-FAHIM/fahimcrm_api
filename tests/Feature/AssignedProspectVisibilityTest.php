@@ -6,8 +6,10 @@ use App\Models\Prospect;
 use App\Models\ProspectConcernPersonTeam;
 use App\Models\ProspectLogActivity;
 use App\Models\ProspectStage;
+use App\Models\ProspectStageChangeLog;
 use App\Models\Role;
 use App\Models\User;
+use App\Models\UserActivityTracker;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Support\Facades\Schema;
@@ -30,11 +32,13 @@ class AssignedProspectVisibilityTest extends TestCase
             'database/migrations/2025_04_10_123849_create_prospects_table.php',
             'database/migrations/2025_04_19_165019_create_prospect_log_activities_table.php',
             'database/migrations/2025_04_20_122059_create_add_prospect_contacts_table.php',
+            'database/migrations/2025_05_10_135929_create_prospect_stage_change_logs_table.php',
             'database/migrations/2025_05_11_124830_create_zones_table.php',
             'database/migrations/2025_05_12_120935_create_prospect_concern_person_teams_table.php',
             'database/migrations/2025_05_17_180015_create_product_items_table.php',
             'database/migrations/2025_07_10_122318_create_user_activity_trackers_table.php',
             'database/migrations/2026_08_09_000000_create_divisions_districts_upazilas_tables.php',
+            'database/migrations/2026_09_07_000000_add_platform_to_user_activity_trackers_table.php',
             'database/migrations/2026_09_13_000000_create_api_error_logs_table.php',
             'database/migrations/2026_10_14_000000_add_lookup_indexes_to_prospect_concern_person_teams_table.php',
         ]];
@@ -239,5 +243,116 @@ class AssignedProspectVisibilityTest extends TestCase
             ->assertJsonPath('data.New.0.activity_summary.call', 1)
             ->assertJsonCount(1, 'data.Unknown')->assertJsonPath('data.Unknown.0.id', $unknownStage->id);
         $this->assertArrayNotHasKey('Qualified', $response->json('data'));
+    }
+
+    public function test_create_prospect_automatically_assigns_authenticated_employee_to_team(): void
+    {
+        $employee = $this->employee();
+        $otherEmployee = $this->employee();
+        $stage = ProspectStage::create(['stage_name' => 'Lead In']);
+
+        $response = $this->postJson('/api/create-prospect', [
+            'prospect_name' => 'Auto Assigned Company',
+            'type' => 'prospect',
+            'stage_id' => $stage->id,
+            'is_active' => true,
+        ], [
+            'token' => $employee->app_token,
+        ])->assertStatus(201)
+            ->assertJsonPath('status', 'success')
+            ->assertJsonPath('data.prospect_name', 'Auto Assigned Company');
+
+        $prospectId = $response->json('data.id');
+
+        $teamMember = ProspectConcernPersonTeam::where('prospect_id', $prospectId)
+            ->where('employee_id', $employee->id)
+            ->first();
+
+        $this->assertNotNull($teamMember);
+        $this->assertTrue($teamMember->is_active);
+        $this->assertFalse($teamMember->notify);
+
+        $stageLog = ProspectStageChangeLog::where('prospect_id', $prospectId)->first();
+        $this->assertNotNull($stageLog);
+        $this->assertEquals($employee->id, $stageLog->changed_by);
+
+        $activity = UserActivityTracker::where('user_id', $employee->id)
+            ->where('activity_name', 'Prospect created')
+            ->first();
+        $this->assertNotNull($activity);
+
+        // Immediately visible to the creator
+        $headers = ['token' => $employee->app_token];
+        $this->getJson('/api/get-all-prospect', $headers)
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.id', $prospectId);
+
+        $this->getJson('/api/get-prospect-by-stage', $headers)
+            ->assertOk()
+            ->assertJsonCount(1, 'data.Lead In')
+            ->assertJsonPath('data.Lead In.0.id', $prospectId);
+
+        $this->getJson('/api/get-prospect-stage-overview', $headers)
+            ->assertOk()
+            ->assertJsonPath('data.0.prospects_count', 1);
+
+        // Not visible to another unassigned employee
+        $otherHeaders = ['token' => $otherEmployee->app_token];
+        $this->getJson('/api/get-all-prospect', $otherHeaders)
+            ->assertOk()
+            ->assertJsonPath('data', []);
+
+        $this->getJson('/api/get-prospect-by-stage', $otherHeaders)
+            ->assertOk()
+            ->assertJsonPath('data', []);
+    }
+
+    public function test_add_prospect_alias_with_created_by_payload_assigns_specified_employee(): void
+    {
+        $creator = $this->employee();
+        $caller = $this->employee();
+
+        $response = $this->postJson('/api/add-prospect', [
+            'prospect_name' => 'Alias Assigned Prospect',
+            'type' => 'prospect',
+            'created_by' => $creator->id,
+            'is_active' => true,
+        ], [
+            'token' => $caller->app_token,
+        ])->assertStatus(201)
+            ->assertJsonPath('status', 'success');
+
+        $prospectId = $response->json('data.id');
+
+        $this->assertDatabaseHas('prospect_concern_person_teams', [
+            'prospect_id' => $prospectId,
+            'employee_id' => $creator->id,
+            'is_active' => true,
+        ]);
+    }
+
+    public function test_create_prospect_with_user_id_payload_assigns_specified_employee(): void
+    {
+        $creator = $this->employee();
+        $caller = $this->employee();
+
+        $response = $this->postJson('/api/create-prospect', [
+            'prospect_name' => 'User Id Assigned Prospect',
+            'type' => 'prospect',
+            'user_id' => $creator->id,
+            'is_active' => true,
+        ], [
+            'token' => $caller->app_token,
+        ])->assertStatus(201)
+            ->assertJsonPath('status', 'success');
+
+        $prospectId = $response->json('data.id');
+
+        $this->assertDatabaseHas('prospect_concern_person_teams', [
+            'prospect_id' => $prospectId,
+            'employee_id' => $creator->id,
+            'is_active' => true,
+        ]);
     }
 }

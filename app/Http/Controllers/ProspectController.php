@@ -8,6 +8,7 @@ use App\Models\Client;
 use Carbon\Carbon;
 use App\Models\ProspectLogActivity;
 use App\Models\Prospect;
+use App\Models\ProspectConcernPersonTeam;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Exception;
@@ -61,15 +62,38 @@ class ProspectController extends Controller
 
                 $prospect->save();
 
-                // Log initial stage (keep history rather than upsert)
-                ProspectStageChangeLog::create([
-                    'prospect_id' => $prospect->id,
-                    'old_stage'   => null,
-                    'new_stage'   => $prospect->stage_id,
-                    'changed_by'  =>  1,
-                    'created_at'  => Carbon::now(),
-                    'updated_at'  => Carbon::now(),
-                ]);
+                $creatorId = $request->input('created_by')
+                    ?? $request->input('user_id')
+                    ?? $this->currentEmployeeId($request);
+
+                if ($creatorId !== null) {
+                    $creatorId = (int) $creatorId;
+                }
+
+                if ($creatorId && User::where('id', $creatorId)->exists()) {
+                    ProspectConcernPersonTeam::firstOrCreate(
+                        [
+                            'prospect_id' => $prospect->id,
+                            'employee_id' => $creatorId,
+                        ],
+                        [
+                            'is_active' => true,
+                            'notify'    => false,
+                        ]
+                    );
+                }
+
+                // Log initial stage if provided (keep history rather than upsert)
+                if ($prospect->stage_id) {
+                    ProspectStageChangeLog::create([
+                        'prospect_id' => $prospect->id,
+                        'old_stage'   => null,
+                        'new_stage'   => (string) $prospect->stage_id,
+                        'changed_by'  => $creatorId ?? 1,
+                        'created_at'  => Carbon::now(),
+                        'updated_at'  => Carbon::now(),
+                    ]);
+                }
              
                 if ( $request->input('is_client') === '1') {
                    
@@ -83,7 +107,7 @@ class ProspectController extends Controller
 
                 $this->recordUserActivity(
                     $request,
-                    $request->input('user_id', $request->input('created_by')),
+                    $creatorId,
                     'Prospect created',
                     "Created prospect #{$prospect->id}: {$prospect->prospect_name}",
                     'prospect'
@@ -679,7 +703,10 @@ class ProspectController extends Controller
                 'data' => $groupedByStage,
             ]);
         } catch (Exception $e) {
-
+            ApiErrorLogService::logException($e, $request);
+            Log::error('Get Prospect By Stage Error: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+            ]);
 
             return response()->json([
                 'status' => 'error',

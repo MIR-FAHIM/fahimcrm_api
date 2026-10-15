@@ -233,6 +233,7 @@ Route::get('/get-prospect-source-wise', [ProspectController::class, 'getProspect
 Route::get('/get-warehouse', [ProspectController::class, 'getAllWarehouse']);
 Route::get('/get-prospect-weekly-report', [ProspectController::class, 'getWeeklyOnboardedProspects']);
 Route::post('/create-prospect', [ProspectController::class, 'createProspect']);
+Route::post('/add-prospect', [ProspectController::class, 'createProspect']);
 Route::post('/prospect-bulk-import/preview', [ProspectBulkImportController::class, 'preview']);
 Route::post('/prospect-bulk-import/confirm', [ProspectBulkImportController::class, 'confirm']);
 Route::get('/prospect-bulk-import/history', [ProspectBulkImportController::class, 'history']);
