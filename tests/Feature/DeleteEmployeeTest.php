@@ -8,6 +8,7 @@ use App\Models\Role;
 use App\Models\User;
 use App\Models\UserActivityTracker;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class DeleteEmployeeTest extends TestCase
@@ -19,10 +20,18 @@ class DeleteEmployeeTest extends TestCase
         return ['--path' => [
             'database/migrations/0001_01_01_000000_create_users_table.php',
             'database/migrations/2025_03_11_052346_create_roles_table.php',
+            'database/migrations/2025_03_11_045901_create_departments_table.php',
+            'database/migrations/2025_03_17_140954_create_priorities_table.php',
+            'database/migrations/2025_03_17_141245_create_task_types_table.php',
+            'database/migrations/2025_03_17_141323_create_task_statuses_table.php',
+            'database/migrations/2025_03_17_141523_create_tasks_table.php',
             'database/migrations/2025_03_17_141440_create_task_assigned_persons_table.php',
             'database/migrations/2025_04_10_123849_create_prospects_table.php',
+            'database/migrations/2025_05_11_124830_create_zones_table.php',
             'database/migrations/2025_05_12_120935_create_prospect_concern_person_teams_table.php',
             'database/migrations/2025_07_10_122318_create_user_activity_trackers_table.php',
+            'database/migrations/2025_09_17_113956_create_visits_table.php',
+            'database/migrations/2025_09_17_114645_create_task_visit_relations_table.php',
             'database/migrations/2026_09_07_000000_add_platform_to_user_activity_trackers_table.php',
             'database/migrations/2026_09_13_000000_create_api_error_logs_table.php',
             'database/migrations/2026_10_14_000000_add_lookup_indexes_to_prospect_concern_person_teams_table.php',
@@ -158,5 +167,116 @@ class DeleteEmployeeTest extends TestCase
             ->assertJsonPath('status', 'success');
 
         $this->assertDatabaseMissing('users', ['id' => $target->id]);
+    }
+
+    public function test_super_admin_can_delete_employee_with_visits_and_task_relations(): void
+    {
+        $superAdmin = $this->createUser([], 'Super Admin');
+        $target = $this->createUser(['name' => 'Target Employee'], 'Employee');
+
+        $deptId = DB::table('departments')->insertGetId([
+            'department_name' => 'Sales',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        $priorityId = DB::table('priorities')->insertGetId([
+            'priority_name' => 'High',
+            'color_code' => '#ff0000',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        $taskTypeId = DB::table('task_types')->insertGetId([
+            'type_name' => 'Visit',
+            'department_id' => $deptId,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        $statusId = DB::table('task_statuses')->insertGetId([
+            'status_name' => 'Pending',
+            'department_id' => $deptId,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $taskId = DB::table('tasks')->insertGetId([
+            'task_title' => 'Client Visit',
+            'task_type_id' => $taskTypeId,
+            'department_id' => $deptId,
+            'priority_id' => $priorityId,
+            'status_id' => $statusId,
+            'created_by' => $superAdmin->id,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $visitId = DB::table('visits')->insertGetId([
+            'purpose' => 'Sales demo',
+            'employee_id' => $target->id,
+            'planner_id' => $superAdmin->id,
+            'scheduled_at' => now(),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $relationId = DB::table('task_visit_relations')->insertGetId([
+            'visit_id' => $visitId,
+            'task_id' => $taskId,
+            'status' => 'Pending',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $this->assertDatabaseHas('visits', ['id' => $visitId, 'employee_id' => $target->id]);
+        $this->assertDatabaseHas('task_visit_relations', ['id' => $relationId]);
+
+        $response = $this->deleteJson('/api/delete-employee/' . $target->id, [], [
+            'token' => $superAdmin->app_token,
+        ]);
+
+        $response->assertOk()
+            ->assertJsonPath('status', 'success')
+            ->assertJsonPath('message', 'Employee deleted successfully');
+
+        $this->assertDatabaseMissing('users', ['id' => $target->id]);
+        $this->assertDatabaseMissing('visits', ['id' => $visitId]);
+        $this->assertDatabaseMissing('task_visit_relations', ['id' => $relationId]);
+    }
+
+    public function test_super_admin_can_delete_employee_who_planned_visits_for_others(): void
+    {
+        $superAdmin = $this->createUser([], 'Super Admin');
+        $targetPlanner = $this->createUser(['name' => 'Target Planner'], 'Employee');
+        $otherEmployee = $this->createUser(['name' => 'Field Employee'], 'Employee');
+
+        $visitId = DB::table('visits')->insertGetId([
+            'purpose' => 'Onboarding',
+            'employee_id' => $otherEmployee->id,
+            'planner_id' => $targetPlanner->id,
+            'scheduled_at' => now(),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $this->assertDatabaseHas('visits', [
+            'id' => $visitId,
+            'employee_id' => $otherEmployee->id,
+            'planner_id' => $targetPlanner->id,
+        ]);
+
+        $response = $this->deleteJson('/api/delete-employee/' . $targetPlanner->id, [], [
+            'token' => $superAdmin->app_token,
+        ]);
+
+        $response->assertOk()
+            ->assertJsonPath('status', 'success');
+
+        $this->assertDatabaseMissing('users', ['id' => $targetPlanner->id]);
+        $this->assertDatabaseHas('users', ['id' => $otherEmployee->id]);
+        // The visit itself must be preserved, and its planner reassigned to the Super Admin
+        $this->assertDatabaseHas('visits', [
+            'id' => $visitId,
+            'employee_id' => $otherEmployee->id,
+            'planner_id' => $superAdmin->id,
+        ]);
     }
 }

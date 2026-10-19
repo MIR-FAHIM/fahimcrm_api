@@ -13,6 +13,7 @@ use App\Models\Role;
 use App\Models\Designation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -432,9 +433,114 @@ class UserController extends Controller
             $deletedId = $user->id;
             $deletedName = $user->name;
 
-            DB::transaction(function () use ($user) {
-                ProspectConcernPersonTeam::where('employee_id', $user->id)->delete();
-                DB::table('task_assigned_persons')->where('assigned_person', $user->id)->delete();
+            DB::transaction(function () use ($user, $actor) {
+                // 1. Clean up visits and their task relations
+                if (Schema::hasTable('visits')) {
+                    $employeeVisitIds = DB::table('visits')->where('employee_id', $user->id)->pluck('id');
+                    if ($employeeVisitIds->isNotEmpty()) {
+                        if (Schema::hasTable('task_visit_relations')) {
+                            DB::table('task_visit_relations')->whereIn('visit_id', $employeeVisitIds)->delete();
+                        }
+                        DB::table('visits')->whereIn('id', $employeeVisitIds)->delete();
+                    }
+
+                    // For visits planned by this employee for others, reassign planner to Super Admin
+                    DB::table('visits')->where('planner_id', $user->id)->update(['planner_id' => $actor->id]);
+                }
+
+                // 2. Clean up task visit relations for tasks created by this user
+                if (Schema::hasTable('tasks') && Schema::hasTable('task_visit_relations')) {
+                    $createdTaskIds = DB::table('tasks')->where('created_by', $user->id)->pluck('id');
+                    if ($createdTaskIds->isNotEmpty()) {
+                        DB::table('task_visit_relations')->whereIn('task_id', $createdTaskIds)->delete();
+                    }
+                }
+
+                // 3. Task assignments & task creator reassignments
+                if (Schema::hasTable('task_assigned_persons')) {
+                    DB::table('task_assigned_persons')->where('assigned_person', $user->id)->delete();
+                    DB::table('task_assigned_persons')->where('assigned_by', $user->id)->update(['assigned_by' => $actor->id]);
+                }
+
+                if (Schema::hasTable('tasks')) {
+                    DB::table('tasks')->where('created_by', $user->id)->update(['created_by' => $actor->id]);
+                }
+
+                // 4. Projects created by this employee: reassign creator to Super Admin
+                if (Schema::hasTable('projects')) {
+                    DB::table('projects')->where('created_by', $user->id)->update(['created_by' => $actor->id]);
+                }
+
+                // 5. Project teammates
+                if (Schema::hasTable('project_team_mates')) {
+                    DB::table('project_team_mates')->where('employee_id', $user->id)->delete();
+                }
+
+                // 6. Prospect concern person team
+                if (Schema::hasTable('prospect_concern_person_teams')) {
+                    DB::table('prospect_concern_person_teams')->where('employee_id', $user->id)->delete();
+                }
+
+                // 7. Opportunities
+                if (Schema::hasTable('opportunities')) {
+                    DB::table('opportunities')->where('approved_by', $user->id)->update(['approved_by' => null]);
+                    DB::table('opportunities')->where('created_by', $user->id)->update(['created_by' => $actor->id]);
+                }
+
+                // 8. Employee leaves
+                if (Schema::hasTable('employee_leaves')) {
+                    DB::table('employee_leaves')->where('employee_id', $user->id)->delete();
+                    DB::table('employee_leaves')->where('approved_by', $user->id)->update(['approved_by' => null]);
+                }
+
+                // 9. Meeting sets
+                if (Schema::hasTable('meeting_sets')) {
+                    DB::table('meeting_sets')->where('assign_to', $user->id)->update(['assign_to' => null]);
+                }
+
+                // 10. Chat messages
+                if (Schema::hasTable('chat_messages')) {
+                    DB::table('chat_messages')->where('sender_id', $user->id)->delete();
+                    DB::table('chat_messages')->where('receiver_id', $user->id)->update(['receiver_id' => null]);
+                }
+
+                // 11. Prospect stage logs & activity logs
+                if (Schema::hasTable('prospect_stage_change_logs')) {
+                    DB::table('prospect_stage_change_logs')->where('changed_by', $user->id)->update(['changed_by' => null]);
+                }
+                if (Schema::hasTable('prospect_log_activities')) {
+                    DB::table('prospect_log_activities')->where('created_by', $user->id)->update(['created_by' => null]);
+                }
+
+                // 12. Attendances & Adjustments & Reports
+                if (Schema::hasTable('attendances')) {
+                    DB::table('attendances')->where('user_id', $user->id)->delete();
+                }
+                if (Schema::hasTable('attendance_adjustments')) {
+                    DB::table('attendance_adjustments')->where('user_id', $user->id)->delete();
+                }
+                if (Schema::hasTable('work_reports')) {
+                    DB::table('work_reports')->where('user_id', $user->id)->delete();
+                }
+
+                // 13. Notifications, Permissions, Activity Trackers, OTPs, Error Logs
+                if (Schema::hasTable('user_feature_permissions')) {
+                    DB::table('user_feature_permissions')->where('user_id', $user->id)->delete();
+                }
+                if (Schema::hasTable('user_activity_trackers')) {
+                    DB::table('user_activity_trackers')->where('user_id', $user->id)->delete();
+                }
+                if (Schema::hasTable('notifications')) {
+                    DB::table('notifications')->where('user_id', $user->id)->delete();
+                }
+                if (Schema::hasTable('password_reset_otps')) {
+                    DB::table('password_reset_otps')->where('user_id', $user->id)->delete();
+                }
+                if (Schema::hasTable('api_error_logs')) {
+                    DB::table('api_error_logs')->where('user_id', $user->id)->update(['user_id' => null]);
+                }
+
+                // 14. Finally delete user
                 $user->delete();
             });
 
