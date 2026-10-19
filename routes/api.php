@@ -98,6 +98,7 @@ Route::get('/get-profile', [UserController::class, 'getProfile']);
 Route::post('/change-department/{userId}', [UserController::class, 'changeDepartment']);
 Route::post('/change-role/{userId}', [UserController::class, 'changeRole']);
 Route::post('/change-designation/{userId}', [UserController::class, 'changeDesignation']);
+Route::match(['delete', 'post'], '/delete-employee/{userId}', [UserController::class, 'deleteEmployee'])->whereNumber('userId');
 Route::post('/add-department', [DepartmentController::class, 'addDepartment']);
 Route::get('/get-department', [DepartmentController::class, 'getDepartments']);
 Route::get('/get-department-with-user', [DepartmentController::class, 'getDepartmentsWithEmp']);

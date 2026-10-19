@@ -8,9 +8,11 @@ use App\Models\UserActivityTracker;
 use App\Models\ProjectPhase;
 use App\Models\Tasks;
 use App\Models\Prospect;
+use App\Models\ProspectConcernPersonTeam;
 use App\Models\Role;
 use App\Models\Designation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -396,19 +398,61 @@ class UserController extends Controller
     }
 
     /**
-     * Delete an employee.
+     * Delete an employee (Super Admin only).
      */
-    public function deleteEmployee($userId)
+    public function deleteEmployee(Request $request, $userId)
     {
         try {
-            $user = User::findOrFail($userId);
-            $user->delete();
+            $token = $request->header('token');
+            $actor = $token ? User::with('role')->where('app_token', $token)->first() : null;
+
+            if (! $actor || ! $actor->isActive ||
+                strtolower(trim($actor->role?->role_name ?? '')) !== 'super admin') {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Only active Super Admin users can delete an employee.',
+                ], 403);
+            }
+
+            if ((int) $actor->id === (int) $userId) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'You cannot delete your own account.',
+                ], 400);
+            }
+
+            $user = User::find($userId);
+            if (! $user) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Employee not found.',
+                ], 404);
+            }
+
+            $deletedId = $user->id;
+            $deletedName = $user->name;
+
+            DB::transaction(function () use ($user) {
+                ProspectConcernPersonTeam::where('employee_id', $user->id)->delete();
+                DB::table('task_assigned_persons')->where('assigned_person', $user->id)->delete();
+                $user->delete();
+            });
+
+            $this->recordUserActivity(
+                $request,
+                $actor->id,
+                'Employee deleted',
+                "Deleted employee #{$deletedId}: {$deletedName}",
+                'employee'
+            );
 
             return response()->json([
                 'status' => 'success',
                 'message' => 'Employee deleted successfully',
             ], 200);
         } catch (\Exception $e) {
+            ApiErrorLogService::logException($e, $request);
+
             return response()->json([
                 'status' => 'error',
                 'message' => 'An error occurred while deleting the employee',
